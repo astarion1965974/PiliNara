@@ -5,6 +5,7 @@ import 'package:PiliPlus/models/common/dynamic/up_panel_position.dart';
 import 'package:PiliPlus/models/dynamics/up.dart';
 import 'package:PiliPlus/pages/common/common_page.dart';
 import 'package:PiliPlus/pages/dynamics/controller.dart';
+import 'package:PiliPlus/pages/dynamics/widgets/dynamics_chrome.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/up_panel.dart';
 import 'package:PiliPlus/pages/dynamics_create/view.dart';
 import 'package:PiliPlus/pages/dynamics_tab/view.dart';
@@ -30,27 +31,12 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
   @override
   bool get wantKeepAlive => true;
 
-  Widget _createDynamicBtn(ColorScheme colorScheme, {bool isRight = true}) =>
-      Container(
-        width: 34,
-        height: 34,
-        margin: isRight ? const .only(right: 16) : const .only(left: 16),
-        child: IconButton(
-          tooltip: '发布动态',
-          style: ButtonStyle(
-            padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-            backgroundColor: WidgetStatePropertyAll(
-              colorScheme.secondaryContainer,
-            ),
-          ),
-          onPressed: () => CreateDynPanel.onCreateDyn(context),
-          icon: Icon(
-            Icons.add,
-            size: 18,
-            color: colorScheme.onSecondaryContainer,
-          ),
-        ),
-      );
+  Widget _createDynamicBtn({bool isRight = true}) => DynamicsComposeButton(
+    onPressed: () => CreateDynPanel.onCreateDyn(context),
+    margin: isRight
+        ? const EdgeInsets.only(right: 12)
+        : const EdgeInsets.only(left: 12),
+  );
 
   Widget upPanelPart(ColorScheme colorScheme) {
     final isTop = upPanelPosition == .top;
@@ -139,7 +125,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
             Expanded(child: child),
           ],
         );
-        actions = _createDynamicBtn(colorScheme);
+        actions = _createDynamicBtn();
       case .leftFixed:
         child = Row(
           children: [
@@ -147,7 +133,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
             Expanded(child: child),
           ],
         );
-        actions = _createDynamicBtn(colorScheme);
+        actions = _createDynamicBtn();
       case .rightFixed:
         child = Row(
           children: [
@@ -155,14 +141,14 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
             upPanelPart(colorScheme),
           ],
         );
-        actions = _createDynamicBtn(colorScheme);
+        actions = _createDynamicBtn();
       case .leftDrawer:
         drawer = upPanelPart(colorScheme);
-        actions = _createDynamicBtn(colorScheme);
+        actions = _createDynamicBtn();
         leading = const DrawerButton();
       case .rightDrawer:
         endDrawer = upPanelPart(colorScheme);
-        leading = _createDynamicBtn(colorScheme, isRight: false);
+        leading = _createDynamicBtn(isRight: false);
         actions = const EndDrawerButton();
     }
 
@@ -176,19 +162,8 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
           children: [
             ?leading,
             Expanded(
-              child: TabBar(
-                dividerHeight: 0,
-                isScrollable: true,
-                tabAlignment: .start,
-                dividerColor: Colors.transparent,
-                labelColor: colorScheme.primary,
-                indicatorColor: colorScheme.primary,
+              child: DynamicsTabStrip(
                 controller: _dynamicsController.tabController,
-                unselectedLabelColor: colorScheme.onSurface,
-                labelStyle:
-                    TabBarTheme.of(context).labelStyle
-                        ?.copyWith(fontSize: 13) ??
-                    const TextStyle(fontSize: 13),
                 tabs: DynamicsTabType.values
                     .map((e) => Tab(text: e.label))
                     .toList(),
@@ -209,7 +184,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
       ),
       drawer: drawer,
       endDrawer: endDrawer,
-      body: onBuild(child),
+      body: DynamicsBackground(child: onBuild(child)),
     );
   }
 }
