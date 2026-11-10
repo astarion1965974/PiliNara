@@ -1,5 +1,6 @@
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/models/search/result.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/pages/search_panel/article/controller.dart';
 import 'package:PiliPlus/pages/search_panel/article/widgets/item.dart';
 import 'package:PiliPlus/pages/search_panel/view.dart';
@@ -50,7 +51,7 @@ class _SearchArticlePanelState
   @override
   Widget buildHeader() {
     return SliverFloatingHeaderWidget(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: SearchChrome.background(colorScheme),
       child: Padding(
         padding: const .fromLTRB(25, 0, 12, 4),
         child: Row(
@@ -86,7 +87,7 @@ class _SearchArticlePanelState
                       ? Icons.filter_list
                       : Icons.filter_list_off,
                   size: 18,
-                  color: colorScheme.primary,
+                  color: SearchChrome.accent(colorScheme),
                 )),
               ),
             ),
