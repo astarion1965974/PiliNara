@@ -17,7 +17,7 @@ import 'package:PiliPlus/pages/mine/controller.dart';
 import 'package:PiliPlus/pages/mine/widgets/fav_item.dart';
 import 'package:PiliPlus/pages/mine/widgets/history_item.dart';
 import 'package:PiliPlus/pages/mine/widgets/later_item.dart';
-import 'package:PiliPlus/pages/mine/widgets/sub_item.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/bili_utils.dart';
 import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
@@ -95,8 +95,29 @@ class _MediaPageState extends CommonPageState<MinePage>
                   padding: const .only(bottom: 150),
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
-                    _buildUserInfo(theme, secondary),
-                    _buildActions(secondary),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? theme.colorScheme.surfaceContainerHigh
+                                  .withValues(alpha: 0.92)
+                              : Colors.white.withValues(alpha: 0.94),
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            children: [
+                              _buildUserInfo(theme, secondary),
+                              _buildActions(
+                                VideoDetailChrome.accent(theme.colorScheme),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                     for (final tab in controller.mineTabs)
                       switch (tab) {
                         .favorite => Obx(_buildFav),
@@ -548,48 +569,47 @@ class _MediaPageState extends CommonPageState<MinePage>
         );
     }
     final secondary = theme.colorScheme.secondary;
-    return Column(
-      children: [
-        Divider(
-          height: 20,
-          color: theme.colorScheme.outline.withValues(alpha: 0.1),
-        ),
-        ListTile(
-          dense: true,
-          onTap: onPushDetail,
-          title: Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: '${tab.label}  ',
-                    style: const TextStyle(fontSize: 16, fontWeight: .bold),
-                  ),
-                  if (tabCtr.count != null)
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        children: [
+          ListTile(
+            dense: true,
+            onTap: onPushDetail,
+            title: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text.rich(
+                TextSpan(
+                  children: [
                     TextSpan(
-                      text: '${tabCtr.count}  ',
-                      style: TextStyle(color: secondary),
+                      text: '${tab.label}  ',
+                      style: const TextStyle(fontSize: 16, fontWeight: .bold),
                     ),
-                  WidgetSpan(
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 18,
-                      color: secondary,
+                    if (tabCtr.count != null)
+                      TextSpan(
+                        text: '${tabCtr.count}  ',
+                        style: TextStyle(color: secondary),
+                      ),
+                    WidgetSpan(
+                      child: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 18,
+                        color: secondary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+            trailing: IconButton(
+              tooltip: '刷新',
+              onPressed: tabCtr.onRefresh,
+              icon: const Icon(Icons.refresh, size: 20),
+            ),
           ),
-          trailing: IconButton(
-            tooltip: '刷新',
-            onPressed: tabCtr.onRefresh,
-            icon: const Icon(Icons.refresh, size: 20),
-          ),
-        ),
-        child,
-      ],
+          child,
+        ],
+      ),
     );
   }
 }

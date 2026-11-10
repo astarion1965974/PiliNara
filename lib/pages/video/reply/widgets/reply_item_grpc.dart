@@ -51,6 +51,7 @@ import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/theme_utils.dart';
+import 'package:PiliPlus/utils/reply_location.dart';
 import 'package:PiliPlus/utils/url_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:cached_network_image_ce/cached_network_image.dart';
@@ -101,6 +102,12 @@ class ReplyItemGrpc extends StatelessWidget {
   static final _timeRegExp = RegExp(r'^(?:\d+[:：])?\d+[:：]\d+$');
   static bool enableWordRe = Pref.enableWordRe;
   static int? replyLengthLimit = Pref.replyLengthLimit;
+
+  static String _locationSuffix(ReplyControl control) {
+    if (!control.hasLocation()) return '';
+    final label = replyLocationLabel(control.location);
+    return label.isEmpty ? '' : ' · $label';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +250,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 Flexible(
                   child: Text(
                     ' · ${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
-                    '${replyItem.replyControl.hasLocation() ? ' · ${replyItem.replyControl.location}' : ''}',
+                    '${_locationSuffix(replyItem.replyControl)}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 11, color: scheme.outline),
@@ -348,13 +355,13 @@ class ReplyItemGrpc extends StatelessWidget {
                             format: DateFormatUtils.longFormatDs,
                           )
                         : DateFormatUtils.dateFormat(replyItem.ctime.toInt()),
-                    children: replyItem.replyControl.hasLocation()
-                        ? [
+                    children: _locationSuffix(replyItem.replyControl).isEmpty
+                        ? null
+                        : [
                             TextSpan(
-                              text: ' • ${replyItem.replyControl.location}',
+                              text: _locationSuffix(replyItem.replyControl),
                             ),
-                          ]
-                        : null,
+                          ],
                   ),
                 ),
               ],

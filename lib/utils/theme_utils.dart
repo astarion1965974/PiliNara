@@ -56,17 +56,23 @@ abstract final class ThemeUtils {
       );
     }
 
+    final buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
+      RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    );
     final theme = ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       fontFamily: fontFamily,
       textTheme: textTheme,
+      scaffoldBackgroundColor: isDark
+          ? const Color(0xff141416)
+          : const Color(0xfffff5f7),
       appBarTheme: AppBarTheme(
         elevation: 0,
         titleSpacing: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
-        backgroundColor: colorScheme.surface,
+        backgroundColor: Colors.transparent,
         titleTextStyle: TextStyle(
           fontSize: 16,
           fontWeight: fontWeight,
@@ -114,10 +120,14 @@ abstract final class ThemeUtils {
         controlAffinity: .leading,
       ),
       cardTheme: CardThemeData(
-        elevation: 1,
+        elevation: 0,
         margin: EdgeInsets.zero,
         shadowColor: Colors.transparent,
         surfaceTintColor: isDark ? colorScheme.onSurfaceVariant : null,
+        color: isDark
+            ? colorScheme.surfaceContainerHigh.withValues(alpha: 0.92)
+            : Colors.white.withValues(alpha: 0.94),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
       ),
       progressIndicatorTheme: isDark
           ? ProgressIndicatorThemeData(
@@ -177,10 +187,34 @@ abstract final class ThemeUtils {
         shape: Border(),
         collapsedShape: Border(),
       ),
-      filledButtonTheme: const FilledButtonThemeData(
+      filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
-          shadowColor: WidgetStatePropertyAll(Colors.transparent),
+          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          shape: buttonShape,
         ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+          elevation: const WidgetStatePropertyAll(0),
+          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          shape: buttonShape,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: ButtonStyle(shape: buttonShape),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(shape: buttonShape),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      chipTheme: ChipThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      tabBarTheme: const TabBarThemeData(
+        dividerHeight: 0,
+        indicatorSize: TabBarIndicatorSize.tab,
       ),
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {

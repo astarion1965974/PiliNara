@@ -371,15 +371,7 @@ class _MainAppState extends PopScopeState<MainApp>
     child = Material(
       child: Stack(
         children: [
-          Positioned.fill(
-            child: Obx(() {
-              final index = _mainController.selectedIndex.value;
-              if (_mainController.navigationBars[index] == NavigationBarType.home) {
-                return _homeGradientBg();
-              }
-              return Pref.enableGradientBg ? _gradientBg() : const SizedBox.shrink();
-            }),
-          ),
+          Positioned.fill(child: _homeGradientBg()),
           mainLayout,
         ],
       ),
@@ -413,26 +405,6 @@ class _MainAppState extends PopScopeState<MainApp>
               ? const [Color(0xff2b2025), Color(0xff201c20), Color(0xff141416)]
               : const [Color(0xffffedf3), Color(0xfffff5f7), Color(0xfffdfbfc), Color(0xfff8f9fa)],
           stops: dark ? const [0, 0.45, 1] : const [0, 0.22, 0.55, 1],
-        ),
-      ),
-    );
-  }
-
-  Widget _gradientBg() {
-    return Opacity(
-      opacity: .6,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              _colorScheme.primary.withValues(alpha: .6),
-              _colorScheme.primaryContainer.withValues(alpha: .6),
-              _colorScheme.surface,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [.1, .4, .7],
-          ),
         ),
       ),
     );
