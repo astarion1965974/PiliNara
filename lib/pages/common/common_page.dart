@@ -13,6 +13,9 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
 
   bool get needsCorrection => false;
 
+  /// The collapsible top bar can be taller than the default 52dp bar.
+  double get barScrollExtent => Style.topBarHeight;
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +61,7 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
     _barOffset!.value = clampDouble(
       _barOffset!.value + scrollDelta,
       0.0,
-      Style.topBarHeight,
+      barScrollExtent,
     );
   }
 
@@ -78,7 +81,7 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
         final newValue = clampDouble(
           value + scrollDelta,
           0.0,
-          Style.topBarHeight,
+          barScrollExtent,
         );
         final offset = value - newValue;
         if (offset != 0) {

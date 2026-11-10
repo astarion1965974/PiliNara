@@ -230,7 +230,7 @@ class _MainAppState extends PopScopeState<MainApp>
             () => FractionalTranslation(
               translation: Offset(
                 0.0,
-                barOffset.value / Style.topBarHeight,
+                (barOffset.value / Style.topBarHeight).clamp(0.0, 1.0).toDouble(),
               ),
               child: bottomNav,
             ),
@@ -460,11 +460,20 @@ class _MainAppState extends PopScopeState<MainApp>
       body: Padding(padding: padding, child: child),
     );
     child = Material(
-      child: Pref.enableGradientBg
-          ? Stack(
-              children: [Positioned.fill(child: _gradientBg()), mainLayout],
-            )
-          : mainLayout,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Obx(() {
+              final index = _mainController.selectedIndex.value;
+              if (_mainController.navigationBars[index] == NavigationBarType.home) {
+                return _homeGradientBg();
+              }
+              return Pref.enableGradientBg ? _gradientBg() : const SizedBox.shrink();
+            }),
+          ),
+          mainLayout,
+        ],
+      ),
     );
 
     if (PlatformUtils.isMobile) {
@@ -482,6 +491,22 @@ class _MainAppState extends PopScopeState<MainApp>
     }
 
     return child;
+  }
+
+  Widget _homeGradientBg() {
+    final dark = _colorScheme.brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: dark
+              ? const [Color(0xff2b2025), Color(0xff201c20), Color(0xff141416)]
+              : const [Color(0xffffedf3), Color(0xfffff5f7), Color(0xfffdfbfc), Color(0xfff8f9fa)],
+          stops: dark ? const [0, 0.45, 1] : const [0, 0.22, 0.55, 1],
+        ),
+      ),
+    );
   }
 
   Widget _gradientBg() {

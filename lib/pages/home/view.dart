@@ -1,9 +1,9 @@
 import 'package:PiliPlus/common/style.dart';
-import 'package:PiliPlus/common/widgets/custom_height_widget.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
 import 'package:PiliPlus/pages/common/common_page.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
 import 'package:PiliPlus/pages/mine/controller.dart';
@@ -12,6 +12,7 @@ import 'package:PiliPlus/utils/extension/size_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -31,7 +32,15 @@ class _HomePageState extends CommonPageState<HomePage>
   final _mainController = Get.find<MainController>();
 
   @override
-  bool get needsCorrection => _homeController.hideTopBar;
+  bool get needsCorrection => _homeController.hideTopBar && _hasHomeHeader;
+
+  bool get _hasHomeHeader => !_mainController.useSideBar &&
+      MediaQuery.sizeOf(context).isPortrait;
+
+  @override
+  double get barScrollExtent => _homeController.hideTopBar && _hasHomeHeader
+      ? homeHeaderHeight
+      : Style.topBarHeight;
 
   @override
   bool get wantKeepAlive => true;
@@ -90,7 +99,7 @@ class _HomePageState extends CommonPageState<HomePage>
       if (_homeController.hideTopBar &&
           _mainController.barHideType == .instant) {
         tabBar = Material(
-          color: _colorScheme.surface,
+          type: MaterialType.transparency,
           child: tabBar,
         );
       }
@@ -101,11 +110,7 @@ class _HomePageState extends CommonPageState<HomePage>
       enabled: widget.preview,
       child: Column(
         children: [
-          if (!_mainController.useSideBar &&
-              MediaQuery.sizeOf(context).isPortrait) ...[
-            homeTitleBar(),
-            customAppBar(),
-          ],
+          if (_hasHomeHeader) homeHeader(),
           tabBar,
           Expanded(
             child: onBuild(
@@ -127,15 +132,21 @@ class _HomePageState extends CommonPageState<HomePage>
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              'PiliNara',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: _colorScheme.onSurface,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.5,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: SvgPicture.asset(
+                'assets/images/bilibili_wordmark.svg',
+                width: 95,
+                height: 44,
+                fit: BoxFit.contain,
+                alignment: Alignment.centerLeft,
+                semanticsLabel: 'bilibili',
+                colorFilter: ColorFilter.mode(
+                  _colorScheme.brightness == Brightness.dark
+                      ? const Color(0xffff9db7)
+                      : const Color(0xffd84f78),
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
@@ -147,51 +158,36 @@ class _HomePageState extends CommonPageState<HomePage>
     ),
   );
 
-  Widget customAppBar() {
-    const padding = EdgeInsets.fromLTRB(16, 6, 16, 6);
-    final child = Row(
+  Widget homeHeader() {
+    final header = Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        searchBar(),
+        homeTitleBar(),
+        SizedBox(
+          height: Style.topBarHeight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+            child: Row(children: [searchBar()]),
+          ),
+        ),
       ],
     );
     if (_homeController.hideTopBar) {
       if (_mainController.barOffset case final barOffset?) {
-        return Obx(
-          () {
-            final offset = barOffset.value;
-            return CustomHeightWidget(
-              offset: Offset(0, -offset),
-              height: Style.topBarHeight - offset,
-              child: Padding(
-                padding: padding,
-                child: child,
-              ),
-            );
-          },
-        );
+        return Obx(() => HomeHeaderClip(offset: barOffset.value, child: header));
       }
       if (_homeController.showTopBar case final showTopBar?) {
-        return Obx(() {
-          final showSearchBar = showTopBar.value;
-          return AnimatedOpacity(
-            opacity: showSearchBar ? 1 : 0,
-            duration: const Duration(milliseconds: 300),
-            child: AnimatedContainer(
-              curve: Curves.easeInOutCubicEmphasized,
-              duration: const Duration(milliseconds: 500),
-              height: showSearchBar ? Style.topBarHeight : 0,
-              padding: padding,
-              child: child,
-            ),
-          );
-        });
+        return Obx(() => TweenAnimationBuilder<double>(
+          tween: Tween(end: showTopBar.value ? 0 : homeHeaderHeight),
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOutCubicEmphasized,
+          child: header,
+          builder: (context, offset, child) =>
+              HomeHeaderClip(offset: offset, child: child!),
+        ));
       }
     }
-    return Container(
-      height: Style.topBarHeight,
-      padding: padding,
-      child: child,
-    );
+    return HomeHeaderClip(offset: 0, child: header);
   }
 
   Widget searchBar() {
