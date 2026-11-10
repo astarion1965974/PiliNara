@@ -2,6 +2,7 @@ import 'package:PiliPlus/common/skeleton/msg_feed_top.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/models/search/result.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/pages/search_panel/user/controller.dart';
 import 'package:PiliPlus/pages/search_panel/user/widgets/item.dart';
 import 'package:PiliPlus/pages/search_panel/view.dart';
@@ -48,7 +49,7 @@ class _SearchUserPanelState
   @override
   Widget buildHeader() {
     return SliverFloatingHeaderWidget(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: SearchChrome.background(colorScheme),
       child: Padding(
         padding: const .fromLTRB(25, 0, 12, 4),
         child: Row(
@@ -81,7 +82,7 @@ class _SearchUserPanelState
                 icon: Icon(
                   Icons.filter_list_outlined,
                   size: 18,
-                  color: colorScheme.primary,
+                  color: SearchChrome.accent(colorScheme),
                 ),
               ),
             ),
