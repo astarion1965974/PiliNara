@@ -67,10 +67,24 @@ jobs:
       - name: Set build metadata
         shell: pwsh
         run: lib/scripts/build.ps1 android
+      - name: Set COUI version metadata
+        shell: bash
+        run: |
+          VERSION_CODE="$((100000 + $(git rev-list --count HEAD)))"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
+          import json, os
+          with open('pili_release.json', encoding='utf-8-sig') as f:
+              metadata = json.load(f)
+          metadata['pili.name'] = '2.2.0-coui.1'
+          metadata['pili.code'] = int(os.environ['VERSION_CODE'])
+          with open('pili_release.json', 'w', encoding='utf-8') as f:
+              json.dump(metadata, f, ensure_ascii=False)
+          PY
       - name: Build signed arm64 APK
         run: |
           flutter build apk --release --target-platform android-arm64 \
-            --build-name 2.2.0-coui.1 --build-number "$((100000 + GITHUB_RUN_NUMBER))" \
+            --build-name 2.2.0-coui.1 --build-number "$VERSION_CODE" \
             --dart-define-from-file=pili_release.json --pub
           cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.1-arm64.apk
       - name: Verify signing certificate
