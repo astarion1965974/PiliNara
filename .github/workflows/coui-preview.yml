@@ -1,0 +1,46 @@
+name: COUI Android preview build
+
+on:
+  push:
+    branches:
+      - feat/coui-flutter
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/gradle-wrapper.properties
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: true
+      - name: Apply project patches
+        shell: pwsh
+        run: lib/scripts/patch.ps1 android
+        continue-on-error: true
+      - name: Set version
+        shell: pwsh
+        run: lib/scripts/build.ps1 android
+      - name: Build arm64 preview
+        run: flutter build apk --release --target-platform android-arm64 --dart-define-from-file=pili_release.json --pub
+      - name: Upload preview APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: PiliNara-COUI-preview-arm64
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
