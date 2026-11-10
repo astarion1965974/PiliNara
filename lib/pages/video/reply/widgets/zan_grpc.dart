@@ -14,9 +14,11 @@ class ZanButtonGrpc extends StatelessWidget {
   const ZanButtonGrpc({
     super.key,
     required this.replyItem,
+    this.youtubeStyle = false,
   });
 
   final ReplyInfo replyItem;
+  final bool youtubeStyle;
 
   Future<void> onHateReply(
     BuildContext context, {
@@ -169,7 +171,7 @@ class ZanButtonGrpc extends StatelessWidget {
         ),
       ),
     );
-    final swap = Pref.swapReplyLikeDislike;
+    final swap = youtubeStyle || Pref.swapReplyLikeDislike;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
