@@ -13,6 +13,7 @@ import 'package:PiliPlus/pages/common/reply/reply_footer_mixin.dart';
 import 'package:PiliPlus/pages/common/reply/vote/reply_vote_item.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
@@ -80,7 +81,9 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
             key: const PageStorageKey(_VideoReplyPanelState),
             slivers: [
               SliverFloatingHeaderWidget(
-                backgroundColor: colorScheme.surface,
+                backgroundColor: widget.isNested
+                    ? VideoDetailChrome.background(colorScheme)
+                    : colorScheme.surface,
                 child: Padding(
                   padding: const .fromLTRB(12, 2.5, 6, 2.5),
                   child: Obx(() {
@@ -90,21 +93,34 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                       children: [
                         Text(
                           sortType.desc,
-                          style: const TextStyle(fontSize: 13),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                         TextButton.icon(
-                          style: Style.buttonStyle,
+                          style: widget.isNested
+                              ? Style.buttonStyle.copyWith(
+                                  backgroundColor: WidgetStatePropertyAll(
+                                    VideoDetailChrome.pill(colorScheme),
+                                  ),
+                                )
+                              : Style.buttonStyle,
                           onPressed: controller.queryBySort,
                           icon: Icon(
                             Icons.sort,
                             size: 16,
-                            color: colorScheme.secondary,
+                            color: widget.isNested
+                                ? VideoDetailChrome.accent(colorScheme)
+                                : colorScheme.secondary,
                           ),
                           label: Text(
                             sortType.descShort,
                             style: TextStyle(
                               fontSize: 13,
-                              color: colorScheme.secondary,
+                              color: widget.isNested
+                                  ? VideoDetailChrome.accent(colorScheme)
+                                  : colorScheme.secondary,
                             ),
                           ),
                         ),
