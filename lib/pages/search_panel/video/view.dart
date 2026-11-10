@@ -3,6 +3,7 @@ import 'package:PiliPlus/common/widgets/video_card/video_card_h.dart';
 import 'package:PiliPlus/models/common/search/video_search_type.dart';
 import 'package:PiliPlus/models/search/result.dart';
 import 'package:PiliPlus/pages/search/widgets/search_text.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/pages/search_panel/video/controller.dart';
 import 'package:PiliPlus/pages/search_panel/view.dart';
 import 'package:PiliPlus/utils/grid.dart';
@@ -59,7 +60,7 @@ mixin SearchVideoPanelMixin<S extends SearchVideoPanel>
   @override
   Widget buildHeader() {
     return SliverFloatingHeaderWidget(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: SearchChrome.background(colorScheme),
       child: Padding(
         padding: const .fromLTRB(12, 0, 12, 4),
         child: Row(
@@ -74,9 +75,12 @@ mixin SearchVideoPanelMixin<S extends SearchVideoPanel>
                         () => SearchText(
                           fontSize: 13,
                           text: e.desc,
-                          bgColor: Colors.transparent,
+                          bgColor: controller.selectedType.value == e
+                              ? SearchChrome.pill(colorScheme)
+                              : Colors.transparent,
+                          borderRadius: const BorderRadius.all(Radius.circular(16)),
                           textColor: controller.selectedType.value == e
-                              ? colorScheme.primary
+                              ? SearchChrome.accent(colorScheme)
                               : colorScheme.outline,
                           onTap: (_) => controller
                             ..order = e == .totalrank ? '' : e.name
@@ -105,7 +109,7 @@ mixin SearchVideoPanelMixin<S extends SearchVideoPanel>
                       ? Icons.filter_list
                       : Icons.filter_list_off,
                   size: 18,
-                  color: colorScheme.primary,
+                  color: SearchChrome.accent(colorScheme),
                 )),
               ),
             ),
