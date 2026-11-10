@@ -3,6 +3,7 @@ import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
 import 'package:PiliPlus/common/widgets/view_safe_area.dart';
 import 'package:PiliPlus/models/common/search/search_type.dart';
 import 'package:PiliPlus/pages/search/controller.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/pages/search_panel/all/view.dart';
 import 'package:PiliPlus/pages/search_panel/article/view.dart';
 import 'package:PiliPlus/pages/search_panel/live/view.dart';
@@ -69,13 +70,10 @@ class _SearchResultPageState extends State<SearchResultPage>
     final theme = Theme.of(context);
     return SimpleScaffold(
       appBar: AppBar(
-        shape: Border(
-          bottom: BorderSide(
-            color: theme.dividerColor.withValues(alpha: 0.08),
-            width: 1,
-          ),
-        ),
-        title: GestureDetector(
+        backgroundColor: SearchChrome.background(theme.colorScheme),
+        surfaceTintColor: Colors.transparent,
+        titleSpacing: 0,
+        title: SearchFieldSurface(
           onTap: () {
             if (_isFromSearch) {
               Get.back(result: true);
@@ -86,18 +84,18 @@ class _SearchResultPageState extends State<SearchResultPage>
               );
             }
           },
-          behavior: HitTestBehavior.opaque,
-          child: SizedBox(
-            width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Text(
               _searchResultController.keyword,
               style: theme.textTheme.titleMedium,
               maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
       ),
-      body: ViewSafeArea(
+      body: SearchBackground(child: ViewSafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -126,11 +124,11 @@ class _SearchResultPageState extends State<SearchResultPage>
                 vertical: 8,
               ),
               indicator: BoxDecoration(
-                color: theme.colorScheme.secondaryContainer,
+                color: SearchChrome.pill(theme.colorScheme),
                 borderRadius: const BorderRadius.all(Radius.circular(20)),
               ),
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: theme.colorScheme.onSecondaryContainer,
+              labelColor: SearchChrome.accent(theme.colorScheme),
               labelStyle:
                   TabBarTheme.of(
                     context,
@@ -193,7 +191,7 @@ class _SearchResultPageState extends State<SearchResultPage>
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }
