@@ -5,7 +5,6 @@ import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/mini_scaffold.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
-import 'package:PiliPlus/common/widgets/simple_colored_box.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_pinned_header.dart';
 import 'package:PiliPlus/common/widgets/view_safe_area.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
@@ -15,6 +14,7 @@ import 'package:PiliPlus/pages/common/reply/reply_footer_mixin.dart';
 import 'package:PiliPlus/pages/common/slide/common_slide_page.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
 import 'package:PiliPlus/pages/video/reply_reply/controller.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/extension/widget_ext.dart';
 import 'package:PiliPlus/utils/num_utils.dart';
@@ -144,27 +144,22 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
   @override
   Widget buildPage() {
     Widget child() => enableSlide ? slideList() : buildList();
-    return SimpleColoredBox(
-      color: theme.canvasColor,
+    return VideoDetailBackground(
       child: MiniScaffold(
         body: widget.isVideoDetail
             ? Column(
                 children: [
                   Container(
                     height: 45,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          width: 1,
-                          color: theme.dividerColor.withValues(alpha: 0.1),
-                        ),
-                      ),
-                    ),
+                    color: VideoDetailChrome.background(colorScheme),
                     padding: const EdgeInsets.only(left: 12, right: 2),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text(isDialogue ? '对话列表' : '评论详情'),
+                        Text(
+                          isDialogue ? '对话列表' : '评论详情',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         IconButton(
                           tooltip: '关闭',
                           icon: const Icon(Icons.close, size: 20),
@@ -235,9 +230,9 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
         ),
         SliverToBoxAdapter(
           child: Divider(
-            height: 20,
+            height: 16,
             color: theme.dividerColor.withValues(alpha: 0.1),
-            thickness: 6,
+            thickness: 1,
           ),
         ),
       ],
@@ -246,7 +241,7 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
 
   Widget _sortWidget(ColorScheme colorScheme) {
     return SliverPinnedHeader(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: VideoDetailChrome.background(colorScheme),
       child: Padding(
         padding: const .fromLTRB(12, 2.5, 6, 2.5),
         child: Row(
@@ -258,19 +253,33 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
                 return count != -1
                     ? Text(
                         '相关回复共${NumUtils.numFormat(count)}条',
-                        style: const TextStyle(fontSize: 13),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       )
                     : const SizedBox.shrink();
               },
             ),
             TextButton.icon(
-              style: Style.buttonStyle,
+              style: Style.buttonStyle.copyWith(
+                backgroundColor: WidgetStatePropertyAll(
+                  VideoDetailChrome.pill(colorScheme),
+                ),
+              ),
               onPressed: controller.queryBySort,
-              icon: Icon(Icons.sort, size: 16, color: colorScheme.secondary),
+              icon: Icon(
+                Icons.sort,
+                size: 16,
+                color: VideoDetailChrome.accent(colorScheme),
+              ),
               label: Obx(
                 () => Text(
                   controller.sortType.value.label,
-                  style: TextStyle(fontSize: 13, color: colorScheme.secondary),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: VideoDetailChrome.accent(colorScheme),
+                  ),
                 ),
               ),
             ),
