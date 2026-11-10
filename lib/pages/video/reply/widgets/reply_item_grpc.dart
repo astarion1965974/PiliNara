@@ -27,6 +27,8 @@ import 'package:PiliPlus/pages/save_panel/view.dart';
 import 'package:PiliPlus/pages/audio/controller.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/zan_grpc.dart';
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
 import 'package:PiliPlus/utils/bili_utils.dart';
@@ -78,6 +80,7 @@ class ReplyItemGrpc extends StatelessWidget {
     this.onCheckReply,
     this.onToggleTop,
     this.jumpToDialogue,
+    this.youtubeStyle = false,
   });
   final ReplyInfo replyItem;
   final int replyLevel;
@@ -92,6 +95,7 @@ class ReplyItemGrpc extends StatelessWidget {
   final ValueChanged<ReplyInfo>? onCheckReply;
   final ValueChanged<ReplyInfo>? onToggleTop;
   final VoidCallback? jumpToDialogue;
+  final bool youtubeStyle;
 
   static final _voteRegExp = RegExp(r"^\{vote:\d+?\}$");
   static final _timeRegExp = RegExp(r'^(?:\d+[:：])?\d+[:：]\d+$');
@@ -119,11 +123,33 @@ class ReplyItemGrpc extends StatelessWidget {
       },
     );
 
+    final useYoutube = youtubeStyle && replyLevel == 1;
+    final content = _buildContent(
+      context,
+      colorScheme,
+      youtubeHeader: useYoutube ? _buildYoutubeHeader(context, colorScheme, showMore) : null,
+      useYoutube: useYoutube,
+    );
     Widget child = Padding(
       padding: const .fromLTRB(12, 14, 8, 5),
-      child: _buildContent(context, colorScheme),
+      child: useYoutube && replyItem.count > Int64.ZERO
+          ? Stack(
+              children: [
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: YoutubeReplyThreadPainter(
+                        colorScheme.outline.withValues(alpha: 0.22),
+                      ),
+                    ),
+                  ),
+                ),
+                content,
+              ],
+            )
+          : content,
     );
-    if (needDivider) {
+    if (needDivider && !useYoutube) {
       child = Column(
         mainAxisSize: .min,
         children: [
@@ -145,6 +171,99 @@ class ReplyItemGrpc extends StatelessWidget {
         onSecondaryTap: PlatformUtils.isMobile ? null : showMore,
         child: child,
       ),
+    );
+  }
+
+  Widget _buildYoutubeHeader(
+    BuildContext context,
+    ColorScheme scheme,
+    VoidCallback showMore,
+  ) {
+    final member = replyItem.member;
+    void openMember() {
+      feedBack();
+      Get.toNamed('/member?mid=${replyItem.mid}');
+    }
+
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: openMember,
+          child: PendantAvatar(
+            member.face,
+            size: 34,
+            badgeSize: 14,
+            vipStatus: member.vipStatus.toInt(),
+            officialType: member.officialVerifyType.toInt(),
+            pendantImage: member.hasGarbPendantImage()
+                ? member.garbPendantImage
+                : null,
+          ),
+        ),
+        const SizedBox(width: 11),
+        Expanded(
+          child: GestureDetector(
+            onTap: openMember,
+            child: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    remarkedName(member.mid.toInt(), member.name),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: member.vipStatus > 0 && member.vipType == 2
+                          ? scheme.vipColor
+                          : scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                BiliUtils.levelPicture(
+                  member.level.toInt(),
+                  isSeniorMember: member.isSeniorMember == 1,
+                  height: 11,
+                ),
+                if (replyItem.mid == upMid) ...[
+                  const SizedBox(width: 4),
+                  const PBadge(text: 'UP', size: .small, isStack: false, fontSize: 9),
+                ] else if (GlobalData().showMedal && member.hasFansMedalLevel()) ...[
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: MedalWidget(
+                      medalName: member.fansMedalName,
+                      level: member.fansMedalLevel.toInt(),
+                      backgroundColor: DmUtils.decimalToColor(member.fansMedalColor.toInt()),
+                      nameColor: DmUtils.decimalToColor(member.fansMedalColorName.toInt()),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    ),
+                  ),
+                ],
+                Flexible(
+                  child: Text(
+                    ' · ${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
+                    '${replyItem.replyControl.hasLocation() ? ' · ${replyItem.replyControl.location}' : ''}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11, color: scheme.outline),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 36,
+          height: 36,
+          child: IconButton(
+            tooltip: '更多评论操作',
+            onPressed: showMore,
+            padding: EdgeInsets.zero,
+            icon: Icon(Icons.more_horiz, color: scheme.onSurface, size: 20),
+          ),
+        ),
+      ],
     );
   }
 
@@ -321,15 +440,20 @@ class ReplyItemGrpc extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, ColorScheme colorScheme) {
+  Widget _buildContent(
+    BuildContext context,
+    ColorScheme colorScheme, {
+    Widget? youtubeHeader,
+    bool useYoutube = false,
+  }) {
     final replyControl = replyItem.replyControl;
     final padding = EdgeInsets.only(left: replyLevel == 0 ? 6 : 45, right: 6);
     return Column(
       mainAxisSize: .min,
       crossAxisAlignment: .start,
       children: [
-        _buildHeader(context, colorScheme),
-        const SizedBox(height: 10),
+        youtubeHeader ?? _buildHeader(context, colorScheme),
+        SizedBox(height: useYoutube ? 4 : 10),
         if (replyControl.hasVoteOption())
           Padding(
             padding: padding,
@@ -389,15 +513,91 @@ class ReplyItemGrpc extends StatelessWidget {
         ],
         if (replyLevel != 0) ...[
           const SizedBox(height: 4),
-          buttonAction(context, colorScheme, replyControl),
+          useYoutube
+              ? _youtubeActions(context, colorScheme, replyControl)
+              : buttonAction(context, colorScheme, replyControl),
         ],
         if (replyLevel == 1 && replyItem.count > Int64.ZERO) ...[
           Padding(
             padding: const EdgeInsets.only(top: 5, bottom: 12),
-            child: replyItemRow(context, colorScheme, replyItem.replies),
+            child: useYoutube
+                ? _youtubeReplyLink(colorScheme)
+                : replyItemRow(context, colorScheme, replyItem.replies),
           ),
         ],
       ],
+    );
+  }
+
+  Widget _youtubeActions(
+    BuildContext context,
+    ColorScheme scheme,
+    ReplyControl control,
+  ) {
+    const buttonStyle = ButtonStyle(
+      visualDensity: .compact,
+      tapTargetSize: .shrinkWrap,
+      padding: WidgetStatePropertyAll(.zero),
+    );
+    final textStyle = TextStyle(fontSize: 12, color: scheme.outline);
+    return Padding(
+      padding: const EdgeInsets.only(left: 36),
+      child: Row(
+        children: [
+          ZanButtonGrpc(replyItem: replyItem, youtubeStyle: true),
+          SizedBox(
+            width: 44,
+            height: 36,
+            child: IconButton(
+              tooltip: '回复',
+              padding: EdgeInsets.zero,
+              onPressed: () {
+                feedBack();
+                onReply?.call(replyItem);
+              },
+              icon: Icon(Icons.chat_bubble_outline, size: 18, color: scheme.outline),
+            ),
+          ),
+          if (control.translationSwitch ==
+              .TRANSLATION_SWITCH_SHOW_TRANSLATION)
+            _buildTranslateBtn(context, scheme, control, textStyle, buttonStyle)
+          else if (control.cardLabels.isNotEmpty)
+            Flexible(
+              child: Text(
+                control.cardLabels.map((e) => e.textContent).join('  '),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textStyle.copyWith(color: scheme.secondary),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _youtubeReplyLink(ColorScheme scheme) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 45),
+      child: InkWell(
+        onTap: () => replyReply?.call(replyItem, null),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '${replyItem.count} 条回复',
+                style: TextStyle(
+                  color: VideoDetailChrome.accent(scheme),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              Icon(Icons.chevron_right, size: 18, color: VideoDetailChrome.accent(scheme)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
