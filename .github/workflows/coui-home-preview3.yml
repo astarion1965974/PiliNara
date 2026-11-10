@@ -97,6 +97,10 @@ jobs:
           metadata['pili.code']=int(os.environ['VERSION_CODE'])
           with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
           PY
+      - name: Install libraries for Flutter widget tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libx11-dev libxi-dev
       - name: Test home header and vector logo
         run: flutter test test/home_header_test.dart
       - name: Build signed arm64 APK

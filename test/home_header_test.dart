@@ -28,12 +28,15 @@ void main() {
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => titleTaps++,
-                    child: const SizedBox(height: homeTitleBarHeight),
+                    child: const SizedBox(
+                      width: double.infinity,
+                      height: homeTitleBarHeight,
+                    ),
                   ),
                   GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () => searchTaps++,
-                    child: const SizedBox(height: 52),
+                    child: const SizedBox(width: double.infinity, height: 52),
                   ),
                 ],
               ),
