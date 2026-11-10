@@ -4,6 +4,54 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
+  test('partially visible header settles in the last drag direction', () {
+    expect(homeHeaderSnapTarget(20, 1), homeHeaderHeight);
+    expect(homeHeaderSnapTarget(90, -1), 0);
+    expect(homeHeaderSnapTarget(20, 0), 0);
+    expect(homeHeaderSnapTarget(90, 0), homeHeaderHeight);
+    expect(homeHeaderSnapTarget(0, 1), 0);
+    expect(homeHeaderSnapTarget(homeHeaderHeight, -1), homeHeaderHeight);
+  });
+
+  testWidgets('header snap animates and compensates the scroll position', (tester) async {
+    final scroll = ScrollController();
+    final offset = ValueNotifier<double>(20);
+    final animator = HomeHeaderSnapAnimator(
+      vsync: tester,
+      readOffset: () => offset.value,
+      writeOffset: (value) => offset.value = value,
+    );
+    addTearDown(animator.dispose);
+    addTearDown(offset.dispose);
+    addTearDown(scroll.dispose);
+    await tester.pumpWidget(MaterialApp(
+      home: Scaffold(
+        body: ListView.builder(
+          controller: scroll,
+          itemExtent: 50,
+          itemCount: 100,
+          itemBuilder: (_, index) => Text('item $index'),
+        ),
+      ),
+    ));
+    scroll.jumpTo(300);
+    await tester.pump();
+    animator.settle(position: scroll.position, target: homeHeaderHeight);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(offset.value, closeTo(homeHeaderHeight, 0.01));
+    expect(scroll.position.pixels, closeTo(300 - (homeHeaderHeight - 20), 0.01));
+
+    offset.value = 90;
+    scroll.jumpTo(300);
+    await tester.pump();
+    animator.settle(position: scroll.position, target: 0);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    expect(offset.value, closeTo(0, 0.01));
+    expect(scroll.position.pixels, closeTo(390, 0.01));
+  });
+
   testWidgets('bilibili vector wordmark loads', (tester) async {
     await tester.pumpWidget(MaterialApp(
       home: SvgPicture.asset('assets/images/bilibili_wordmark.svg'),

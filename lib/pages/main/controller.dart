@@ -87,16 +87,8 @@ class MainController extends GetxController
           )
         : PageController(initialPage: selectedIndex.value);
 
-    hideBottomBar =
-        !useSideBar && navigationBars.length > 1 && Pref.hideBottomBar;
-    if (hideBottomBar) {
-      switch (barHideType) {
-        case .instant:
-          showBottomBar = RxBool(true);
-        case .sync:
-          barOffset ??= RxDouble(0.0);
-      }
-    }
+    // The main navigation stays visible while content scrolls.
+    hideBottomBar = false;
 
     dynamicBadgeMode = Pref.dynamicBadgeMode;
 

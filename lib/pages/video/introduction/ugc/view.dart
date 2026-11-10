@@ -24,6 +24,7 @@ import 'package:PiliPlus/models_new/video/video_tag/data.dart';
 import 'package:PiliPlus/pages/mine/controller.dart';
 import 'package:PiliPlus/pages/search/widgets/search_text.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/pages/video/introduction/ugc/controller.dart';
 import 'package:PiliPlus/pages/video/introduction/ugc/widgets/action_item.dart';
 import 'package:PiliPlus/pages/video/introduction/ugc/widgets/page.dart';
@@ -100,17 +101,16 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
     final isPortrait = widget.isPortrait;
     final isHorizontal = !isPortrait && widget.isHorizontal;
     return SliverPadding(
-      padding: const .only(
-        left: Style.safeSpace,
-        right: Style.safeSpace,
+      padding: EdgeInsets.only(
+        left: isPortrait ? 16 : Style.safeSpace,
+        right: isPortrait ? 16 : Style.safeSpace,
         top: 10,
       ),
       sliver: Obx(
         () {
           final videoDetail = introController.videoDetail.value;
           final isLoading = videoDetail.bvid == null;
-          return SliverToBoxAdapter(
-            child: GestureDetector(
+          final introContent = GestureDetector(
               onTap: () {
                 if (isLoading) return;
                 feedBack();
@@ -210,7 +210,9 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                   ],
                 ],
               ),
-            ),
+            );
+          return SliverToBoxAdapter(
+            child: isPortrait ? VideoDetailCard(child: introContent) : introContent,
           );
         },
       ),
@@ -428,7 +430,11 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
         textSpan,
         maxLines: isExpand ? null : 2,
         overflow: isExpand ? null : .ellipsis,
-        style: const TextStyle(fontSize: 16),
+        style: TextStyle(
+          fontSize: widget.isPortrait ? 18 : 16,
+          height: 1.4,
+          fontWeight: widget.isPortrait ? FontWeight.w600 : FontWeight.w400,
+        ),
       );
     }
 
@@ -476,8 +482,12 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
     UgcIntroController introController,
     VideoStat? stat,
   ) {
-    return SizedBox(
-      height: 48,
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: colorScheme.onSurface.withValues(alpha: 0.035),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Row(
         crossAxisAlignment: .start,
         children: [

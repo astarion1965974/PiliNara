@@ -50,6 +50,7 @@ import 'package:PiliPlus/pages/video/related/view.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
 import 'package:PiliPlus/pages/video/reply/view.dart';
 import 'package:PiliPlus/pages/video/widgets/keyboard_scrollable.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/pages/video/view_point/view.dart';
 import 'package:PiliPlus/pages/video/widgets/header_control.dart';
 import 'package:PiliPlus/pages/video/widgets/intro_layout.dart';
@@ -1307,33 +1308,35 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
             },
             body: MiniScaffold(
               key: _ownedKey(videoDetailController.childKey),
-              body: Column(
-                children: [
-                  buildTabBar(onTap: videoDetailController.animToTop),
-                  Expanded(
-                    child: wrapTabContent(
-                      tabBarView(
-                        hitTestBehavior: .translucent,
-                        controller: videoDetailController.tabCtr,
-                        children: [
-                          videoIntro(isHorizontal: false, needCtr: false),
-                          if (videoDetailController.showReply)
-                            videoReplyPanel(isNested: true),
-                          if (_shouldShowSeasonPanel) seasonPanel,
-                        ],
+              body: VideoDetailBackground(
+                child: Column(
+                  children: [
+                    buildTabBar(onTap: videoDetailController.animToTop),
+                    Expanded(
+                      child: wrapTabContent(
+                        tabBarView(
+                          hitTestBehavior: .translucent,
+                          controller: videoDetailController.tabCtr,
+                          children: [
+                            videoIntro(isHorizontal: false, needCtr: false),
+                            if (videoDetailController.showReply)
+                              videoReplyPanel(isNested: true),
+                            if (_shouldShowSeasonPanel) seasonPanel,
+                          ],
+                        ),
+                        // 竖屏：简介/评论滚整页，播放列表滚自身列表
+                        resolveCtr: () {
+                          final idx = videoDetailController.tabCtr.index;
+                          return _shouldShowSeasonPanel &&
+                                  idx ==
+                                      (videoDetailController.showReply ? 2 : 1)
+                              ? _seasonScrollCtr()
+                              : videoDetailController.scrollCtr;
+                        },
                       ),
-                      // 竖屏：简介/评论滚整页，播放列表滚自身列表
-                      resolveCtr: () {
-                        final idx = videoDetailController.tabCtr.index;
-                        return _shouldShowSeasonPanel &&
-                                idx ==
-                                    (videoDetailController.showReply ? 2 : 1)
-                            ? _seasonScrollCtr()
-                            : videoDetailController.scrollCtr;
-                      },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -2133,17 +2136,9 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
 
     Widget tabBar() {
       final flag = !needIndicator || tabs.length == 1;
-      return TabBar(
-        padding: .zero,
-        dividerHeight: 0,
-        labelPadding: .zero,
-        dividerColor: Colors.transparent,
+      return VideoDetailTabStrip(
         controller: videoDetailController.tabCtr,
-        indicator: flag ? const BoxDecoration() : null,
-        labelColor: flag ? colorScheme.onSurface : null,
-        labelStyle:
-            TabBarTheme.of(context).labelStyle?.copyWith(fontSize: 13) ??
-            const TextStyle(fontSize: 13),
+        showIndicator: !flag,
         onTap: (value) {
           // 切 tab 后免点击直接支持方向键滚动：焦点交给 tab 内容区
           if (value != videoDetailController.tabCtr.index) {
@@ -2178,29 +2173,24 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 child: Text(
                   '评论${count == -1 ? '' : ' ${NumUtils.numFormat(count)}'}',
                   softWrap: false,
-                  overflow: .visible,
+                  maxLines: 1,
+                  overflow: .ellipsis,
                 ),
               );
             });
           } else {
             return Tab(
-              child: Text(text, softWrap: false, overflow: .visible),
+              child: Text(text, maxLines: 1, softWrap: false, overflow: .ellipsis),
             );
           }
         }).toList(),
       );
     }
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: theme.dividerColor.withValues(alpha: 0.1),
-          ),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, right: 8, top: 4),
       child: SizedBox(
-        height: 45,
+        height: 48,
         child: Row(
           children: [
             if (tabs.isEmpty)
@@ -2216,13 +2206,19 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 ),
               ),
             SizedBox(
-              height: 32,
-              child: TextButton(
-                style: const ButtonStyle(
-                  padding: WidgetStatePropertyAll(.zero),
+              height: 34,
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  backgroundColor: colorScheme.onSurface.withValues(alpha: 0.06),
+                  foregroundColor: colorScheme.onSurfaceVariant,
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  shape: const StadiumBorder(),
                 ),
                 onPressed: videoDetailController.showShootDanmakuSheet,
-                child: Text(
+                icon: const Icon(Icons.edit_outlined, size: 14),
+                label: Text(
                   '发弹幕',
                   style: TextStyle(
                     fontSize: 12,
@@ -2261,7 +2257,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 },
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 4),
           ],
         ),
       ),

@@ -15,6 +15,7 @@ import 'package:PiliPlus/models_new/pgc/pgc_info_model/stat.dart';
 import 'package:PiliPlus/models_new/video/video_detail/episode.dart';
 import 'package:PiliPlus/models_new/video/video_tag/data.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/pages/video/introduction/pgc/controller.dart';
 import 'package:PiliPlus/pages/video/introduction/pgc/widgets/episode.dart';
 import 'package:PiliPlus/pages/video/introduction/pgc/widgets/season.dart';
@@ -73,8 +74,7 @@ class _PgcIntroPageState extends State<PgcIntroPage> {
   Widget build(BuildContext context) {
     final item = introController.pgcItem;
     final isPortrait = widget.isPortrait;
-    Widget sliver = SliverToBoxAdapter(
-      child: Column(
+    final introContent = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -116,7 +116,9 @@ class _PgcIntroPageState extends State<PgcIntroPage> {
               onChangeEpisode: introController.onChangeEpisode,
             ),
         ],
-      ),
+      );
+    Widget sliver = SliverToBoxAdapter(
+      child: isPortrait ? VideoDetailCard(child: introContent) : introContent,
     );
     if (!introController.isPgc) {
       final brief = _buildBrief(item);
@@ -125,10 +127,10 @@ class _PgcIntroPageState extends State<PgcIntroPage> {
       }
     }
     return SliverPadding(
-      padding: const .fromLTRB(
+      padding: .fromLTRB(
+        isPortrait ? 16 : Style.safeSpace,
         Style.safeSpace,
-        Style.safeSpace,
-        Style.safeSpace,
+        isPortrait ? 16 : Style.safeSpace,
         Style.safeSpace + 50,
       ),
       sliver: sliver,

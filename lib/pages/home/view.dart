@@ -26,10 +26,59 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends CommonPageState<HomePage>
-    with AutomaticKeepAliveClientMixin {
+    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   late ColorScheme _colorScheme;
   final _homeController = Get.putOrFind(HomeController.new);
   final _mainController = Get.find<MainController>();
+  HomeHeaderSnapAnimator? _headerSnapAnimator;
+  double _lastHeaderDrag = 0;
+
+  void _settleHomeHeader(ScrollNotification notification) {
+    final barOffset = _mainController.barOffset;
+    if (barOffset == null || notification.context == null || _lastHeaderDrag == 0) return;
+    final start = barOffset.value.clamp(0.0, homeHeaderHeight).toDouble();
+    final target = homeHeaderSnapTarget(start, _lastHeaderDrag);
+    _lastHeaderDrag = 0;
+    if (start == target) return;
+    final scrollable = Scrollable.maybeOf(notification.context!);
+    if (scrollable == null) return;
+    final animator = _headerSnapAnimator ??= HomeHeaderSnapAnimator(
+      vsync: this,
+      readOffset: () => barOffset.value,
+      writeOffset: (value) => barOffset.value = value,
+    );
+    animator.settle(position: scrollable.position, target: target);
+  }
+
+  @override
+  bool onNotificationType2(ScrollNotification notification) {
+    if (notification.metrics.axis == Axis.vertical && needsCorrection) {
+      if (notification is ScrollStartNotification && notification.dragDetails != null) {
+        _headerSnapAnimator?.stop();
+        _lastHeaderDrag = 0;
+      } else if (notification is ScrollUpdateNotification &&
+          notification.dragDetails != null &&
+          (notification.scrollDelta ?? 0) != 0) {
+        _headerSnapAnimator?.stop();
+        _lastHeaderDrag = notification.scrollDelta!;
+      } else if (notification is OverscrollNotification &&
+          notification.dragDetails != null && notification.overscroll != 0) {
+        _lastHeaderDrag = notification.overscroll;
+      }
+    }
+    final handled = super.onNotificationType2(notification);
+    if (notification is ScrollEndNotification &&
+        notification.metrics.axis == Axis.vertical && needsCorrection) {
+      _settleHomeHeader(notification);
+    }
+    return handled;
+  }
+
+  @override
+  void dispose() {
+    _headerSnapAnimator?.dispose();
+    super.dispose();
+  }
 
   @override
   bool get needsCorrection => _homeController.hideTopBar && _hasHomeHeader;
