@@ -8,11 +8,13 @@ import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
     show ReplyInfo, MainListReply;
 import 'package:PiliPlus/http/loading_state.dart';
+import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/common/fab_mixin.dart';
 import 'package:PiliPlus/pages/common/reply/reply_footer_mixin.dart';
 import 'package:PiliPlus/pages/common/reply/vote/reply_vote_item.dart';
 import 'package:PiliPlus/pages/video/reply/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:get/get.dart';
@@ -51,6 +53,16 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
   @override
   bool get wantKeepAlive => true;
 
+  void _writeComment() {
+    feedBack();
+    controller.onReply(
+      null,
+      oid: controller.videoCtr.aid,
+      replyType: controller.replyType,
+      mentionItem: controller.mentionItem,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,6 +100,16 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                   padding: const .fromLTRB(12, 2.5, 6, 2.5),
                   child: Obx(() {
                     final sortType = controller.sortType.value;
+                    if (widget.isNested) {
+                      return YoutubeCommentSort(
+                        selected: sortType,
+                        onSelect: (type) {
+                          if (sortType != type && sortType != ReplySortType.select) {
+                            controller.queryBySort();
+                          }
+                        },
+                      );
+                    }
                     return Row(
                       mainAxisAlignment: .spaceBetween,
                       children: [
@@ -130,9 +152,21 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                 ),
               ),
               Obx(() => _buildBody(controller.loadingState.value)),
+              if (widget.isNested)
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 68 + padding.bottom),
+                ),
             ],
           ),
-          fab: SlideTransition(
+          fab: widget.isNested
+              ? SizedBox(
+                  width: double.infinity,
+                  child: YoutubeCommentComposer(
+                    bottomPadding: padding.bottom,
+                    onTap: _writeComment,
+                  ),
+                )
+              : SlideTransition(
             position: fabAnimation,
             child: Padding(
               padding: .only(
@@ -141,15 +175,7 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
               ),
               child: FloatingActionButton(
                 heroTag: null,
-                onPressed: () {
-                  feedBack();
-                  controller.onReply(
-                    null,
-                    oid: controller.videoCtr.aid,
-                    replyType: controller.replyType,
-                    mentionItem: controller.mentionItem,
-                  );
-                },
+                onPressed: _writeComment,
                 tooltip: '发表评论',
                 child: const Icon(Icons.reply),
               ),
@@ -207,6 +233,7 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                     controller.videoCtr.aid,
                     controller.replyType,
                   ),
+                  youtubeStyle: widget.isNested,
                 );
                 if (item.id == controller.targetRootRpId) {
                   return controller.colorAnimWrapper(
