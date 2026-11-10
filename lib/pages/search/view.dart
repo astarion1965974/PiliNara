@@ -10,6 +10,7 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models_new/search/search_rcmd/data.dart';
 import 'package:PiliPlus/pages/search/controller.dart';
 import 'package:PiliPlus/pages/search/widgets/hot_keyword.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/pages/search/widgets/search_text.dart';
 import 'package:PiliPlus/utils/em.dart' show Em;
 import 'package:PiliPlus/utils/extension/size_ext.dart';
@@ -58,7 +59,7 @@ class _SearchPageState extends State<SearchPage> {
 
     return SimpleScaffold(
       appBar: _buildAppBar,
-      body: Padding(
+      body: SearchBackground(child: Padding(
         padding: .only(left: padding.left, right: padding.right),
         child: ViewInsetsSafeArea(
           child: CustomScrollView(
@@ -81,17 +82,14 @@ class _SearchPageState extends State<SearchPage> {
             ],
           ),
         ),
-      ),
+      )),
     );
   }
 
   PreferredSizeWidget get _buildAppBar => AppBar(
-    shape: Border(
-      bottom: BorderSide(
-        color: theme.dividerColor.withValues(alpha: 0.08),
-        width: 1,
-      ),
-    ),
+    backgroundColor: SearchChrome.background(theme.colorScheme),
+    surfaceTintColor: Colors.transparent,
+    titleSpacing: 0,
     actions: [
       Obx(
         () => _searchController.showUidBtn.value
@@ -116,7 +114,7 @@ class _SearchPageState extends State<SearchPage> {
       ),
       const SizedBox(width: 10),
     ],
-    title: TextField(
+    title: SearchFieldSurface(child: TextField(
       autofocus: true,
       focusNode: _searchController.searchFocusNode,
       controller: _searchController.controller,
@@ -124,11 +122,13 @@ class _SearchPageState extends State<SearchPage> {
       onChanged: _searchController.onChange,
       decoration: InputDecoration(
         visualDensity: .standard,
+        isDense: true,
+        contentPadding: const EdgeInsets.symmetric(vertical: 11),
         hintText: _searchController.hintText ?? '搜索',
         border: InputBorder.none,
       ),
       onSubmitted: (value) => _searchController.submit(),
-    ),
+    )),
   );
 
   Widget _buildSearchSuggest() {
@@ -157,7 +157,7 @@ class _SearchPageState extends State<SearchPage> {
                                     style: e.isEm
                                         ? TextStyle(
                                             fontWeight: .bold,
-                                            color: theme.colorScheme.primary,
+                                            color: SearchChrome.accent(theme.colorScheme),
                                           )
                                         : null,
                                   ),
@@ -363,6 +363,8 @@ class _SearchPageState extends State<SearchPage> {
                     fontSize: 14,
                     overflow: .ellipsis,
                     padding: const .fromLTRB(11, 8, 11, 0),
+                    bgColor: SearchChrome.field(theme.colorScheme),
+                    borderRadius: const BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
               ),
