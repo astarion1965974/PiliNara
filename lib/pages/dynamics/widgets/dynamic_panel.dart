@@ -5,6 +5,7 @@ import 'package:PiliPlus/models/dynamics/result.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/action_panel.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/author_panel.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/dyn_content.dart';
+import 'package:PiliPlus/pages/dynamics/widgets/dynamics_chrome.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/interaction.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
@@ -123,23 +124,26 @@ class DynamicPanel extends StatelessWidget {
         ),
       ),
     );
-    if (isSave || (isDetail && !isDetailPortraitW)) {
-      return child;
-    }
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            width: 8,
-            color: theme.dividerColor.withValues(alpha: 0.05),
+    if (isSave || isDetail) {
+      if (isSave || !isDetailPortraitW) {
+        return child;
+      }
+      return DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              width: 8,
+              color: theme.dividerColor.withValues(alpha: 0.05),
+            ),
           ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: child,
-      ),
-    );
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: child,
+        ),
+      );
+    }
+    return DynamicsFeedCard(child: child);
   }
 
   void _imageSaveDialog(
