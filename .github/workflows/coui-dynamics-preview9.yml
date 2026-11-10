@@ -1,6 +1,10 @@
 name: Signed COUI dynamics preview 9
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - release/coui-dynamics-preview-9
+    paths-ignore:
+      - ci/coui-signing-envelope.json
 permissions:
   contents: write
 jobs:
@@ -11,22 +15,32 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Require the existing release keystore
+      - name: Generate temporary encryption key
+        run: |
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$RUNNER_TEMP/session-private.pem" 2>/dev/null
+          openssl pkey -in "$RUNNER_TEMP/session-private.pem" -pubout -out "$RUNNER_TEMP/session-public.pem"
+      - name: Upload temporary public key
+        uses: actions/upload-artifact@v7
+        with:
+          name: coui-session-public-key
+          path: ${{ runner.temp }}/session-public.pem
+          retention-days: 1
+      - name: Receive encrypted signing backup
         env:
-          SIGN_KEYSTORE_BASE64: ${{ secrets.SIGN_KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          missing=
-          for name in SIGN_KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
-            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          for attempt in $(seq 1 120); do
+            gh api "repos/$GITHUB_REPOSITORY/contents/ci/coui-signing-envelope.json?ref=release/coui-dynamics-preview-9" --jq .content 2>/dev/null | base64 --decode > "$RUNNER_TEMP/envelope.json" || true
+            if python3 -c 'import json,os,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if str(d.get("run_id")) == os.environ["GITHUB_RUN_ID"] else 1)' "$RUNNER_TEMP/envelope.json" 2>/dev/null; then
+              echo "Received encrypted backup for this run."
+              exit 0
+            fi
+            sleep 10
           done
-          if [ -n "$missing" ]; then
-            echo "::error::Missing Actions secrets:$missing. Use the same keystore that signed preview 8.2."
-            exit 1
-          fi
+          echo "::error::Encrypted signing backup was not received."
+          exit 1
       - uses: actions/setup-java@v5
         with:
           distribution: zulu
@@ -40,25 +54,29 @@ jobs:
           channel: stable
           flutter-version-file: pubspec.yaml
           cache: true
-      - name: Write signing files
-        env:
-          SIGN_KEYSTORE_BASE64: ${{ secrets.SIGN_KEYSTORE_BASE64 }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Decrypt signing backup
         shell: bash
         run: |
           umask 077
-          printf '%s' "$SIGN_KEYSTORE_BASE64" | base64 --decode > android/app/key.jks
-          python3 - <<'PY'
-          import os
-          def esc(s):
-              return s.replace('\\','\\\\').replace('\n','\\n').replace('\r','\\r').replace('=','\\=').replace(':','\\:')
+          python3 -m venv "$RUNNER_TEMP/crypto-venv"
+          "$RUNNER_TEMP/crypto-venv/bin/pip" -q install cryptography
+          "$RUNNER_TEMP/crypto-venv/bin/python" - <<'PY'
+          import base64,json,os
+          from cryptography.hazmat.primitives import serialization, hashes
+          from cryptography.hazmat.primitives.asymmetric import padding
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          temp=os.environ['RUNNER_TEMP']
+          with open(temp+'/envelope.json') as f: envelope=json.load(f)
+          with open(temp+'/session-private.pem','rb') as f: private=serialization.load_pem_private_key(f.read(),password=None)
+          decode=lambda s: base64.b64decode(s,validate=True)
+          key=private.decrypt(decode(envelope['k']),padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+          data=json.loads(AESGCM(key).decrypt(decode(envelope['n']),decode(envelope['c']),None))
+          with open('android/app/key.jks','wb') as f: f.write(decode(data['SIGN_KEYSTORE_BASE64']))
+          def esc(s): return s.replace('\\','\\\\').replace('\n','\\n').replace('\r','\\r').replace('=','\\=').replace(':','\\:')
           with open('android/key.properties','w') as f:
               f.write('storeFile=key.jks\n')
-              f.write('storePassword='+esc(os.environ['KEYSTORE_PASSWORD'])+'\n')
-              f.write('keyAlias='+esc(os.environ['KEY_ALIAS'])+'\n')
-              f.write('keyPassword='+esc(os.environ['KEY_PASSWORD'])+'\n')
+              for prop, name in [('storePassword','KEYSTORE_PASSWORD'),('keyAlias','KEY_ALIAS'),('keyPassword','KEY_PASSWORD')]:
+                  f.write(prop+'='+esc(data[name])+'\n')
           PY
       - name: Apply project patches
         shell: pwsh
@@ -105,8 +123,8 @@ jobs:
           prerelease: true
           body: |
             动态页改为胶囊标签、浅粉底和圆角卡片。
-            覆盖升级需使用与 8.2 相同的签名与包名。
+            覆盖升级使用与之前预览相同的签名与包名。
           files: PiliNara-2.2.0-coui.9-arm64.apk
       - name: Remove signing material
         if: always()
-        run: rm -f android/app/key.jks android/key.properties
+        run: rm -f android/app/key.jks android/key.properties "$RUNNER_TEMP/session-private.pem" "$RUNNER_TEMP/envelope.json"
