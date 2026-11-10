@@ -17,10 +17,11 @@
 
 import 'dart:math' as math;
 
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/rendering.dart'
     show RenderSliverSingleBoxAdapter, SliverGeometry;
-import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ref [SliverPersistentHeader]
 class SliverPinnedHeader extends SingleChildRenderObjectWidget {
@@ -32,16 +33,25 @@ class SliverPinnedHeader extends SingleChildRenderObjectWidget {
 
   final Color? backgroundColor;
 
+  Color? _pageFill(BuildContext context) {
+    final scheme = ColorScheme.of(context);
+    final color = backgroundColor;
+    if (color == null || color == scheme.surface) {
+      return VideoDetailChrome.background(scheme);
+    }
+    return color;
+  }
+
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      RenderSliverPinnedHeader(backgroundColor: backgroundColor);
+      RenderSliverPinnedHeader(backgroundColor: _pageFill(context));
 
   @override
   void updateRenderObject(
     BuildContext context,
     RenderSliverPinnedHeader renderObject,
   ) {
-    renderObject.backgroundColor = backgroundColor;
+    renderObject.backgroundColor = _pageFill(context);
   }
 }
 

@@ -115,7 +115,7 @@ class _MemberFavoriteState extends State<MemberFavorite>
       slivers: [
         SliverPinnedHeader(
           child: Material(
-            color: theme.colorScheme.surface,
+            color: Colors.transparent,
             child: Builder(
               builder: (context) {
                 return InkWell(

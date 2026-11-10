@@ -64,9 +64,7 @@ abstract final class ThemeUtils {
       colorScheme: colorScheme,
       fontFamily: fontFamily,
       textTheme: textTheme,
-      scaffoldBackgroundColor: isDark
-          ? const Color(0xff141416)
-          : const Color(0xfffff5f7),
+      scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: AppBarTheme(
         elevation: 0,
         titleSpacing: 0,
@@ -115,7 +113,7 @@ abstract final class ThemeUtils {
       ),
       listTileTheme: const ListTileThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(12)),
+          borderRadius: BorderRadius.all(Radius.circular(18)),
         ),
         controlAffinity: .leading,
       ),
@@ -182,6 +180,11 @@ abstract final class ThemeUtils {
             WidgetState.any: null,
           },
         ),
+      ),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outline.withValues(alpha: 0.08),
+        space: 12,
+        thickness: 0.5,
       ),
       expansionTileTheme: const ExpansionTileThemeData(
         shape: Border(),

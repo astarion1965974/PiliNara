@@ -20,6 +20,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/rendering.dart'
     show RenderSliverSingleBoxAdapter, SliverGeometry, ScrollDirection;
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// ref [SliverFloatingHeader]
@@ -36,8 +37,12 @@ class SliverFloatingHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = ColorScheme.of(context);
+    final fill = backgroundColor == scheme.surface
+        ? VideoDetailChrome.background(scheme)
+        : backgroundColor;
     return _SliverFloatingHeaderWidget(
-      backgroundColor: backgroundColor,
+      backgroundColor: fill,
       child: _SliverFloatingHeaderScroll(child: child),
     );
   }

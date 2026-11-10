@@ -20,8 +20,12 @@ class SimpleScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = ColorScheme.of(context);
+    final fill = backgroundColor;
+    final shared = fill == null || fill == scheme.surface;
     return Material(
-      color: backgroundColor,
+      type: shared ? MaterialType.transparency : MaterialType.canvas,
+      color: shared ? Colors.transparent : fill,
       child: ScaffoldLayout(
         fab: fab,
         appBar: appBar,

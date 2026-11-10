@@ -31,7 +31,7 @@ class VideoCardV extends StatelessWidget {
     super.key,
     required this.videoItem,
     this.onRemove,
-    this.couiHome = false,
+    this.couiHome = true,
   });
 
   Future<void> onPushDetail() async {

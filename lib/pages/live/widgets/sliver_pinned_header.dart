@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:PiliPlus/common/widgets/sliver/sliver_pinned_header.dart';
-import 'package:flutter/widgets.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
+import 'package:material_ui/material_ui.dart';
 
 class LiveSliverPinnedHeader extends SliverPinnedHeader {
   const LiveSliverPinnedHeader({
@@ -16,12 +17,18 @@ class LiveSliverPinnedHeader extends SliverPinnedHeader {
   final ValueChanged<double> callback;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      RenderLiveSliverPinnedHeader(
-        backgroundColor: backgroundColor,
-        areaHeight: areaHeight,
-        callback: callback,
-      );
+  RenderObject createRenderObject(BuildContext context) {
+    final scheme = ColorScheme.of(context);
+    final color = backgroundColor;
+    final fill = color == null || color == scheme.surface
+        ? VideoDetailChrome.background(scheme)
+        : color;
+    return RenderLiveSliverPinnedHeader(
+      backgroundColor: fill,
+      areaHeight: areaHeight,
+      callback: callback,
+    );
+  }
 
   @override
   void updateRenderObject(
