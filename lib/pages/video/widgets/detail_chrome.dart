@@ -1,5 +1,22 @@
 import 'package:material_ui/material_ui.dart';
 
+/// Shared colors for the portrait detail page and its floating bars.
+class VideoDetailChrome {
+  static Color background(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark
+          ? const Color(0xff282025)
+          : const Color(0xfffff1f5);
+
+  static Color accent(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark
+          ? const Color(0xffffa2bb)
+          : const Color(0xffc6436c);
+
+  static Color pill(ColorScheme scheme) => accent(scheme).withValues(
+    alpha: scheme.brightness == Brightness.dark ? 0.18 : 0.10,
+  );
+}
+
 /// Presentation-only surfaces for the portrait video details area.
 class VideoDetailBackground extends StatelessWidget {
   const VideoDetailBackground({super.key, required this.child});
@@ -64,8 +81,7 @@ class VideoDetailTabStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    final dark = scheme.brightness == Brightness.dark;
-    final accent = dark ? const Color(0xffffa2bb) : const Color(0xffc6436c);
+    final accent = VideoDetailChrome.accent(scheme);
     return TabBar(
       padding: EdgeInsets.zero,
       dividerHeight: 0,
@@ -76,7 +92,7 @@ class VideoDetailTabStrip extends StatelessWidget {
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       indicator: showIndicator
           ? BoxDecoration(
-              color: accent.withValues(alpha: dark ? 0.18 : 0.10),
+              color: VideoDetailChrome.pill(scheme),
               borderRadius: BorderRadius.circular(18),
             )
           : const BoxDecoration(),
