@@ -1,5 +1,6 @@
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/models_new/search/search_trending/list.dart';
+import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
 import 'package:PiliPlus/utils/extension/string_ext.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
 import 'package:cached_network_image_ce/cached_network_image.dart';
@@ -31,7 +32,14 @@ class SliverHotKeyword extends StatelessWidget {
         .round();
 
     return SliverToBoxAdapter(
-      child: _HotKeywordGrid(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: SearchChrome.field(ColorScheme.of(context)),
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          child: _HotKeywordGrid(
         mainAxisSpacing: 5,
         crossAxisSpacing: 0.4,
         crossAxisCount: 2,
@@ -90,6 +98,8 @@ class SliverHotKeyword extends StatelessWidget {
               ),
             )
             .toList(),
+          ),
+        ),
       ),
     );
   }
