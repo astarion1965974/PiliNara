@@ -1358,21 +1358,31 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
       icon = Icons.play_arrow_rounded;
       playStat = '继续';
     }
-    final playBtn = Row(
-      spacing: 2,
-      mainAxisSize: .min,
-      children: [
-        Icon(icon, color: colorScheme.primary),
-        Text(
-          '$playStat播放',
-          style: TextStyle(color: colorScheme.primary),
+    final accent = VideoDetailChrome.accent(colorScheme);
+    final playBtn = DecoratedBox(
+      decoration: BoxDecoration(
+        color: VideoDetailChrome.pill(colorScheme),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: Row(
+          spacing: 2,
+          mainAxisSize: .min,
+          children: [
+            Icon(icon, color: accent, size: 20),
+            Text(
+              '$playStat播放',
+              style: TextStyle(color: accent, fontWeight: FontWeight.w600),
+            ),
+          ],
         ),
-      ],
+      ),
     );
     return Opacity(
       opacity: videoDetailController.scrollRatio.value,
       child: Container(
-        color: colorScheme.surface,
+        color: VideoDetailChrome.background(colorScheme),
         alignment: .topCenter,
         child: SizedBox(
           height: kToolbarHeight,
