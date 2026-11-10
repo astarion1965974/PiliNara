@@ -1,0 +1,112 @@
+name: Signed COUI dynamics preview 9
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Require the existing release keystore
+        env:
+          SIGN_KEYSTORE_BASE64: ${{ secrets.SIGN_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: |
+          missing=
+          for name in SIGN_KEYSTORE_BASE64 KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+            if [ -z "${!name}" ]; then missing="$missing $name"; fi
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing Actions secrets:$missing. Use the same keystore that signed preview 8.2."
+            exit 1
+          fi
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/gradle-wrapper.properties
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: true
+      - name: Write signing files
+        env:
+          SIGN_KEYSTORE_BASE64: ${{ secrets.SIGN_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        run: |
+          umask 077
+          printf '%s' "$SIGN_KEYSTORE_BASE64" | base64 --decode > android/app/key.jks
+          python3 - <<'PY'
+          import os
+          def esc(s):
+              return s.replace('\\','\\\\').replace('\n','\\n').replace('\r','\\r').replace('=','\\=').replace(':','\\:')
+          with open('android/key.properties','w') as f:
+              f.write('storeFile=key.jks\n')
+              f.write('storePassword='+esc(os.environ['KEYSTORE_PASSWORD'])+'\n')
+              f.write('keyAlias='+esc(os.environ['KEY_ALIAS'])+'\n')
+              f.write('keyPassword='+esc(os.environ['KEY_PASSWORD'])+'\n')
+          PY
+      - name: Apply project patches
+        shell: pwsh
+        run: lib/scripts/patch.ps1 android
+        continue-on-error: true
+      - name: Set build metadata
+        shell: pwsh
+        run: lib/scripts/build.ps1 android
+      - name: Set COUI version metadata
+        shell: bash
+        run: |
+          VERSION_CODE="$((100000 + $(git rev-list --count HEAD)))"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
+          import json,os
+          with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
+          metadata['pili.name']='2.2.0-coui.9'
+          metadata['pili.code']=int(os.environ['VERSION_CODE'])
+          with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
+          PY
+      - name: Install libraries for Flutter widget tests
+        run: |
+          if ! dpkg -s libgtk-3-dev libx11-dev libxi-dev >/dev/null 2>&1; then
+            timeout 120 sudo apt-get update
+            timeout 600 sudo apt-get install -y --no-install-recommends libgtk-3-dev libx11-dev libxi-dev
+          fi
+      - name: Test chrome
+        run: flutter test test/home_header_test.dart test/video_detail_chrome_test.dart test/search_chrome_test.dart test/youtube_comment_chrome_test.dart test/dynamics_chrome_test.dart
+      - name: Build signed arm64 APK
+        run: |
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.9 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.9-arm64.apk
+      - name: Verify APK signature
+        run: |
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
+          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.9-arm64.apk
+          sha256sum PiliNara-2.2.0-coui.9-arm64.apk
+      - name: Publish preview release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v2.2.0-coui.9
+          name: PiliNara 2.2.0 COUI Preview 9
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          body: |
+            动态页改为胶囊标签、浅粉底和圆角卡片。
+            覆盖升级需使用与 8.2 相同的签名与包名。
+          files: PiliNara-2.2.0-coui.9-arm64.apk
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/app/key.jks android/key.properties
