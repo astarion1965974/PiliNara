@@ -1210,7 +1210,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                     final backgroundColor = isPortrait && scrollRatio > 0
                         ? Color.lerp(
                             Colors.black,
-                            colorScheme.surface,
+                            VideoDetailChrome.background(colorScheme),
                             scrollRatio,
                           )!
                         : Colors.black;
