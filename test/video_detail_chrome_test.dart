@@ -1,28 +1,23 @@
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('video tabs keep selection and tap callbacks', (tester) async {
     var tapped = -1;
-    late TabController controller;
+    final controller = TabController(length: 2, vsync: tester);
+    addTearDown(controller.dispose);
     await tester.pumpWidget(MaterialApp(
-      home: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          body: Builder(builder: (context) {
-            controller = DefaultTabController.of(context);
-            return VideoDetailBackground(
-              child: Column(children: [
-                VideoDetailTabStrip(
-                  controller: controller,
-                  tabs: const [Tab(text: '简介'), Tab(text: '评论')],
-                  onTap: (index) => tapped = index,
-                  showIndicator: true,
-                ),
-              ]),
-            );
-          }),
+      home: Scaffold(
+        body: VideoDetailBackground(
+          child: Column(children: [
+            VideoDetailTabStrip(
+              controller: controller,
+              tabs: const [Tab(text: '简介'), Tab(text: '评论')],
+              onTap: (index) => tapped = index,
+              showIndicator: true,
+            ),
+          ]),
         ),
       ),
     ));
