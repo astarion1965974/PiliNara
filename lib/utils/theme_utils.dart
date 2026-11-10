@@ -128,6 +128,9 @@ abstract final class ThemeUtils {
           // ignore: deprecated_member_use
           : const ProgressIndicatorThemeData(year2023: false),
       dialogTheme: DialogThemeData(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(28)),
+        ),
         titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: fontWeight,

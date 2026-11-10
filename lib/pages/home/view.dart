@@ -58,6 +58,20 @@ class _HomePageState extends CommonPageState<HomePage>
             isScrollable: true,
             dividerColor: Colors.transparent,
             dividerHeight: 0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicatorPadding: const EdgeInsets.symmetric(
+              horizontal: 3,
+              vertical: 4,
+            ),
+            indicator: BoxDecoration(
+              color: _colorScheme.onSurface.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            labelColor: _colorScheme.onSurface,
+            unselectedLabelColor: _colorScheme.onSurfaceVariant,
+            labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
+            labelPadding: const EdgeInsets.symmetric(horizontal: 14),
             splashBorderRadius: Style.mdRadius,
             tabAlignment: TabAlignment.center,
             onTap: (_) {
