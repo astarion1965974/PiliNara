@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/floating_navigation_bar.dart';
@@ -214,6 +215,15 @@ class _MainAppState extends PopScopeState<MainApp>
         );
       }
 
+      final originalBottomNav = bottomNav;
+      bottomNav = Obx(() {
+        final index = _mainController.selectedIndex.value;
+        if (_mainController.navigationBars[index] == NavigationBarType.home) {
+          return _homeNavigation(index);
+        }
+        return originalBottomNav!;
+      });
+
       if (_mainController.hideBottomBar) {
         if (_mainController.barOffset case final barOffset?) {
           return Obx(
@@ -240,6 +250,83 @@ class _MainAppState extends PopScopeState<MainApp>
     }
 
     return bottomNav;
+  }
+
+  Widget _homeNavigation(int selectedIndex) {
+    final dark = _colorScheme.brightness == Brightness.dark;
+    final foreground = dark ? Colors.white : Colors.black;
+    final items = _mainController.navigationBars;
+    return Padding(
+      padding: EdgeInsets.only(bottom: _padding.bottom + 8, left: 16, right: 16),
+      child: SizedBox(
+        width: 260,
+        height: 56,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: (dark ? const Color(0xff262626) : Colors.white)
+                    .withValues(alpha: dark ? 0.78 : 0.82),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: foreground.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  for (var i = 0; i < items.length; i++)
+                    Expanded(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(28),
+                          onTap: () => _mainController.setIndex(i),
+                          child: Semantics(
+                            selected: i == selectedIndex,
+                            label: items[i].label,
+                            button: true,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconTheme.merge(
+                                  data: IconThemeData(
+                                    size: 24,
+                                    color: foreground.withValues(
+                                      alpha: i == selectedIndex ? 0.90 : 0.65,
+                                    ),
+                                  ),
+                                  child: _buildIcon(
+                                    type: items[i],
+                                    selected: i == selectedIndex,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  items[i].label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: foreground.withValues(
+                                      alpha: i == selectedIndex ? 0.90 : 0.65,
+                                    ),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _sideBar() {

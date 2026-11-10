@@ -32,7 +32,7 @@ class _RcmdPageState extends State<RcmdPage>
     final colorScheme = ColorScheme.of(context);
     return Container(
       clipBehavior: .hardEdge,
-      margin: const .symmetric(horizontal: Style.safeSpace),
+      margin: const .symmetric(horizontal: 16),
       decoration: const BoxDecoration(borderRadius: Style.mdRadius),
       child: refreshIndicator(
         key: HomePreviewScope.of(context) ? null : controller.refreshKey,
@@ -54,11 +54,11 @@ class _RcmdPageState extends State<RcmdPage>
   }
 
   late final gridDelegate = SliverGridDelegateWithExtentAndRatio(
-    mainAxisSpacing: Style.cardSpace,
-    crossAxisSpacing: Style.cardSpace,
+    mainAxisSpacing: 12,
+    crossAxisSpacing: 12,
     maxCrossAxisExtent: Pref.recommendCardWidth,
     childAspectRatio: Style.aspectRatio,
-    mainAxisExtent: MediaQuery.textScalerOf(context).scale(90),
+    mainAxisExtent: MediaQuery.textScalerOf(context).scale(104),
   );
 
   Widget _buildBody(
@@ -100,6 +100,7 @@ class _RcmdPageState extends State<RcmdPage>
                         ? index - 1
                         : index;
                     return VideoCardV(
+                      couiHome: true,
                       videoItem: response[actualIndex],
                       onRemove: () {
                         if (controller.lastRefreshAt != null &&
@@ -114,6 +115,7 @@ class _RcmdPageState extends State<RcmdPage>
                     );
                   } else {
                     return VideoCardV(
+                      couiHome: true,
                       videoItem: response[index],
                       onRemove: () => controller.loadingState
                         ..value.data!.removeAt(index)

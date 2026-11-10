@@ -25,11 +25,13 @@ import 'package:material_ui/material_ui.dart';
 class VideoCardV extends StatelessWidget {
   final BaseRcmdVideoItemModel videoItem;
   final VoidCallback? onRemove;
+  final bool couiHome;
 
   const VideoCardV({
     super.key,
     required this.videoItem,
     this.onRemove,
+    this.couiHome = false,
   });
 
   Future<void> onPushDetail() async {
@@ -83,6 +85,7 @@ class VideoCardV extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = ColorScheme.of(context);
     void onLongPress() => imageSaveDialog(
       title: videoItem.title,
       cover: videoItem.cover,
@@ -92,11 +95,16 @@ class VideoCardV extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Card(
+          elevation: couiHome ? 0 : null,
+          color: couiHome ? colorScheme.surfaceContainerLow : null,
+          shape: couiHome
+              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))
+              : null,
           child: InkWell(
             onTap: onPushDetail,
             onLongPress: onLongPress,
             onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-            borderRadius: const .all(.circular(12)),
+            borderRadius: BorderRadius.circular(couiHome ? 18 : 12),
             child: Column(
               crossAxisAlignment: .start,
               children: [
@@ -113,7 +121,9 @@ class VideoCardV extends StatelessWidget {
                             src: videoItem.cover,
                             width: maxWidth,
                             height: maxHeight,
-                            borderRadius: const .vertical(top: .circular(12)),
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(couiHome ? 18 : 12),
+                            ),
                           ),
                           if (videoItem.duration > 0)
                             PBadge(
@@ -166,7 +176,9 @@ class VideoCardV extends StatelessWidget {
     final theme = Theme.of(context);
     return Expanded(
       child: Padding(
-        padding: const .fromLTRB(6, 5, 6, 5),
+        padding: couiHome
+            ? const EdgeInsets.fromLTRB(10, 8, 10, 7)
+            : const EdgeInsets.fromLTRB(6, 5, 6, 5),
         child: Column(
           crossAxisAlignment: .start,
           children: [
@@ -175,7 +187,10 @@ class VideoCardV extends StatelessWidget {
                 videoItem.title,
                 maxLines: 2,
                 overflow: .ellipsis,
-                style: const TextStyle(height: 1.38),
+                style: TextStyle(
+                  height: 1.38,
+                  fontWeight: couiHome ? FontWeight.w600 : null,
+                ),
               ),
             ),
             videoStat(theme),

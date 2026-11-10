@@ -73,7 +73,7 @@ class _HomePageState extends CommonPageState<HomePage>
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
             labelPadding: const EdgeInsets.symmetric(horizontal: 14),
             splashBorderRadius: Style.mdRadius,
-            tabAlignment: TabAlignment.center,
+            tabAlignment: TabAlignment.start,
             onTap: (_) {
               feedBack();
               if (!_homeController.tabController.indexIsChanging) {
@@ -102,8 +102,10 @@ class _HomePageState extends CommonPageState<HomePage>
       child: Column(
         children: [
           if (!_mainController.useSideBar &&
-              MediaQuery.sizeOf(context).isPortrait)
+              MediaQuery.sizeOf(context).isPortrait) ...[
+            homeTitleBar(),
             customAppBar(),
+          ],
           tabBar,
           Expanded(
             child: onBuild(
@@ -118,15 +120,38 @@ class _HomePageState extends CommonPageState<HomePage>
     );
   }
 
+  Widget homeTitleBar() => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 6, 16, 2),
+    child: SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'PiliNara',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: _colorScheme.onSurface,
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+          msgBadge(_mainController),
+          const SizedBox(width: 8),
+          userAvatar(colorScheme: _colorScheme, mainController: _mainController),
+        ],
+      ),
+    ),
+  );
+
   Widget customAppBar() {
-    const padding = EdgeInsets.fromLTRB(14, 6, 14, 0);
+    const padding = EdgeInsets.fromLTRB(16, 6, 16, 6);
     final child = Row(
       children: [
         searchBar(),
-        const SizedBox(width: 4),
-        msgBadge(_mainController),
-        const SizedBox(width: 8),
-        userAvatar(colorScheme: _colorScheme, mainController: _mainController),
       ],
     );
     if (_homeController.hideTopBar) {
@@ -173,10 +198,10 @@ class _HomePageState extends CommonPageState<HomePage>
     const borderRadius = BorderRadius.all(Radius.circular(25));
     return Expanded(
       child: SizedBox(
-        height: 44,
+        height: 40,
         child: Material(
           borderRadius: borderRadius,
-          color: _colorScheme.onSecondaryContainer.withValues(alpha: 0.05),
+          color: _colorScheme.onSurface.withValues(alpha: 0.075),
           child: InkWell(
             borderRadius: borderRadius,
             splashColor: _colorScheme.primaryContainer.withValues(
