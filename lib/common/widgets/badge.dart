@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/models/common/badge_type.dart';
 import 'package:PiliPlus/utils/extension/string_ext.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
@@ -83,9 +84,7 @@ class PBadge extends StatelessWidget {
     }
 
     const defPaddingStyle = EdgeInsets.symmetric(vertical: 2, horizontal: 3);
-    final BorderRadius br = size == .small
-        ? const .all(.circular(3))
-        : const .all(.circular(4));
+    final BorderRadius br = Coui.badgeRadius;
 
     Widget content = Container(
       padding: padding ?? defPaddingStyle,

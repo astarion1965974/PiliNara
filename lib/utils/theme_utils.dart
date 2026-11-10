@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -56,8 +57,8 @@ abstract final class ThemeUtils {
       );
     }
 
-    final buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    final buttonShape = const WidgetStatePropertyAll<OutlinedBorder>(
+      Coui.controlShape,
     );
     final theme = ThemeData(
       useMaterial3: true,
@@ -80,9 +81,26 @@ abstract final class ThemeUtils {
       ),
       navigationBarTheme: NavigationBarThemeData(
         surfaceTintColor: isDark ? colorScheme.surfaceContainerHighest : null,
+        indicatorShape: const StadiumBorder(),
+        height: 64,
+      ),
+      navigationRailTheme: const NavigationRailThemeData(
+        indicatorShape: StadiumBorder(),
+      ),
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        elevation: 0,
+        highlightElevation: 0,
+        shape: StadiumBorder(),
+      ),
+      iconButtonTheme: const IconButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(CircleBorder()),
+        ),
       ),
       snackBarTheme: SnackBarThemeData(
-        elevation: 20,
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        shape: const RoundedRectangleBorder(borderRadius: Coui.controlRadius),
         actionTextColor: colorScheme.primary,
         closeIconColor: colorScheme.secondary,
         backgroundColor: colorScheme.secondaryContainer,
@@ -97,9 +115,7 @@ abstract final class ThemeUtils {
         elevation: 3,
         shadowColor: colorScheme.shadow,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
+        shape: Coui.cardShape,
         menuPadding: const EdgeInsets.symmetric(vertical: 4),
         labelTextStyle: WidgetStatePropertyAll(
           TextStyle(
@@ -113,7 +129,7 @@ abstract final class ThemeUtils {
       ),
       listTileTheme: const ListTileThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(18)),
+          borderRadius: Coui.controlRadius,
         ),
         controlAffinity: .leading,
       ),
@@ -122,10 +138,8 @@ abstract final class ThemeUtils {
         margin: EdgeInsets.zero,
         shadowColor: Colors.transparent,
         surfaceTintColor: isDark ? colorScheme.onSurfaceVariant : null,
-        color: isDark
-            ? colorScheme.surfaceContainerHigh.withValues(alpha: 0.92)
-            : Colors.white.withValues(alpha: 0.94),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        color: Coui.cardColor(colorScheme),
+        shape: Coui.cardShape,
       ),
       progressIndicatorTheme: isDark
           ? ProgressIndicatorThemeData(
@@ -136,9 +150,7 @@ abstract final class ThemeUtils {
           // ignore: deprecated_member_use
           : const ProgressIndicatorThemeData(year2023: false),
       dialogTheme: DialogThemeData(
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(28)),
-        ),
+        shape: Coui.dialogShape,
         titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: fontWeight,
@@ -165,7 +177,7 @@ abstract final class ThemeUtils {
         ),
         decoration: const BoxDecoration(
           color: Color(0xE6616161), // Colors.grey[700]!.withValues(alpha: 0.9)
-          borderRadius: BorderRadius.all(Radius.circular(4)),
+          borderRadius: Coui.controlRadius,
         ),
       ),
       cupertinoOverrideTheme: CupertinoThemeData(
@@ -209,11 +221,16 @@ abstract final class ThemeUtils {
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
+      inputDecorationTheme: const InputDecorationTheme(
+        border: OutlineInputBorder(borderRadius: Coui.controlRadius),
+        enabledBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
+        focusedBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
       ),
-      chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      chipTheme: const ChipThemeData(shape: Coui.controlShape),
+      menuTheme: const MenuThemeData(
+        style: MenuStyle(
+          shape: WidgetStatePropertyAll(Coui.cardShape),
+        ),
       ),
       tabBarTheme: const TabBarThemeData(
         dividerHeight: 0,

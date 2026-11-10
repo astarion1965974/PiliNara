@@ -8,9 +8,9 @@ import 'package:material_ui/material_ui.dart' hide PopupMenuItem;
 import 'package:material_ui/material_ui.dart' as material show PopupMenuItem;
 
 const _kDefaultPopupMenuPadding = EdgeInsets.all(8);
-const _kMd3eMenuContainerRadius = BorderRadius.all(Radius.circular(16));
-const _kMd3eMenuItemRadius = BorderRadius.all(Radius.circular(12));
-const _kMd3eMenuItemSelectedRadius = BorderRadius.all(Radius.circular(12));
+const _kMd3eMenuContainerRadius = BorderRadius.all(Radius.circular(22));
+const _kMd3eMenuItemRadius = BorderRadius.all(Radius.circular(18));
+const _kMd3eMenuItemSelectedRadius = BorderRadius.all(Radius.circular(18));
 
 Future<T?> showStaticPositionMenu<T>({
   required BuildContext context,

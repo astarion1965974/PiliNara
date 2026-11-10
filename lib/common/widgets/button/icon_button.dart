@@ -29,6 +29,7 @@ Widget iconButton({
         iconSize: iconSize ?? size / 2,
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
+        shape: const CircleBorder(),
       ),
     ),
   );

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
@@ -96,15 +97,13 @@ class VideoCardV extends StatelessWidget {
       children: [
         Card(
           elevation: couiHome ? 0 : null,
-          color: couiHome ? colorScheme.surfaceContainerLow : null,
-          shape: couiHome
-              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(18))
-              : null,
+          color: couiHome ? Coui.cardColor(colorScheme) : null,
+          shape: couiHome ? Coui.cardShape : null,
           child: InkWell(
             onTap: onPushDetail,
             onLongPress: onLongPress,
             onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-            borderRadius: BorderRadius.circular(couiHome ? 18 : 12),
+            borderRadius: couiHome ? Coui.cardRadius : Style.mdRadius,
             child: Column(
               crossAxisAlignment: .start,
               children: [
@@ -122,7 +121,7 @@ class VideoCardV extends StatelessWidget {
                             width: maxWidth,
                             height: maxHeight,
                             borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(couiHome ? 18 : 12),
+                              top: Radius.circular(couiHome ? Coui.card : Coui.image),
                             ),
                           ),
                           if (videoItem.duration > 0)

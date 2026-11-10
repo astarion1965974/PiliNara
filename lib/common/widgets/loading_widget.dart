@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_arc.dart';
 import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
@@ -21,7 +22,7 @@ class LoadingWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       decoration: BoxDecoration(
         color: theme.dialogTheme.backgroundColor,
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
+        borderRadius: Coui.cardRadius,
       ),
       child: Column(
         spacing: 20,

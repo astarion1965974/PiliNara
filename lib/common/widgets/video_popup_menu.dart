@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/http/user.dart';
@@ -121,7 +122,7 @@ class VideoPopupMenu extends StatelessWidget {
 
   Widget _buildDialogChip(BuildContext context, _DialogChipAction action) {
     final colorScheme = Theme.of(context).colorScheme;
-    const radius = BorderRadius.all(Radius.circular(6));
+    const radius = Coui.controlRadius;
     return Material(
       color: colorScheme.onInverseSurface,
       borderRadius: radius,

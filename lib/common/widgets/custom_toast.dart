@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -18,7 +19,7 @@ class CustomToast extends StatelessWidget {
       padding: const .symmetric(horizontal: 17, vertical: 10),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: toastOpacity),
-        borderRadius: const .all(.circular(20)),
+        borderRadius: Coui.controlRadius,
       ),
       child: Text(
         msg,
@@ -45,7 +46,7 @@ class LoadingWidget extends StatelessWidget {
       padding: const .symmetric(horizontal: 30, vertical: 20),
       decoration: BoxDecoration(
         color: theme.dialogTheme.backgroundColor,
-        borderRadius: const .all(.circular(15)),
+        borderRadius: Coui.cardRadius,
       ),
       child: Column(
         spacing: 20,
@@ -75,7 +76,7 @@ class NotifyWarning extends StatelessWidget {
     final onSurfaceVariant = theme.colorScheme.onSurfaceVariant;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const .all(.circular(8)),
+        borderRadius: Coui.controlRadius,
         color: theme.dialogTheme.backgroundColor,
       ),
       padding: const .symmetric(horizontal: 20, vertical: 10),
