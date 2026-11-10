@@ -199,43 +199,65 @@ class _SettingPageState extends State<SettingPage> {
     TextStyle subTitleStyle = theme.textTheme.labelMedium!.copyWith(
       color: theme.colorScheme.outline,
     );
+    Widget settingsTile(_SettingsModel item) => ListTile(
+      tileColor: _getTileColor(theme, item.type),
+      onTap: () => _toPage(item.type),
+      leading: item.icon,
+      title: Text(item.type.title, style: titleStyle),
+      subtitle: item.subtitle == null
+          ? null
+          : Text(item.subtitle!, style: subTitleStyle),
+      trailing: const Icon(Icons.chevron_right),
+    );
+
+    Widget group(List<Widget> children) => Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Material(
+          color: theme.colorScheme.surfaceContainerLow,
+          child: Column(
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0)
+                  Divider(
+                    height: 1,
+                    thickness: 0.5,
+                    indent: 72,
+                    endIndent: 16,
+                    color: theme.colorScheme.outlineVariant,
+                  ),
+                children[i],
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+
     return ListView(
       padding: EdgeInsets.only(bottom: padding.bottom + 100),
       children: [
         _buildSearchItem(theme),
-        ..._items
-            .take(_items.length - 1)
-            .map(
-              (item) => ListTile(
-                tileColor: _getTileColor(theme, item.type),
-                onTap: () => _toPage(item.type),
-                leading: item.icon,
-                title: Text(item.type.title, style: titleStyle),
-                subtitle: item.subtitle == null
-                    ? null
-                    : Text(item.subtitle!, style: subTitleStyle),
-              ),
-            ),
-        ListTile(
-          onTap: () => LoginPageController.switchAccountDialog(context),
-          leading: const Icon(Icons.switch_account_outlined),
-          title: Text('切换账号', style: titleStyle),
-        ),
+        group(_items.take(_items.length - 1).map(settingsTile).toList()),
         Obx(
-          () => _noAccount.value
-              ? const SizedBox.shrink()
-              : ListTile(
+          () => group([
+            ListTile(
+              onTap: () => LoginPageController.switchAccountDialog(context),
+              leading: const Icon(Icons.switch_account_outlined),
+              title: Text('切换账号', style: titleStyle),
+              trailing: const Icon(Icons.chevron_right),
+            ),
+            if (!_noAccount.value)
+              ListTile(
                   leading: const Icon(Icons.logout_outlined),
                   onTap: () => _logoutDialog(context),
                   title: Text('退出登录', style: titleStyle),
+                  trailing: const Icon(Icons.chevron_right),
                 ),
+          ]),
         ),
-        ListTile(
-          tileColor: _getTileColor(theme, _items.last.type),
-          onTap: () => _toPage(_items.last.type),
-          leading: _items.last.icon,
-          title: Text(_items.last.type.title, style: titleStyle),
-        ),
+        group([settingsTile(_items.last)]),
       ],
     );
   }
