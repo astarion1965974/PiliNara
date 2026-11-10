@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -37,7 +38,7 @@ class LiveCardVApp extends StatelessWidget {
             onTap: () => PageUtils.toLiveRoom(item.roomid),
             onLongPress: onLongPress,
             onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-            borderRadius: const .all(.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: Column(
               crossAxisAlignment: .start,
               children: [
@@ -51,7 +52,7 @@ class LiveCardVApp extends StatelessWidget {
                           src: showFirstFrame ? item.systemCover : item.cover,
                           width: boxConstraints.maxWidth,
                           height: boxConstraints.maxHeight,
-                          borderRadius: const .vertical(top: .circular(12)),
+                          borderRadius: Coui.coverTopRadius,
                         ),
                         Positioned(
                           left: 0,

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/view_insets_safe_area.dart';
 import 'package:PiliPlus/http/pgc.dart';
@@ -204,7 +205,7 @@ class _PgcReviewPostPanelState extends State<PgcReviewPostPanel> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   padding: EdgeInsets.zero,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(6)),
+                    borderRadius: Coui.imageRadius,
                   ),
                 ),
                 onPressed: _enablePost.value ? _onPost : null,

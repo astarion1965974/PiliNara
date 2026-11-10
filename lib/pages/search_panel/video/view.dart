@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/sliver/sliver_floating_header.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_h.dart';
 import 'package:PiliPlus/models/common/search/video_search_type.dart';
@@ -78,7 +79,7 @@ mixin SearchVideoPanelMixin<S extends SearchVideoPanel>
                           bgColor: controller.selectedType.value == e
                               ? SearchChrome.pill(colorScheme)
                               : Colors.transparent,
-                          borderRadius: const BorderRadius.all(Radius.circular(16)),
+                          borderRadius: Coui.controlRadius,
                           textColor: controller.selectedType.value == e
                               ? SearchChrome.accent(colorScheme)
                               : colorScheme.outline,

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 import 'dart:math';
 
@@ -389,7 +390,7 @@ class _PostPanelState extends State<PostPanel>
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.onInverseSurface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
           ),
           child: Builder(
             builder: (context) => Column(

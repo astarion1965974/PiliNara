@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/models_new/video/video_ai_conclusion/model_result.dart';
 import 'package:PiliPlus/pages/common/slide/common_slide_page.dart';
@@ -139,7 +140,7 @@ class _AiDetailState extends State<AiConclusionPanel>
     return Material(
       color: theme.colorScheme.surface,
       clipBehavior: Clip.antiAlias,
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+      borderRadius: Coui.sheetRadius,
       child: Column(
         children: [
           GestureDetector(

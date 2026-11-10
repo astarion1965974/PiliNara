@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/models_new/fav/fav_folder/list.dart';
 import 'package:PiliPlus/utils/bili_utils.dart';
@@ -34,7 +35,7 @@ class FavFolderItem extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              borderRadius: Coui.imageRadius,
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.onInverseSurface.withValues(

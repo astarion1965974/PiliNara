@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/pages/setting/ai_setting/controller.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -210,7 +211,7 @@ class AiSettingPage extends StatelessWidget {
                               padding: const EdgeInsets.only(right: 20),
                               decoration: BoxDecoration(
                                 color: colorScheme.errorContainer,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: Coui.controlRadius,
                               ),
                               child: Icon(
                                 Icons.delete_outline,
@@ -223,7 +224,7 @@ class AiSettingPage extends StatelessWidget {
                                 controller.deleteTemplate(index),
                             child: Material(
                               color: colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: Coui.controlRadius,
                               clipBehavior: Clip.antiAlias,
                               child: InkWell(
                                 // 点击整行进编辑；删除收进左滑与编辑弹窗
@@ -425,7 +426,7 @@ class AiSettingPage extends StatelessWidget {
   ) {
     return Material(
       color: colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: Coui.controlRadius,
       clipBehavior: Clip.antiAlias,
       child: ListTile(
         onTap: () => _showReasoningEffortSheet(context, controller),
@@ -441,7 +442,7 @@ class AiSettingPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: colorScheme.outline.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: Coui.controlRadius,
               ),
               child: Text(
                 AiSettingController.reasoningEffortLabel(

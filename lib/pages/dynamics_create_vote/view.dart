@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show File;
 
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
@@ -330,9 +331,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
               src: imgUrl,
               width: 40,
               height: 40,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(6),
-              ),
+              borderRadius: Coui.imageRadius,
             ),
           ),
         if (showDel)
@@ -366,7 +365,7 @@ class _CreateVotePageState extends State<CreateVotePage> {
                       ? theme.colorScheme.secondary
                       : theme.colorScheme.outline,
                 ),
-                borderRadius: const BorderRadius.all(Radius.circular(6)),
+                borderRadius: Coui.imageRadius,
               ),
               backgroundColor: isEnable
                   ? theme.colorScheme.secondaryContainer

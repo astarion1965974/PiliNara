@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/style.dart';
@@ -486,7 +487,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
       height: 56,
       decoration: BoxDecoration(
         color: colorScheme.onSurface.withValues(alpha: 0.035),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: Coui.controlRadius,
       ),
       child: Row(
         crossAxisAlignment: .start,

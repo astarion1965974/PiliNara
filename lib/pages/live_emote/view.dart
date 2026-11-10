@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
 
 import 'package:PiliPlus/common/widgets/emote_tooltip.dart';
@@ -92,9 +93,7 @@ class _LiveEmotePanelState extends State<LiveEmotePanel>
                               return Material(
                                 type: MaterialType.transparency,
                                 child: InkWell(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(6),
-                                  ),
+                                  borderRadius: Coui.imageRadius,
                                   onTap: () {
                                     if (item.pkgType == 3) {
                                       widget.onChoose(e, width, height);

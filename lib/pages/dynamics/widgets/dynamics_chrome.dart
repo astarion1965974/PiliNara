@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -37,7 +38,7 @@ class DynamicsTabStrip extends StatelessWidget {
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
       indicator: BoxDecoration(
         color: VideoDetailChrome.pill(scheme),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: Coui.controlRadius,
       ),
       labelColor: VideoDetailChrome.accent(scheme),
       unselectedLabelColor: scheme.onSurfaceVariant,
@@ -47,7 +48,7 @@ class DynamicsTabStrip extends StatelessWidget {
         fontWeight: FontWeight.w400,
       ),
       labelPadding: const EdgeInsets.symmetric(horizontal: 14),
-      splashBorderRadius: BorderRadius.circular(18),
+      splashBorderRadius: Coui.controlRadius,
       onTap: onTap,
     );
   }
@@ -71,9 +72,9 @@ class DynamicsComposeButton extends StatelessWidget {
       padding: margin,
       child: Material(
         color: VideoDetailChrome.pill(scheme),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: Coui.controlRadius,
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: Coui.controlRadius,
           onTap: onPressed,
           child: SizedBox(
             height: 34,
@@ -119,10 +120,10 @@ class DynamicsFeedCard extends StatelessWidget {
           color: dark
               ? scheme.surfaceContainerHigh.withValues(alpha: 0.92)
               : Colors.white.withValues(alpha: 0.94),
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: Coui.cardRadius,
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: Coui.cardRadius,
           child: child,
         ),
       ),

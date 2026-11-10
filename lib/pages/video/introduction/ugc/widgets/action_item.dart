@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_arc.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
@@ -67,7 +68,7 @@ class ActionItem extends StatelessWidget {
     child = Material(
       type: .transparency,
       child: InkWell(
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         onTap: _isThumbsUp ? null : onTap,
         onLongPress: _isThumbsUp ? null : onLongPress,
         onSecondaryTap: PlatformUtils.isMobile || _isThumbsUp

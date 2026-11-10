@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/toolbar_icon_button.dart';
 import 'package:PiliPlus/common/widgets/flutter/text_field/text_field.dart';
@@ -107,7 +108,7 @@ class _ReplyPageState extends CommonRichTextPubPageState<LiveSendDmPanel> {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 640),
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: Coui.sheetRadius,
             color: theme.colorScheme.surface,
           ),
           child: Column(

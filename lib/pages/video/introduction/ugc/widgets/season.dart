@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/models_new/video/video_detail/episode.dart';
 import 'package:PiliPlus/models_new/video/video_detail/ugc_season.dart';
@@ -67,9 +68,9 @@ class _SeasonPanelState extends State<SeasonPanel> {
       padding: const .only(top: 8, left: 2, right: 2),
       child: Material(
         color: colorScheme.onInverseSurface,
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         child: InkWell(
-          borderRadius: const .all(.circular(6)),
+          borderRadius: Coui.imageRadius,
           onTap: widget.canTap
               ? () => widget.showEpisodes(type: .season)
               : null,

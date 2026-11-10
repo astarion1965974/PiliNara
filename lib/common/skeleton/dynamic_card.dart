@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/skeleton.dart';
 import 'package:PiliPlus/utils/global_data.dart';
 import 'package:material_ui/material_ui.dart';
@@ -35,7 +36,7 @@ class DynamicCardSkeleton extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: color,
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderRadius: Coui.cardRadius,
                   ),
                 ),
                 const SizedBox(width: 10),

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Shared colors for the portrait detail page and its floating bars.
@@ -54,7 +55,7 @@ class VideoDetailCard extends StatelessWidget {
         color: dark
             ? scheme.surfaceContainerHigh.withValues(alpha: 0.92)
             : Colors.white.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: Coui.cardRadius,
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
@@ -93,7 +94,7 @@ class VideoDetailTabStrip extends StatelessWidget {
       indicator: showIndicator
           ? BoxDecoration(
               color: VideoDetailChrome.pill(scheme),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: Coui.controlRadius,
             )
           : const BoxDecoration(),
       labelColor: showIndicator ? accent : scheme.onSurface,

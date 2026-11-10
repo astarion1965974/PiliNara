@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
 
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
@@ -72,7 +73,7 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
               keyboardType: const .numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: '自定义倍速',
-                border: OutlineInputBorder(borderRadius: .all(.circular(6))),
+                border: OutlineInputBorder(borderRadius: Coui.imageRadius),
               ),
               onChanged: (value) => initialValue = value,
               inputFormatters: FilteringText.decimal,

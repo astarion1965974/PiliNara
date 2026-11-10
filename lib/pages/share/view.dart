@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/self_sized_horizontal_list.dart';
@@ -234,7 +235,7 @@ class _SharePanelState extends State<SharePanel> {
                       hintStyle: const TextStyle(fontSize: 14),
                       border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                        borderRadius: Coui.cardRadius,
                       ),
                       filled: true,
                       isDense: true,

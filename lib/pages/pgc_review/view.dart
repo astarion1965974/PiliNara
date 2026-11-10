@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/models/common/pgc_review_type.dart';
@@ -65,7 +66,7 @@ class _PgcReviewPageState extends State<PgcReviewPage>
             ),
             indicator: BoxDecoration(
               color: theme.colorScheme.secondaryContainer,
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              borderRadius: Coui.cardRadius,
             ),
             indicatorSize: TabBarIndicatorSize.tab,
             labelColor: theme.colorScheme.onSecondaryContainer,

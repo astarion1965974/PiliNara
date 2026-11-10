@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/m3e_loading_indicator.dart';
 import 'package:PiliPlus/models/video/play/url.dart';
@@ -212,7 +213,7 @@ class _CdnNodeDialogState extends State<CdnNodeDialog> {
                     StaticPopupMenuButton<String>(
                       initialValue: region,
                       onSelected: _selectRegion,
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      borderRadius: Coui.controlRadius,
                       padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
                       itemBuilder: (context) => [
                         for (final item in regions)

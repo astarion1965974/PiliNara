@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/avatars.dart';
@@ -317,7 +318,7 @@ class _VotePanelState extends State<VotePanel> {
           .toList(),
     );
     return Card(
-      shape: const RoundedRectangleBorder(borderRadius: .all(.circular(6))),
+      shape: const RoundedRectangleBorder(borderRadius: Coui.imageRadius),
       child: Builder(
         builder: (context) {
           final opt = _voteInfo.options[index];
@@ -328,7 +329,7 @@ class _VotePanelState extends State<VotePanel> {
                 : () => _onSelected(context, !selected, opt.optIdx!),
             onLongPress: PlatformUtils.isMobile ? onLongPress : null,
             onSecondaryTap: PlatformUtils.isDesktop ? onLongPress : null,
-            borderRadius: const .all(.circular(6)),
+            borderRadius: Coui.imageRadius,
             child: Column(
               spacing: 5,
               crossAxisAlignment: .stretch,
@@ -483,15 +484,15 @@ class PercentageChip extends StatelessWidget {
     return Tooltip(
       message: label,
       child: Material(
-        borderRadius: const .all(.circular(8)),
+        borderRadius: Coui.controlRadius,
         color: selected ? colorScheme.secondaryContainer : null,
         child: InkWell(
           onTap: onSelected,
-          borderRadius: const .all(.circular(8)),
+          borderRadius: Coui.controlRadius,
           child: Container(
             padding: _padding,
             decoration: VoteDecoration(
-              borderRadius: const .all(.circular(8)),
+              borderRadius: Coui.controlRadius,
               border: .all(color: colorScheme.outlineVariant),
               percentage: percentage ?? 0,
               color: selected

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
 
 import 'package:PiliPlus/common/style.dart';
@@ -123,9 +124,7 @@ class _PgcPageState extends State<PgcPage> with AutomaticKeepAliveClientMixin {
                               ),
                               indicator: BoxDecoration(
                                 color: theme.colorScheme.secondaryContainer,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(20),
-                                ),
+                                borderRadius: Coui.cardRadius,
                               ),
                               indicatorSize: TabBarIndicatorSize.tab,
                               labelColor:

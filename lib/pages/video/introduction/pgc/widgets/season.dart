@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/video/introduction/pgc/controller.dart';
 import 'package:PiliPlus/utils/scroll_offset_helper.dart';
 import 'package:material_ui/material_ui.dart';
@@ -64,9 +65,9 @@ class SeasonPanel extends StatelessWidget {
             margin: index != seasons.length - 1 ? const .only(right: 10) : null,
             child: Material(
               color: colorScheme.onInverseSurface,
-              borderRadius: const .all(.circular(6)),
+              borderRadius: Coui.imageRadius,
               child: InkWell(
-                borderRadius: const .all(.circular(6)),
+                borderRadius: Coui.imageRadius,
                 onTap: () {
                   if (isCurr || pgcController.changingSeason) return;
                   pgcController.changeSeason(item.seasonId!, index).then((res) {

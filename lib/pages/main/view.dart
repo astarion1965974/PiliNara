@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io';
 import 'dart:ui' show ImageFilter;
 
@@ -263,10 +264,10 @@ class _MainAppState extends PopScopeState<MainApp>
                   tilePadding: const .symmetric(vertical: 5, horizontal: 12),
                   indicatorShape: _mainController.hideSideBarLabel
                       ? const RoundedRectangleBorder(
-                          borderRadius: .all(.circular(12)),
+                          borderRadius: Coui.imageRadius,
                         )
                       : const RoundedRectangleBorder(
-                          borderRadius: .all(.circular(16)),
+                          borderRadius: Coui.controlRadius,
                         ),
                   children: _mainController.navigationBars
                       .map(

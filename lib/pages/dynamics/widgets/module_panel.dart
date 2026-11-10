@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -139,7 +140,7 @@ Widget module(
               children: [
                 if (common.cover?.isNotEmpty ?? false)
                   ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    borderRadius: Coui.imageRadius,
                     child: CachedNetworkImage(
                       width: 45,
                       height: 45,
@@ -207,9 +208,7 @@ Widget module(
                   width: 45,
                   height: 45,
                   src: music.cover,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8),
-                  ),
+                  borderRadius: Coui.controlRadius,
                 ),
                 Expanded(
                   child: Column(

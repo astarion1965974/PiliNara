@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/models_new/video/video_detail/episode.dart';
 import 'package:PiliPlus/models_new/video/video_detail/page.dart';
@@ -198,9 +199,9 @@ class _PagePanelState extends State<PagePanel> {
       margin: index != _parts.length - 1 ? const .only(right: 10) : null,
       child: Material(
         color: colorScheme.onInverseSurface,
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         child: InkWell(
-          borderRadius: const .all(.circular(6)),
+          borderRadius: Coui.imageRadius,
           onTap: () {
             if (widget.onDownload case final onDownload?) {
               if (onDownload(item) && mounted) {

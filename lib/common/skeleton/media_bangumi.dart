@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/skeleton.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:material_ui/material_ui.dart';
@@ -22,7 +23,7 @@ class _MediaPgcSkeletonState extends State<MediaPgcSkeleton> {
               width: 111,
               height: 148,
               decoration: BoxDecoration(
-                borderRadius: const .all(Radius.circular(6)),
+                borderRadius: Coui.imageRadius,
                 color: bgColor,
               ),
             ),

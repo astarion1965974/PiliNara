@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
@@ -123,7 +124,7 @@ class _HomePageState extends CommonPageState<HomePage>
             ),
             indicator: BoxDecoration(
               color: _colorScheme.onSurface.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: Coui.controlRadius,
             ),
             labelColor: _colorScheme.onSurface,
             unselectedLabelColor: _colorScheme.onSurfaceVariant,

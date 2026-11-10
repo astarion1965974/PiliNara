@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/http/browser_ua.dart';
 import 'package:PiliPlus/http/constants.dart';
 import 'package:PiliPlus/http/video.dart';
@@ -214,7 +215,7 @@ class M3eOptionItem extends StatelessWidget {
             : null);
     return Material(
       color: selected ? colorScheme.secondaryContainer : Colors.transparent,
-      borderRadius: const BorderRadius.all(Radius.circular(16)),
+      borderRadius: Coui.controlRadius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,

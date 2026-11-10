@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/models_new/search/search_trending/list.dart';
 import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
@@ -35,7 +36,7 @@ class SliverHotKeyword extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: SearchChrome.field(ColorScheme.of(context)),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: Coui.controlRadius,
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),

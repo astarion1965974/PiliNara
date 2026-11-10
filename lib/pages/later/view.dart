@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
@@ -222,7 +223,7 @@ class _LaterPageState extends State<LaterPage>
                 onSelected: (value) => currCtr()
                   ..asc.value = value
                   ..onReload(),
-                borderRadius: const .all(.circular(20)),
+                borderRadius: Coui.cardRadius,
                 child: Padding(
                   padding: const .symmetric(horizontal: 12, vertical: 6),
                   child: Text.rich(
@@ -263,7 +264,7 @@ class _LaterPageState extends State<LaterPage>
           ),
           StaticPopupMenuButton(
             tooltip: '清空',
-            borderRadius: const .all(.circular(20)),
+            borderRadius: Coui.cardRadius,
             child: Padding(
               padding: const .symmetric(horizontal: 12, vertical: 6),
               child: Text.rich(

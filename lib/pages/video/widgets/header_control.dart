@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async' show StreamSubscription, Timer;
 import 'dart:convert' show jsonDecode, utf8;
 import 'dart:io' show Platform, File;
@@ -455,7 +456,7 @@ class HeaderControlState extends State<HeaderControl>
           child: Material(
             clipBehavior: Clip.antiAlias,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            borderRadius: Coui.controlRadius,
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 14),
               children: [
@@ -1050,7 +1051,7 @@ class HeaderControlState extends State<HeaderControl>
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
@@ -1137,7 +1138,7 @@ class HeaderControlState extends State<HeaderControl>
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: CustomScrollView(
               slivers: [
                 const SliverToBoxAdapter(
@@ -1226,7 +1227,7 @@ class HeaderControlState extends State<HeaderControl>
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: Column(
               children: [
                 const SizedBox(
@@ -1555,7 +1556,7 @@ class HeaderControlState extends State<HeaderControl>
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: ListView(
@@ -1704,7 +1705,7 @@ class HeaderControlState extends State<HeaderControl>
         margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          borderRadius: Coui.imageRadius,
         ),
         child: Column(
           children: [
@@ -1734,7 +1735,7 @@ class HeaderControlState extends State<HeaderControl>
                 type: .transparency,
                 clipBehavior: .hardEdge,
                 borderRadius: const BorderRadius.vertical(
-                  bottom: Radius.circular(12),
+                  bottom: Radius.circular(Coui.card),
                 ),
                 child: CustomScrollView(
                   slivers: [

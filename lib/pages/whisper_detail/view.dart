@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 import 'dart:io' show File;
 
@@ -297,7 +298,7 @@ class _WhisperDetailPageState
                 fillColor: theme.colorScheme.surface,
                 border: const OutlineInputBorder(
                   borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
+                  borderRadius: Coui.imageRadius,
                   gapPadding: 0,
                 ),
                 contentPadding: const EdgeInsets.all(10),

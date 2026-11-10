@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show File;
 
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
@@ -253,9 +254,7 @@ class _CreateFavPageState extends State<CreateFavPage> {
                             src: _cover,
                             height: 55,
                             width: 88,
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(6),
-                            ),
+                            borderRadius: Coui.imageRadius,
                           ),
                         ),
                       Icon(

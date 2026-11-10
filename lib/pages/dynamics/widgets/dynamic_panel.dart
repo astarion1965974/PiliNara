@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/avatars.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -268,7 +269,7 @@ class DynamicPanel extends StatelessWidget {
         color: theme.colorScheme.secondaryContainer.withValues(
           alpha: theme.isLight ? 0.5 : 0.7,
         ),
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
+        borderRadius: Coui.imageRadius,
       ),
       child: Text.rich(
         style: TextStyle(

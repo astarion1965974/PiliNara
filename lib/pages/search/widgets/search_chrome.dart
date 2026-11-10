@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -34,9 +35,9 @@ class SearchFieldSurface extends StatelessWidget {
     final scheme = ColorScheme.of(context);
     return Material(
       color: SearchChrome.field(scheme),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: Coui.cardRadius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: Coui.cardRadius,
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),

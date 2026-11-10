@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io';
 import 'dart:math';
 
@@ -395,7 +396,7 @@ class _MusicDetailPageState extends CommonDynPageState<MusicDetailPage> {
         ? child
         : InkWell(
             onTap: onTap,
-            borderRadius: const BorderRadius.all(Radius.circular(6)),
+            borderRadius: Coui.imageRadius,
             child: Padding(
               padding: const EdgeInsets.all(4),
               child: Row(

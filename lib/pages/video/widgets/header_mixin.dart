@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/pages/video/introduction/ugc/widgets/menu_row.dart';
 import 'package:PiliPlus/pages/danmaku/mask/controller.dart';
@@ -166,7 +167,7 @@ mixin HeaderMixin<T extends StatefulWidget> on State<T> {
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: SliderTheme(
@@ -595,7 +596,7 @@ mixin HeaderMixin<T extends StatefulWidget> on State<T> {
           child: Material(
             clipBehavior: Clip.hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
               child: SliderTheme(

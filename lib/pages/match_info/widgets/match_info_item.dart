@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/models_new/match/match_info/contest.dart';
 import 'package:PiliPlus/models_new/match/match_info/team.dart';
@@ -71,7 +72,7 @@ Widget? buildMatchBtn(ColorScheme colorScheme, MatchContest contest) {
         tapTargetSize: .shrinkWrap,
         padding: WidgetStatePropertyAll(.symmetric(horizontal: 16)),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: .all(.circular(6))),
+          RoundedRectangleBorder(borderRadius: Coui.imageRadius),
         ),
       ),
       onPressed: () => PageUtils.toLiveRoom(contest.liveRoom),
@@ -84,7 +85,7 @@ Widget? buildMatchBtn(ColorScheme colorScheme, MatchContest contest) {
       padding: const WidgetStatePropertyAll(.symmetric(horizontal: 16)),
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
-          borderRadius: const .all(.circular(6)),
+          borderRadius: Coui.imageRadius,
           side: BorderSide(color: colorScheme.outline),
         ),
       ),

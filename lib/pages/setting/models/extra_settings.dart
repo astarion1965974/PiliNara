@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform, Directory;
 
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
@@ -542,7 +543,7 @@ void _showProxyDialog(BuildContext context) {
               isDense: true,
               labelText: '请输入Host，使用 . 分割',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(6)),
+                borderRadius: Coui.imageRadius,
               ),
             ),
             onChanged: (e) => systemProxyHost = e,
@@ -554,7 +555,7 @@ void _showProxyDialog(BuildContext context) {
             decoration: const InputDecoration(
               isDense: true,
               labelText: '请输入Port',
-              border: OutlineInputBorder(borderRadius: .all(.circular(6))),
+              border: OutlineInputBorder(borderRadius: Coui.imageRadius),
             ),
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (e) => systemProxyPort = e,

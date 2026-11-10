@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:convert';
 
 import 'package:PiliPlus/common/widgets/dialog/export_import.dart';
@@ -364,7 +365,7 @@ class _SearchPageState extends State<SearchPage> {
                     overflow: .ellipsis,
                     padding: const .fromLTRB(11, 8, 11, 0),
                     bgColor: SearchChrome.field(theme.colorScheme),
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    borderRadius: Coui.controlRadius,
                   ),
                 ),
               ),

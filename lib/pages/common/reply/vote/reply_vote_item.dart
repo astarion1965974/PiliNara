@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
     show VoteCard;
 import 'package:PiliPlus/pages/dynamics/widgets/vote.dart';
@@ -19,7 +20,7 @@ Widget buildVoteCard(
           Container(
             decoration: BoxDecoration(
               color: colorScheme.onInverseSurface,
-              borderRadius: const .all(.circular(8)),
+              borderRadius: Coui.controlRadius,
             ),
             width: 60,
             height: 42,

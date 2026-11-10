@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/avatars.dart';
@@ -276,7 +277,7 @@ class UserInfoCard extends StatelessWidget {
       margin: const .only(left: 20, top: 8, right: 20),
       padding: const .symmetric(horizontal: 5, vertical: 2),
       decoration: BoxDecoration(
-        borderRadius: const .all(.circular(12)),
+        borderRadius: Coui.imageRadius,
         color: colorScheme.onInverseSurface,
       ),
       child: Text.rich(
@@ -426,7 +427,7 @@ class UserInfoCard extends StatelessWidget {
     return Container(
       width: .infinity,
       decoration: BoxDecoration(
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         color: isLight ? colorScheme.errorContainer : colorScheme.error,
       ),
       margin: const .only(left: 20, top: 8, right: 20),

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
@@ -81,7 +82,7 @@ class VideoCardVMemberHome extends StatelessWidget {
         onTap: onPushDetail,
         onLongPress: onLongPress,
         onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-        borderRadius: const .all(.circular(12)),
+        borderRadius: Coui.imageRadius,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -98,7 +99,7 @@ class VideoCardVMemberHome extends StatelessWidget {
                         src: videoItem.cover,
                         width: maxWidth,
                         height: maxHeight,
-                        borderRadius: const .vertical(top: .circular(12)),
+                        borderRadius: Coui.coverTopRadius,
                       ),
                       if (videoItem.duration > 0)
                         PBadge(

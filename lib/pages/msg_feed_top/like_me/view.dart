@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/msg_feed_top.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
@@ -331,7 +332,7 @@ class _LikeMePageState extends State<LikeMePage> {
               width: 45,
               height: 45,
               src: item.item!.image,
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderRadius: Coui.controlRadius,
             ),
           if (item.noticeState == 1) ...[
             if (item.item?.image?.isNotEmpty == true) const SizedBox(width: 4),

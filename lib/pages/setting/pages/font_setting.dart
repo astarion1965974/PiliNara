@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io';
 
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
@@ -255,7 +256,7 @@ class _FontSettingPageState extends State<FontSettingPage> {
                   Expanded(
                     child: StaticPopupMenuButton<String>(
                       initialValue: _selectedFont ?? _systemFontSentinel,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: Coui.controlRadius,
                       itemBuilder: (context) => [
                         if (customFonts.isNotEmpty) ...[
                           for (final font in customFonts)
@@ -402,7 +403,7 @@ class _FontSettingPageState extends State<FontSettingPage> {
                   Expanded(
                     child: StaticPopupMenuButton<Object>(
                       initialValue: _selectedDanmaku,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: Coui.controlRadius,
                       itemBuilder: (context) => [
                         if (customFonts.isNotEmpty) ...[
                           for (final font in customFonts)

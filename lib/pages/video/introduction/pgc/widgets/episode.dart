@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async' show StreamSubscription;
 
 import 'package:PiliPlus/common/assets.dart';
@@ -187,9 +188,9 @@ class _EpisodePanelState extends State<EpisodePanel> {
       margin: index != _episodes.length - 1 ? const .only(right: 10) : null,
       child: Material(
         color: colorScheme.onInverseSurface,
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         child: InkWell(
-          borderRadius: const .all(.circular(6)),
+          borderRadius: Coui.imageRadius,
           onTap: () {
             if (isCurr) return;
             if (item.badge == '会员' && !_isVip) {

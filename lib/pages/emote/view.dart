@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/emote_tooltip.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -112,9 +113,7 @@ class _EmotePanelState extends State<EmotePanel>
                               return Material(
                                 type: MaterialType.transparency,
                                 child: InkWell(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(6),
-                                  ),
+                                  borderRadius: Coui.imageRadius,
                                   onTap: () => widget.onChoose(
                                     item,
                                     isTextEmote

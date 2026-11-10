@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
@@ -117,9 +118,7 @@ class _ArticleListPageState extends State<ArticleListPage> with GridMixin {
                   width: 91,
                   height: 120,
                   src: item.imageUrl,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(6),
-                  ),
+                  borderRadius: Coui.imageRadius,
                 ),
                 const SizedBox(width: 10),
               ],

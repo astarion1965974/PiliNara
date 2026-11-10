@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:math' show max;
 
 import 'package:PiliPlus/common/style.dart';
@@ -606,7 +607,7 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.onInverseSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
+                  borderRadius: Coui.imageRadius,
                 ),
                 alignment: Alignment.center,
                 child: icon,
@@ -825,7 +826,7 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
               behavior: HitTestBehavior.opaque,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  borderRadius: Coui.controlRadius,
                   color: theme.colorScheme.onInverseSurface,
                 ),
                 margin: const EdgeInsets.only(left: 16, right: 16, bottom: 10),

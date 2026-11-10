@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
@@ -89,7 +90,7 @@ class _FavTopicPageState extends State<FavTopicPage>
 
                   return Material(
                     color: theme.colorScheme.onInverseSurface,
-                    borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    borderRadius: Coui.imageRadius,
                     child: InkWell(
                       onTap: () => Get.toNamed(
                         '/dynTopic',
@@ -102,9 +103,7 @@ class _FavTopicPageState extends State<FavTopicPage>
                       onSecondaryTap: PlatformUtils.isMobile
                           ? null
                           : onLongPress,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(6),
-                      ),
+                      borderRadius: Coui.imageRadius,
                       child: Container(
                         alignment: Alignment.centerLeft,
                         padding: const EdgeInsets.symmetric(

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/flutter/live_list_view.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
@@ -198,7 +199,7 @@ class LiveRoomChatPanel extends StatelessWidget {
                         ),
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      borderRadius: Coui.controlRadius,
                       color: const Color(0x2FFFFFFF),
                       border: Border.all(color: Colors.white24, width: 0.7),
                     ),

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/models/common/badge_type.dart';
@@ -34,7 +35,7 @@ class MineLaterItem extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              borderRadius: Coui.imageRadius,
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.onInverseSurface.withValues(
@@ -47,7 +48,7 @@ class MineLaterItem extends StatelessWidget {
               ],
             ),
             child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
+              borderRadius: Coui.imageRadius,
               child: SizedBox(
                 width: _cardWidth,
                 height: _cardHeight,

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
 import 'dart:math';
 
@@ -1362,7 +1363,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     final playBtn = DecoratedBox(
       decoration: BoxDecoration(
         color: VideoDetailChrome.pill(colorScheme),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: Coui.controlRadius,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -2398,7 +2399,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                             return FilledButton.tonal(
                               style: FilledButton.styleFrom(
                                 shape: const RoundedRectangleBorder(
-                                  borderRadius: .all(.circular(6)),
+                                  borderRadius: Coui.imageRadius,
                                 ),
                                 backgroundColor: theme
                                     .colorScheme

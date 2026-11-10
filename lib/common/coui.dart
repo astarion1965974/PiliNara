@@ -15,6 +15,9 @@ abstract final class Coui {
   static const sheetRadius = BorderRadius.vertical(
     top: Radius.circular(sheet),
   );
+  static const coverTopRadius = BorderRadius.vertical(
+    top: Radius.circular(card),
+  );
 
   static const controlShape = RoundedRectangleBorder(
     borderRadius: controlRadius,

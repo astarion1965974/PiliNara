@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' show max;
@@ -94,7 +95,7 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 640),
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: Coui.sheetRadius,
             color: theme.colorScheme.surface,
           ),
           child: Column(
@@ -244,7 +245,7 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.onInverseSurface,
-                  borderRadius: const BorderRadius.all(Radius.circular(6)),
+                  borderRadius: Coui.imageRadius,
                 ),
                 alignment: Alignment.center,
                 child: icon,

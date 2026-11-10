@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
@@ -111,9 +112,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: theme.colorScheme.secondaryContainer,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(8),
-                    ),
+                    borderRadius: Coui.controlRadius,
                   ),
                   alignment: Alignment.center,
                   margin: const EdgeInsets.all(2),
@@ -142,7 +141,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
         child: Container(
           constraints: const BoxConstraints(maxWidth: 450),
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: Coui.sheetRadius,
             color: theme.colorScheme.surface,
           ),
           child: Column(
@@ -232,7 +231,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
       child: Container(
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderRadius: Coui.controlRadius,
           border: _color.value != color
               ? null
               : Border.all(
@@ -243,7 +242,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: color,
-            borderRadius: const BorderRadius.all(Radius.circular(6)),
+            borderRadius: Coui.imageRadius,
           ),
           child: color == Colors.transparent
               ? Stack(
@@ -252,7 +251,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
                   children: [
                     Container(
                       decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        borderRadius: Coui.imageRadius,
                         gradient: LinearGradient(
                           colors: [
                             Color(0xFFDD94DA),
@@ -287,7 +286,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
               color: _mode.value == mode
                   ? theme.colorScheme.secondaryContainer
                   : theme.colorScheme.onInverseSurface,
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderRadius: Coui.controlRadius,
             ),
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Text(
@@ -315,7 +314,7 @@ class _SendDanmakuPanelState extends CommonTextPubPageState<SendDanmakuPanel> {
               color: _fontSize.value == fontSize
                   ? theme.colorScheme.secondaryContainer
                   : theme.colorScheme.onInverseSurface,
-              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              borderRadius: Coui.controlRadius,
             ),
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Text(

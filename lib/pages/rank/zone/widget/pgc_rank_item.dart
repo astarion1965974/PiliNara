@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -43,9 +44,7 @@ class PgcRankItem extends StatelessWidget {
                       width: constraints.maxWidth,
                       height: constraints.maxHeight,
                       src: item.cover,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(6),
-                      ),
+                      borderRadius: Coui.imageRadius,
                     );
                   },
                 ),

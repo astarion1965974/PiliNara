@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -303,7 +304,7 @@ class ChatItem extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           color: theme.colorScheme.onInverseSurface,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          borderRadius: Coui.controlRadius,
         ),
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -484,7 +485,7 @@ class ChatItem extends StatelessWidget {
                       padding: const .symmetric(horizontal: 11, vertical: 3.5),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
-                        borderRadius: const .all(.circular(6)),
+                        borderRadius: Coui.imageRadius,
                       ),
                       child: msgTypeText_1(
                         theme,
@@ -753,7 +754,7 @@ class ChatItem extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
           color: theme.colorScheme.onInverseSurface,
-          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          borderRadius: Coui.controlRadius,
         ),
         padding: const EdgeInsets.all(12),
         child: Column(

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/skeleton.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:material_ui/material_ui.dart';
@@ -10,7 +11,7 @@ class SpaceOpusSkeleton extends StatelessWidget {
     final surface = ColorScheme.of(context).onInverseSurface;
     return Skeleton(
       child: Card(
-        shape: const RoundedRectangleBorder(borderRadius: .all(.circular(6))),
+        shape: const RoundedRectangleBorder(borderRadius: Coui.imageRadius),
         child: Column(
           crossAxisAlignment: .start,
           children: [

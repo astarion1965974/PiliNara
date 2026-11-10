@@ -1,5 +1,6 @@
 // 定时关闭服务
 
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async' show Timer;
 
 import 'package:PiliPlus/models/common/enum_with_label.dart';
@@ -253,7 +254,7 @@ class ShutdownTimerService {
           child: Material(
             clipBehavior: .hardEdge,
             color: theme.colorScheme.surface,
-            borderRadius: const .all(.circular(12)),
+            borderRadius: Coui.imageRadius,
             child: ListView(
               padding: const .symmetric(vertical: 14),
               children: [

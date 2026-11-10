@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/fav/note/child_view.dart';
 import 'package:PiliPlus/pages/fav/note/controller.dart';
 import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
@@ -58,7 +59,7 @@ class _FavNotePageState extends State<FavNotePage>
                 ),
                 indicator: BoxDecoration(
                   color: theme.colorScheme.secondaryContainer,
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderRadius: Coui.cardRadius,
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelStyle:

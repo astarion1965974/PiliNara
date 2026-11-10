@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/models/common/badge_type.dart';
@@ -19,9 +20,9 @@ class MemberShopItem extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final belowLabels = item.belowLabels?.map((e) => e.title).join('|');
     return Card(
-      shape: const RoundedRectangleBorder(borderRadius: .all(.circular(6))),
+      shape: const RoundedRectangleBorder(borderRadius: Coui.imageRadius),
       child: InkWell(
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         onTap: () {
           if (item.cardUrl case final cardUrl?) {
             Get.toNamed('/webview', parameters: {'url': cardUrl});

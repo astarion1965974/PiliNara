@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
@@ -18,10 +19,10 @@ class SpaceOpusItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasPic = item.cover?.url?.isNotEmpty == true;
     return Card(
-      shape: const RoundedRectangleBorder(borderRadius: .all(.circular(6))),
+      shape: const RoundedRectangleBorder(borderRadius: Coui.imageRadius),
       child: InkWell(
         onTap: () => PageUtils.pushDynFromId(id: item.opusId!),
-        borderRadius: const .all(.circular(6)),
+        borderRadius: Coui.imageRadius,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

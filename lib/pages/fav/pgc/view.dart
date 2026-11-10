@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/fav/pgc/child_view.dart';
 import 'package:PiliPlus/pages/fav/pgc/controller.dart';
 import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
@@ -61,7 +62,7 @@ class _FavPgcPageState extends State<FavPgcPage>
                 ),
                 indicator: BoxDecoration(
                   color: theme.colorScheme.secondaryContainer,
-                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                  borderRadius: Coui.cardRadius,
                 ),
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelStyle:

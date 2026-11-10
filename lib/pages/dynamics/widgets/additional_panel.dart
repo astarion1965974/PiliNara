@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -287,7 +288,7 @@ Widget? addWidget(
                           ),
                     style: FilledButton.styleFrom(
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        borderRadius: Coui.imageRadius,
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       visualDensity: const VisualDensity(
@@ -330,9 +331,7 @@ Widget? addWidget(
                           width: 45,
                           height: 45,
                           src: e.cover,
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(6),
-                          ),
+                          borderRadius: Coui.imageRadius,
                         ),
                         const SizedBox(width: 10),
                       ],
@@ -372,9 +371,7 @@ Widget? addWidget(
                               PiliScheme.routePushFromUrl(e.jumpUrl!),
                           style: FilledButton.styleFrom(
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(6),
-                              ),
+                              borderRadius: Coui.imageRadius,
                             ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -421,9 +418,7 @@ Widget? addWidget(
                     color: floor == 1
                         ? theme.colorScheme.surface
                         : theme.dividerColor.withValues(alpha: 0.08),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(8),
-                    ),
+                    borderRadius: Coui.controlRadius,
                   ),
                   width: 70,
                   height: 50,
@@ -468,7 +463,7 @@ Widget? addWidget(
                   ),
                   style: FilledButton.styleFrom(
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                      borderRadius: Coui.imageRadius,
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     visualDensity: const VisualDensity(
@@ -500,9 +495,7 @@ Widget? addWidget(
                     width: 45,
                     height: 45,
                     src: content.cover,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(6),
-                    ),
+                    borderRadius: Coui.imageRadius,
                   ),
                   const SizedBox(width: 10),
                 ],
@@ -541,7 +534,7 @@ Widget? addWidget(
                     ),
                     style: FilledButton.styleFrom(
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        borderRadius: Coui.imageRadius,
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       visualDensity: const VisualDensity(
@@ -662,7 +655,7 @@ Widget? addWidget(
                         PiliScheme.routePushFromUrl(button.jumpUrl!),
                     style: FilledButton.styleFrom(
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
+                        borderRadius: Coui.imageRadius,
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       visualDensity: const VisualDensity(

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
@@ -250,7 +251,7 @@ class _MemberPageState extends State<MemberPage> {
                         padding: const .symmetric(horizontal: 10),
                         visualDensity: const .new(horizontal: -2, vertical: -3),
                         shape: const RoundedRectangleBorder(
-                          borderRadius: .all(.circular(6)),
+                          borderRadius: Coui.imageRadius,
                         ),
                       ),
                       child: Text(

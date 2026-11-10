@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/hit_test.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/models/common/member/contribute_type.dart';
@@ -75,7 +76,7 @@ class _MemberContributeState extends State<MemberContribute>
                   ),
                   indicator: BoxDecoration(
                     color: theme.colorScheme.secondaryContainer,
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    borderRadius: Coui.cardRadius,
                   ),
                   indicatorSize: .tab,
                   labelStyle:

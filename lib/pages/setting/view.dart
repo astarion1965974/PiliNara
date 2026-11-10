@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -213,7 +214,7 @@ class _SettingPageState extends State<SettingPage> {
     Widget group(List<Widget> children) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: Coui.cardRadius,
         child: Material(
           color: theme.colorScheme.surfaceContainerLow,
           child: Column(

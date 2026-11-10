@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 
 import 'package:PiliPlus/common/assets.dart';
@@ -103,7 +104,7 @@ class _MediaPageState extends CommonPageState<MinePage>
                               ? theme.colorScheme.surfaceContainerHigh
                                   .withValues(alpha: 0.92)
                               : Colors.white.withValues(alpha: 0.94),
-                          borderRadius: BorderRadius.circular(22),
+                          borderRadius: Coui.cardRadius,
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),

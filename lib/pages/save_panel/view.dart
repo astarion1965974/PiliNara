@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/style.dart';
@@ -361,7 +362,7 @@ class _SavePanelState extends State<SavePanel> {
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
-                  borderRadius: const .all(.circular(12)),
+                  borderRadius: Coui.imageRadius,
                 ),
                 // PublishRoute 是 PopupRoute，链上没有 Material，裸 Text 拿不到
                 // 主题的 DefaultTextStyle，自定义字体会回退到系统字体。此处显式
@@ -400,7 +401,7 @@ class _SavePanelState extends State<SavePanel> {
                             padding: const .all(8),
                             decoration: BoxDecoration(
                               color: colorScheme.onInverseSurface,
-                              borderRadius: const .all(.circular(8)),
+                              borderRadius: Coui.controlRadius,
                             ),
                             child: Row(
                               spacing: 10,
@@ -412,7 +413,7 @@ class _SavePanelState extends State<SavePanel> {
                                       ? coverSize * Style.aspectRatio16x9
                                       : coverSize,
                                   quality: 100,
-                                  borderRadius: const .all(.circular(6)),
+                                  borderRadius: Coui.imageRadius,
                                 ),
                                 Expanded(
                                   child: Column(

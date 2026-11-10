@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async' show Timer;
 import 'dart:convert' show jsonDecode;
 
@@ -388,7 +389,7 @@ class _ReportCard extends StatelessWidget {
           padding: const .all(12),
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const .all(.circular(8)),
+            borderRadius: Coui.controlRadius,
             border: .all(color: colorScheme.outline.withValues(alpha: 0.5)),
           ),
           child: SelectionText(
@@ -415,7 +416,7 @@ class _ReportCard extends StatelessWidget {
             padding: const .all(12),
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              borderRadius: const .all(.circular(8)),
+              borderRadius: Coui.controlRadius,
               border: .all(color: colorScheme.outline.withValues(alpha: 0.5)),
             ),
             child: SelectionText.rich(

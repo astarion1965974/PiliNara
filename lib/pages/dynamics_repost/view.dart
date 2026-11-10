@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 
 import 'package:PiliPlus/common/widgets/animated_height.dart';
@@ -174,7 +175,7 @@ class _RepostPanelState extends CommonRichTextPubPageState<RepostPanel>
   Widget _buildRefWidget() => Card(
     margin: const EdgeInsets.symmetric(horizontal: 16),
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(12)),
+      borderRadius: Coui.imageRadius,
     ),
     child: Padding(
       padding: const EdgeInsets.all(10),
@@ -185,9 +186,7 @@ class _RepostPanelState extends CommonRichTextPubPageState<RepostPanel>
               width: 40,
               height: 40,
               src: _pic,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(6),
-              ),
+              borderRadius: Coui.imageRadius,
             ),
             const SizedBox(width: 10),
           ],

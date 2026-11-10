@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'dart:async' show Timer;
 import 'dart:math' as math;
 
@@ -116,7 +117,7 @@ class _VolumeButtonState extends State<VolumeButton> {
               cardTheme.surfaceTintColor,
               2,
             ),
-            borderRadius: const .all(.circular(6)),
+            borderRadius: Coui.imageRadius,
           ),
           child: SliderTheme(
             data: const SliderThemeData(

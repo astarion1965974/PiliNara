@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -24,7 +25,7 @@ class LiveItem extends StatelessWidget {
         onTap: () => PageUtils.toLiveRoom(liveItem.roomid),
         onLongPress: onLongPress,
         onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-        borderRadius: const .all(.circular(12)),
+        borderRadius: Coui.imageRadius,
         child: Column(
           crossAxisAlignment: .start,
           children: [
@@ -41,7 +42,7 @@ class LiveItem extends StatelessWidget {
                         src: liveItem.cover,
                         width: maxWidth,
                         height: maxHeight,
-                        borderRadius: const .vertical(top: .circular(12)),
+                        borderRadius: Coui.coverTopRadius,
                       ),
                       Positioned(
                         left: 0,

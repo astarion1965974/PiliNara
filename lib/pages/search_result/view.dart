@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
 import 'package:PiliPlus/common/widgets/view_safe_area.dart';
@@ -125,7 +126,7 @@ class _SearchResultPageState extends State<SearchResultPage>
               ),
               indicator: BoxDecoration(
                 color: SearchChrome.pill(theme.colorScheme),
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                borderRadius: Coui.cardRadius,
               ),
               indicatorSize: TabBarIndicatorSize.tab,
               labelColor: SearchChrome.accent(theme.colorScheme),

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -26,7 +27,7 @@ class SearchText extends StatelessWidget {
     this.textAlign,
     this.height,
     this.padding = const .symmetric(horizontal: 11, vertical: 5),
-    this.borderRadius = const .all(.circular(6)),
+    this.borderRadius = Coui.imageRadius,
     this.maxLines,
     this.overflow,
   });
