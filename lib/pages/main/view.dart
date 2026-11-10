@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:ui' show ImageFilter;
 
 import 'package:PiliPlus/common/style.dart';
-import 'package:PiliPlus/common/widgets/floating_navigation_bar.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/main_layout.dart';
@@ -158,75 +157,8 @@ class _MainAppState extends PopScopeState<MainApp>
   }
 
   Widget? get _bottomNav {
-    Widget? bottomNav;
-    if (_mainController.navigationBars.length > 1) {
-      if (_mainController.floatingNavBar) {
-        bottomNav = Obx(
-          () => FloatingNavigationBar(
-            onDestinationSelected: _mainController.setIndex,
-            selectedIndex: _mainController.selectedIndex.value,
-            destinations: _mainController.navigationBars
-                .map(
-                  (e) => FloatingNavigationDestination(
-                    label: e.label,
-                    icon: _buildIcon(type: e),
-                    selectedIcon: _buildIcon(type: e, selected: true),
-                  ),
-                )
-                .toList(),
-          ),
-        );
-      } else if (_mainController.enableMYBar) {
-        bottomNav = Obx(
-          () => NavigationBar(
-            maintainBottomViewPadding: true,
-            onDestinationSelected: _mainController.setIndex,
-            selectedIndex: _mainController.selectedIndex.value,
-            destinations: _mainController.navigationBars
-                .map(
-                  (e) => NavigationDestination(
-                    label: e.label,
-                    icon: _buildIcon(type: e),
-                    selectedIcon: _buildIcon(type: e, selected: true),
-                  ),
-                )
-                .toList(),
-          ),
-        );
-      } else {
-        bottomNav = Obx(
-          () => BottomNavigationBar(
-            currentIndex: _mainController.selectedIndex.value,
-            onTap: _mainController.setIndex,
-            iconSize: 16,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            type: .fixed,
-            items: _mainController.navigationBars
-                .map(
-                  (e) => BottomNavigationBarItem(
-                    label: e.label,
-                    icon: _buildIcon(type: e),
-                    activeIcon: _buildIcon(type: e, selected: true),
-                  ),
-                )
-                .toList(),
-          ),
-        );
-      }
-
-      final originalBottomNav = bottomNav;
-      bottomNav = Obx(() {
-        final index = _mainController.selectedIndex.value;
-        if (_mainController.navigationBars[index] == NavigationBarType.home) {
-          return _homeNavigation(index);
-        }
-        return originalBottomNav!;
-      });
-
-    }
-
-    return bottomNav;
+    if (_mainController.navigationBars.length <= 1) return null;
+    return Obx(() => _homeNavigation(_mainController.selectedIndex.value));
   }
 
   Widget _homeNavigation(int selectedIndex) {
@@ -236,7 +168,7 @@ class _MainAppState extends PopScopeState<MainApp>
     return Padding(
       padding: EdgeInsets.only(bottom: _padding.bottom + 8, left: 16, right: 16),
       child: SizedBox(
-        width: 260,
+        width: items.length < 4 ? 260 : items.length * 68.0,
         height: 56,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
