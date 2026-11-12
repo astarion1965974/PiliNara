@@ -2,6 +2,7 @@ import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
 import 'package:PiliPlus/grpc/reply.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/models/reply_settings.dart';
+import 'package:PiliPlus/pages/setting/widgets/coui_setting_row.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:material_ui/material_ui.dart' hide ListTile;
 
@@ -61,7 +62,8 @@ class _ReplySettingState extends State<ReplySetting> {
           bottom: padding.bottom + 100,
         ),
         children: [
-          ...list.map((item) => item.widget),
+          for (var i = 0; i < list.length; i++)
+            CouiSettingRow(settings: list, index: i),
           _buildLevelSlider(theme),
           ListTile(
             dense: true,
@@ -89,9 +91,7 @@ class _ReplySettingState extends State<ReplySetting> {
         ListTile(
           leading: const Icon(Icons.shield_outlined),
           title: const Text('屏蔽低等级用户评论'),
-          subtitle: Text(
-            _level == 0 ? '已关闭' : '屏蔽 Lv${_level - 1} 及以下的评论',
-          ),
+          subtitle: Text(_level == 0 ? '已关闭' : '屏蔽 Lv${_level - 1} 及以下的评论'),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),

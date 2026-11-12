@@ -67,14 +67,17 @@ abstract final class ThemeUtils {
       textTheme: textTheme,
       scaffoldBackgroundColor: Colors.transparent,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 52,
         elevation: 0,
         titleSpacing: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
         titleTextStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: fontWeight,
+          fontSize: 18,
+          fontWeight: fontWeight == FontWeight.normal
+              ? FontWeight.w600
+              : fontWeight,
           fontFamily: fontFamily,
           color: colorScheme.onSurface,
         ),
@@ -93,9 +96,7 @@ abstract final class ThemeUtils {
         shape: StadiumBorder(),
       ),
       iconButtonTheme: const IconButtonThemeData(
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(CircleBorder()),
-        ),
+        style: ButtonStyle(shape: WidgetStatePropertyAll(CircleBorder())),
       ),
       snackBarTheme: SnackBarThemeData(
         elevation: 0,
@@ -128,9 +129,7 @@ abstract final class ThemeUtils {
         ),
       ),
       listTileTheme: const ListTileThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: Coui.controlRadius,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: Coui.controlRadius),
         controlAffinity: .leading,
       ),
       cardTheme: CardThemeData(
@@ -186,12 +185,7 @@ abstract final class ThemeUtils {
       switchTheme: const SwitchThemeData(
         padding: .zero,
         materialTapTargetSize: .shrinkWrap,
-        thumbIcon: WidgetStateProperty<Icon?>.fromMap(
-          <WidgetStatesConstraint, Icon?>{
-            WidgetState.selected: Icon(Icons.done),
-            WidgetState.any: null,
-          },
-        ),
+        thumbIcon: WidgetStatePropertyAll<Icon?>(null),
       ),
       dividerTheme: DividerThemeData(
         color: colorScheme.outline.withValues(alpha: 0.08),
@@ -228,9 +222,7 @@ abstract final class ThemeUtils {
       ),
       chipTheme: const ChipThemeData(shape: Coui.controlShape),
       menuTheme: const MenuThemeData(
-        style: MenuStyle(
-          shape: WidgetStatePropertyAll(Coui.cardShape),
-        ),
+        style: MenuStyle(shape: WidgetStatePropertyAll(Coui.cardShape)),
       ),
       tabBarTheme: const TabBarThemeData(
         dividerHeight: 0,
@@ -256,16 +248,12 @@ abstract final class ThemeUtils {
     return theme.copyWith(
       canvasColor: Colors.black,
       scaffoldBackgroundColor: Colors.black,
-      appBarTheme: theme.appBarTheme.copyWith(
-        backgroundColor: Colors.black,
-      ),
+      appBarTheme: theme.appBarTheme.copyWith(backgroundColor: Colors.black),
       cardTheme: theme.cardTheme.copyWith(
         color: colorScheme.surfaceContainer.darken(0.75),
       ),
       dialogTheme: theme.dialogTheme.copyWith(backgroundColor: color),
-      bottomSheetTheme: theme.bottomSheetTheme.copyWith(
-        backgroundColor: color,
-      ),
+      bottomSheetTheme: theme.bottomSheetTheme.copyWith(backgroundColor: color),
       bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
         backgroundColor: color,
       ),

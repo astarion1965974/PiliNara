@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/models/dynamics_settings.dart';
+import 'package:PiliPlus/pages/setting/widgets/coui_setting_row.dart';
 import 'package:material_ui/material_ui.dart' hide ListTile;
 
 class DynamicsSetting extends StatefulWidget {
@@ -57,7 +58,8 @@ class _DynamicsSettingState extends State<DynamicsSetting> {
           bottom: padding.bottom + 100,
         ),
         children: [
-          ...list.map((item) => item.widget),
+          for (var i = 0; i < list.length; i++)
+            CouiSettingRow(settings: list, index: i),
           ListTile(
             dense: true,
             subtitle: Text(
