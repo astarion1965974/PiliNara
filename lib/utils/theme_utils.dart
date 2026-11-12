@@ -57,7 +57,7 @@ abstract final class ThemeUtils {
       );
     }
 
-    final buttonShape = const WidgetStatePropertyAll<OutlinedBorder>(
+    const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
       Coui.controlShape,
     );
     final theme = ThemeData(

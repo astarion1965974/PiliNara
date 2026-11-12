@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:PiliPlus/common/widgets/coui_floating_navigation.dart';
 
-import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/main_layout.dart';

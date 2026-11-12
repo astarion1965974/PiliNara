@@ -75,17 +75,32 @@ void main() {
     expect(selection, 1);
   });
 
-  testWidgets('setting groups keep row callbacks and separate custom content', (tester) async {
+  testWidgets('setting groups keep row callbacks and separate custom content', (
+    tester,
+  ) async {
     var tapped = false;
     final settings = <SettingsModel>[
-      NormalModel(title: '第一项', leading: const Icon(Icons.settings), onTap: (_, _) => tapped = true),
+      NormalModel(
+        title: '第一项',
+        leading: const Icon(Icons.settings),
+        onTap: (_, _) => tapped = true,
+      ),
       const NormalModel(title: '第二项'),
       const WidgetModel(child: Text('自定义内容')),
       const NormalModel(title: '第三项'),
     ];
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: ListView(
-      children: [for (var i = 0; i < settings.length; i++) CouiSettingRow(settings: settings, index: i)],
-    ))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ListView(
+            children: [
+              for (var i = 0; i < settings.length; i++)
+                CouiSettingRow(settings: settings, index: i),
+            ],
+          ),
+        ),
+      ),
+    );
     expect(find.byType(Divider), findsOneWidget);
     expect(find.text('自定义内容'), findsOneWidget);
     await tester.tap(find.text('第一项'));
