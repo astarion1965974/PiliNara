@@ -1,0 +1,43 @@
+name: Validate Flutter COUI refinement
+on:
+  push:
+    branches: [ci/coui-refinement-validation]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: true
+      - name: Apply project patches
+        shell: pwsh
+        run: lib/scripts/patch.ps1 android
+      - name: Prepare version metadata
+        shell: pwsh
+        run: lib/scripts/build.ps1 android
+      - name: Install widget test libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libgtk-3-dev libx11-dev libxi-dev
+      - name: Run widget tests
+        run: flutter test test/coui_controls_test.dart test/home_header_test.dart test/video_detail_chrome_test.dart test/search_chrome_test.dart test/youtube_comment_chrome_test.dart test/dynamics_chrome_test.dart test/reply_location_test.dart
+      - name: Build debug ARM64 APK
+        run: flutter build apk --debug --target-platform android-arm64 --dart-define-from-file=pili_release.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: PiliNara-COUI-refinement-debug-arm64
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
