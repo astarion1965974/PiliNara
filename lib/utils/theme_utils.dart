@@ -196,23 +196,23 @@ abstract final class ThemeUtils {
         shape: Border(),
         collapsedShape: Border(),
       ),
-      filledButtonTheme: FilledButtonThemeData(
+      filledButtonTheme: const FilledButtonThemeData(
         style: ButtonStyle(
-          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          shadowColor: WidgetStatePropertyAll(Colors.transparent),
           shape: buttonShape,
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
+      elevatedButtonTheme: const ElevatedButtonThemeData(
         style: ButtonStyle(
-          elevation: const WidgetStatePropertyAll(0),
-          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: WidgetStatePropertyAll(0),
+          shadowColor: WidgetStatePropertyAll(Colors.transparent),
           shape: buttonShape,
         ),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
+      outlinedButtonTheme: const OutlinedButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
-      textButtonTheme: TextButtonThemeData(
+      textButtonTheme: const TextButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
       inputDecorationTheme: const InputDecorationTheme(
