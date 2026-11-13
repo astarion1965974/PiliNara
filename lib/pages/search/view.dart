@@ -121,13 +121,15 @@ class _SearchPageState extends State<SearchPage> {
       controller: _searchController.controller,
       textInputAction: TextInputAction.search,
       onChanged: _searchController.onChange,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
+        filled: false,
         visualDensity: .standard,
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 11),
-        hintText: _searchController.hintText ?? '搜索',
+        contentPadding: EdgeInsets.symmetric(vertical: 11),
         border: InputBorder.none,
-      ),
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+      ).copyWith(hintText: _searchController.hintText ?? '搜索'),
       onSubmitted: (value) => _searchController.submit(),
     )),
   );

@@ -151,8 +151,11 @@ class _ReplyPageState extends CommonRichTextPubPageState<ReplyPage> {
           onSubmitted: onSubmitted,
           focusNode: focusNode,
           decoration: InputDecoration(
+            filled: false,
             hintText: widget.hint ?? "输入回复内容",
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
             hintStyle: const TextStyle(fontSize: 14),
           ),
           style: theme.textTheme.bodyLarge,

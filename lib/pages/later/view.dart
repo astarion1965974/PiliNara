@@ -1,3 +1,4 @@
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
@@ -119,6 +120,20 @@ class _LaterPageState extends State<LaterPage>
                     // isScrollable: true,
                     // tabAlignment: TabAlignment.start,
                     controller: _tabController,
+                    dividerHeight: 0,
+                    dividerColor: Colors.transparent,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicatorPadding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 5,
+                    ),
+                    indicator: VideoDetailChrome.pillDecoration(
+                      Theme.of(context).colorScheme,
+                      coui: CouiThemeData.of(context),
+                    ),
+                    labelColor: CouiThemeData.of(context).accent,
+                    unselectedLabelColor:
+                        Theme.of(context).colorScheme.onSurfaceVariant,
                     tabs: LaterViewType.values.map((item) {
                       final count = _baseCtr.counts[item.index];
                       return Tab(

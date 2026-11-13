@@ -295,9 +295,20 @@ class _WhisperDetailPageState
               decoration: InputDecoration(
                 filled: true,
                 hintText: '发个消息聊聊呗~',
-                fillColor: theme.colorScheme.surface,
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
+                fillColor: CouiThemeData.of(context).inputFillColor,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: CouiThemeData.of(context).inputBorderColor,
+                    width: 0.75,
+                  ),
+                  borderRadius: Coui.imageRadius,
+                  gapPadding: 0,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: CouiThemeData.of(context).inputBorderColor,
+                    width: 0.75,
+                  ),
                   borderRadius: Coui.imageRadius,
                   gapPadding: 0,
                 ),

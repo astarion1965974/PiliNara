@@ -1,3 +1,5 @@
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
@@ -113,6 +115,19 @@ class _HistoryPageState extends State<HistoryPage>
                     ?_buildPauseTip,
                     TabBar(
                       controller: _historyController.tabController,
+                      dividerHeight: 0,
+                      dividerColor: Colors.transparent,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorPadding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 5,
+                      ),
+                      indicator: VideoDetailChrome.pillDecoration(
+                        theme.colorScheme,
+                        coui: CouiThemeData.of(context),
+                      ),
+                      labelColor: CouiThemeData.of(context).accent,
+                      unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
                       onTap: (index) {
                         if (!_historyController
                             .tabController!

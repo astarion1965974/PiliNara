@@ -90,10 +90,13 @@ class _SettingsSearchPageState
           textAlignVertical: TextAlignVertical.center,
           onChanged: ctr!.add,
           decoration: const InputDecoration(
+            filled: false,
             isDense: true,
             hintText: '搜索',
             visualDensity: .standard,
             border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
           ),
         ),
       ),

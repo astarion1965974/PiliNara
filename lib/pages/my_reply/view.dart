@@ -104,6 +104,7 @@ class _MyReplyState extends State<MyReply> with DynMixin {
                       (context, index) => ReplyItemGrpc(
                         replyLevel: 0,
                         needDivider: false,
+                        youtubeStyle: true,
                         replyItem: _replies[index],
                         replyReply: _replyReply,
                         onDelete: (_, _) => _onDelete(index),

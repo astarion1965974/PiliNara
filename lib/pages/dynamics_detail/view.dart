@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
+import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/flutter/dyn_tab_bar.dart';
@@ -642,26 +644,18 @@ class _DynamicDetailPageState extends CommonDynPageMultiState<DynamicDetailPage>
 
   @override
   Widget buildReplyHeader([bool isPortrait = true]) {
-    final secondary = theme.colorScheme.secondary;
     final child = Padding(
-      padding: const .fromLTRB(12, 2.5, 6, 2.5),
+      padding: const .fromLTRB(12, 6, 12, 6),
       child: Obx(
         () {
           final sortType = controller.sortType.value;
-          return Row(
-            mainAxisAlignment: .spaceBetween,
-            children: [
-              Text(sortType.desc),
-              TextButton.icon(
-                style: Style.buttonStyle,
-                onPressed: controller.queryBySort,
-                icon: Icon(Icons.sort, size: 16, color: secondary),
-                label: Text(
-                  sortType.descShort,
-                  style: TextStyle(fontSize: 13, color: secondary),
-                ),
-              ),
-            ],
+          return YoutubeCommentSort(
+            selected: sortType,
+            onSelect: (type) {
+              if (sortType != type && sortType != ReplySortType.select) {
+                controller.queryBySort();
+              }
+            },
           );
         },
       ),
