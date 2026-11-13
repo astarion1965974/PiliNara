@@ -94,9 +94,9 @@ class _MemberPageState extends State<MemberPage> {
     final theme = Theme.of(context).colorScheme;
     final coui = CouiThemeData.of(context);
     final padding = MediaQuery.viewPaddingOf(context);
+    final dark = theme.brightness == Brightness.dark;
     return Obx(() {
       final easedRatio = Curves.easeOut.transform(_scrollRatio.value);
-      final dark = theme.brightness == Brightness.dark;
       final useLightBgIcons = easedRatio >= 0.45 && !dark;
       return AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle(
@@ -107,24 +107,36 @@ class _MemberPageState extends State<MemberPage> {
               useLightBgIcons ? Brightness.dark : Brightness.light,
           systemStatusBarContrastEnforced: false,
         ),
-        child: VideoDetailBackground(
-          child: Material(
-            type: MaterialType.transparency,
-            child: switch (_userController.loadingState.value) {
-              Loading() => m3eLoading,
-              Success(:final response) => NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification.depth == 0) {
-                    final next =
-                        (notification.metrics.pixels / (kToolbarHeight * 2))
-                            .clamp(0.0, 1.0);
-                    if ((next - _scrollRatio.value).abs() > 0.01) {
-                      _scrollRatio.value = next;
-                    }
+        child: _buildScaffold(theme, coui, padding),
+      );
+    });
+  }
+
+  Widget _buildScaffold(
+    ColorScheme theme,
+    CouiThemeData coui,
+    EdgeInsets padding,
+  ) {
+    return VideoDetailBackground(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Obx(
+          () => switch (_userController.loadingState.value) {
+            Loading() => m3eLoading,
+            Success(:final response) => NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.depth == 0) {
+                  final pixels = notification.metrics.pixels;
+                  final next = pixels <= 0
+                      ? 0.0
+                      : (pixels / (kToolbarHeight * 2)).clamp(0.0, 1.0);
+                  if ((next - _scrollRatio.value).abs() > 0.01) {
+                    _scrollRatio.value = next;
                   }
-                  return false;
-                },
-                child: ExtendedNestedScrollView(
+                }
+                return false;
+              },
+              child: ExtendedNestedScrollView(
             onlyOneScrollInBody: true,
             key: _userController.scrollKey,
             scrollBehavior: const NoOverscrollIndicator(),
@@ -134,11 +146,10 @@ class _MemberPageState extends State<MemberPage> {
               if (response != null) {
                 return [
                   DynamicSliverAppBar.medium(
-                    backgroundColor: Color.lerp(
-                      Colors.transparent,
-                      coui.surfaceBackground,
-                      easedRatio,
-                    ),
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: coui.surfaceBackground,
                     actions: _actions(theme),
                     title: Text(_userController.username ?? ''),
                     flexibleSpace: Obx(
@@ -220,16 +231,15 @@ class _MemberPageState extends State<MemberPage> {
                   )
                 : scrollableError,
           ),
-              ),
-              Error(:final errMsg) => scrollErrorWidget(
-                errMsg: errMsg,
-                onReload: _userController.onReload,
-              ),
-            },
-          ),
+            ),
+            Error(:final errMsg) => scrollErrorWidget(
+              errMsg: errMsg,
+              onReload: _userController.onReload,
+            ),
+          },
         ),
-      );
-    });
+      ),
+    );
   }
 
   Widget _reserveBtn(List<ReservationCardItem> list, ColorScheme theme) {
