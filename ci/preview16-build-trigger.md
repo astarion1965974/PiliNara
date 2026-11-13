@@ -5,3 +5,7 @@ This file records the signed Preview 16 CI build attempt after the R5 `darkenThe
 ## R6 test fixture follow-up
 
 The COUI setting separator assertion now targets the `material_ui` widget, and standalone CDN/account tests initialize isolated Hive settings boxes before accessing preferences.
+
+## R7 account fixture follow-up
+
+Initialize isolated `localCache` Hive storage for account tests, which use `Pref.buvid` during serialization.
