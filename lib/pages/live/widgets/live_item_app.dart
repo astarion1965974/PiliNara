@@ -27,14 +27,20 @@ class LiveCardVApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final coui = CouiThemeData.of(context);
     void onLongPress() => imageSaveDialog(
       title: item.title,
       cover: showFirstFrame ? item.systemCover : item.cover,
     );
     return Stack(
       children: [
-        Card(
-          child: InkWell(
+        DecoratedBox(
+          decoration: Coui.cardDecoration(theme.colorScheme, coui: coui),
+          child: ClipRRect(
+            borderRadius: Coui.cardRadius,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
             onTap: () => PageUtils.toLiveRoom(item.roomid),
             onLongPress: onLongPress,
             onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
@@ -67,6 +73,8 @@ class LiveCardVApp extends StatelessWidget {
                 liveContent(theme),
               ],
             ),
+          ),
+          ),
           ),
         ),
         if (!item.feedback.isNullOrEmpty)

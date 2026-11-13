@@ -89,6 +89,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     required this.switchThumbColor,
     required this.switchTrackRimActiveColor,
     required this.switchTrackRimInactiveColor,
+    required this.liveOverlaySurface,
+    required this.liveOverlayBorder,
+    required this.liveOverlayPill,
   });
 
   final Color cardColor;
@@ -120,6 +123,10 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   final Color switchThumbColor;
   final Color switchTrackRimActiveColor;
   final Color switchTrackRimInactiveColor;
+
+  final Color liveOverlaySurface;
+  final Color liveOverlayBorder;
+  final Color liveOverlayPill;
 
   factory CouiThemeData.fromScheme(
     ColorScheme scheme, {
@@ -270,6 +277,15 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       switchTrackRimInactiveColor: Colors.white.withValues(
         alpha: dark ? 0.10 : 0.06,
       ),
+      liveOverlaySurface: Color.alphaBlend(
+        scheme.primary.withValues(alpha: 0.06),
+        const Color(0xff141418),
+      ).withValues(alpha: 0.68),
+      liveOverlayBorder: Colors.white.withValues(alpha: 0.16),
+      liveOverlayPill: Color.alphaBlend(
+        scheme.primary.withValues(alpha: 0.14),
+        const Color(0xff1e1e24),
+      ).withValues(alpha: 0.76),
     );
   }
 
@@ -306,6 +322,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     Color? switchThumbColor,
     Color? switchTrackRimActiveColor,
     Color? switchTrackRimInactiveColor,
+    Color? liveOverlaySurface,
+    Color? liveOverlayBorder,
+    Color? liveOverlayPill,
   }) {
     return CouiThemeData(
       cardColor: cardColor ?? this.cardColor,
@@ -336,6 +355,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
           switchTrackRimActiveColor ?? this.switchTrackRimActiveColor,
       switchTrackRimInactiveColor:
           switchTrackRimInactiveColor ?? this.switchTrackRimInactiveColor,
+      liveOverlaySurface: liveOverlaySurface ?? this.liveOverlaySurface,
+      liveOverlayBorder: liveOverlayBorder ?? this.liveOverlayBorder,
+      liveOverlayPill: liveOverlayPill ?? this.liveOverlayPill,
     );
   }
 
@@ -426,6 +448,21 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       switchTrackRimInactiveColor: Color.lerp(
         switchTrackRimInactiveColor,
         other.switchTrackRimInactiveColor,
+        t,
+      )!,
+      liveOverlaySurface: Color.lerp(
+        liveOverlaySurface,
+        other.liveOverlaySurface,
+        t,
+      )!,
+      liveOverlayBorder: Color.lerp(
+        liveOverlayBorder,
+        other.liveOverlayBorder,
+        t,
+      )!,
+      liveOverlayPill: Color.lerp(
+        liveOverlayPill,
+        other.liveOverlayPill,
         t,
       )!,
     );

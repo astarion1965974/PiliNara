@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/flutter/live_list_view.dart';
@@ -34,9 +35,10 @@ class LiveRoomChatPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final coui = CouiThemeData.of(context);
     late final bg = isPP
         ? Colors.black.withValues(alpha: 0.4)
-        : const Color(0x15FFFFFF);
+        : coui.liveOverlaySurface;
     late final nameColor = isPP
         ? Colors.white.withValues(alpha: 0.9)
         : Colors.white.withValues(alpha: 0.6);
@@ -197,13 +199,20 @@ class LiveRoomChatPanel extends StatelessWidget {
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut,
                         ),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: Coui.controlRadius,
-                      color: const Color(0x2FFFFFFF),
-                      border: Border.all(color: Colors.white24, width: 0.7),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
+                  child: ClipRRect(
+                    borderRadius: Coui.controlRadius,
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: Coui.controlRadius,
+                          color: coui.liveOverlayPill,
+                          border: Border.all(
+                            color: coui.liveOverlayBorder,
+                            width: 0.75,
+                          ),
+                        ),
+                        padding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
                     child: Text.rich(
                       style: const TextStyle(color: Colors.white, height: 1),
                       strutStyle: const StrutStyle(height: 1, leading: 0),
@@ -223,6 +232,8 @@ class LiveRoomChatPanel extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                    ),
                     ),
                   ),
                 ),

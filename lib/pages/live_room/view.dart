@@ -1408,14 +1408,19 @@ class _LiveRoomPageState extends State<LiveRoomPage>
   }
 
   Widget get _buildInputWidget {
-    final child = Container(
-      padding: .only(top: 5, left: 10, right: 10, bottom: padding.bottom),
-      height: 70 + padding.bottom,
-      decoration: const BoxDecoration(
-        borderRadius: .vertical(top: .circular(20)),
-        border: Border(top: BorderSide(color: Color(0x1AFFFFFF))),
-        color: Color(0x1AFFFFFF),
-      ),
+    final coui = CouiThemeData.of(context);
+    final child = ClipRRect(
+      borderRadius: Coui.sheetRadius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: .only(top: 5, left: 10, right: 10, bottom: padding.bottom),
+          height: 70 + padding.bottom,
+          decoration: BoxDecoration(
+            borderRadius: Coui.sheetRadius,
+            border: Border(top: BorderSide(color: coui.liveOverlayBorder)),
+            color: coui.liveOverlaySurface,
+          ),
       child: GestureDetector(
         onTap: _liveRoomController.onSendDanmaku,
         behavior: .opaque,
@@ -1549,6 +1554,8 @@ class _LiveRoomPageState extends State<LiveRoomPage>
             ),
           ),
         ),
+      ),
+      ),
       ),
     );
     if (_liveRoomController.showSuperChat) {
