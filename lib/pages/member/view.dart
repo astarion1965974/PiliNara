@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
+import 'package:PiliPlus/common/widgets/coui_button.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
@@ -289,7 +290,13 @@ class _MemberPageState extends State<MemberPage> {
               ...list.map((e) {
                 return Builder(
                   builder: (context) {
-                    Widget trailing = FilledButton.tonal(
+                    Widget trailing = CouiButton(
+                      variant: e.isFollow
+                          ? CouiButtonVariant.ghost
+                          : CouiButtonVariant.tonal,
+                      height: 34,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      label: '${e.isFollow ? '已' : ''}预约',
                       onPressed: () async {
                         final isFollow = e.isFollow;
                         final res = await UserHttp.spaceReserve(
@@ -306,23 +313,6 @@ class _MemberPageState extends State<MemberPage> {
                           res.toast();
                         }
                       },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: e.isFollow
-                            ? scheme.onInverseSurface
-                            : null,
-                        foregroundColor: e.isFollow ? scheme.outline : null,
-                        tapTargetSize: .shrinkWrap,
-                        minimumSize: const Size(68, 40),
-                        padding: const .symmetric(horizontal: 10),
-                        visualDensity: const .new(horizontal: -2, vertical: -3),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: Coui.imageRadius,
-                        ),
-                      ),
-                      child: Text(
-                        '${e.isFollow ? '已' : ''}预约',
-                        style: const TextStyle(fontSize: 13),
-                      ),
                     );
                     if (e.dynamicId?.isNotEmpty ?? false) {
                       trailing = Row(

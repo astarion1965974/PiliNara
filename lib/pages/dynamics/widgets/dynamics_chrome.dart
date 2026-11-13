@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_pill_fab.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
@@ -28,29 +29,32 @@ class DynamicsTabStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    return TabBar(
-      controller: controller,
-      tabs: tabs,
-      isScrollable: true,
-      tabAlignment: TabAlignment.start,
-      dividerHeight: 0,
-      dividerColor: Colors.transparent,
-      indicatorSize: TabBarIndicatorSize.tab,
-      indicatorPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
-      indicator: VideoDetailChrome.pillDecoration(
-        scheme,
-        coui: CouiThemeData.of(context),
+    return CouiGlassSurface(
+      tier: CouiGlassTier.chrome,
+      child: TabBar(
+        controller: controller,
+        tabs: tabs,
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        dividerHeight: 0,
+        dividerColor: Colors.transparent,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicatorPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
+        indicator: VideoDetailChrome.pillDecoration(
+          scheme,
+          coui: CouiThemeData.of(context),
+        ),
+        labelColor: CouiThemeData.of(context).accent,
+        unselectedLabelColor: scheme.onSurfaceVariant,
+        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w400,
+        ),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 14),
+        splashBorderRadius: Coui.controlRadius,
+        onTap: onTap,
       ),
-      labelColor: CouiThemeData.of(context).accent,
-      unselectedLabelColor: scheme.onSurfaceVariant,
-      labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w400,
-      ),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 14),
-      splashBorderRadius: Coui.controlRadius,
-      onTap: onTap,
     );
   }
 }
