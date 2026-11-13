@@ -139,7 +139,7 @@ class ReplyItemGrpc extends StatelessWidget {
       useYoutube: useYoutube,
     );
     Widget child = Padding(
-      padding: const .fromLTRB(12, 14, 8, 5),
+      padding: const .fromLTRB(12, 10, 8, 3),
       child: useYoutube && replyLevel == 1 && replyItem.count > Int64.ZERO
           ? Stack(
               children: [
@@ -527,7 +527,7 @@ class ReplyItemGrpc extends StatelessWidget {
         ],
         if (replyLevel == 1 && replyItem.count > Int64.ZERO) ...[
           Padding(
-            padding: const EdgeInsets.only(top: 5, bottom: 12),
+            padding: const EdgeInsets.only(top: 4, bottom: 6),
             child: useYoutube
                 ? _youtubeReplyLink(colorScheme)
                 : replyItemRow(context, colorScheme, replyItem.replies),

@@ -103,6 +103,9 @@ class VideoDetailTabStrip extends StatelessWidget {
     final coui = CouiThemeData.of(context);
     return TabBar(
       padding: EdgeInsets.zero,
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+      splashBorderRadius: Coui.controlRadius,
       dividerHeight: 0,
       dividerColor: Colors.transparent,
       labelPadding: EdgeInsets.zero,
