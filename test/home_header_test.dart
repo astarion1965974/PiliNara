@@ -180,17 +180,10 @@ void main() {
     expect(gate.applyScrollDelta(-60, pixels: 0, isOverscroll: true), 0.0);
   });
 
-  testWidgets('custom RefreshIndicator defaults edgeOffset to 0.0', (tester) async {
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: custom_refresh.RefreshIndicator(
-          onRefresh: () async {},
-          child: ListView(children: const [SizedBox(height: 100)]),
-        ),
-      ),
-    ));
-    final indicator = tester.widget<custom_refresh.RefreshIndicator>(
-      find.byType(custom_refresh.RefreshIndicator),
+  test('custom RefreshIndicator defaults edgeOffset to 0.0', () {
+    final indicator = custom_refresh.RefreshIndicator(
+      onRefresh: () async {},
+      child: const SizedBox.shrink(),
     );
     expect(indicator.edgeOffset, 0.0);
   });
