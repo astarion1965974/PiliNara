@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:PiliPlus/models/common/video/base_quality.dart';
 import 'package:PiliPlus/models/common/video/video_decode_type.dart';
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/widgets/cdn_node_dialog.dart';
 import 'package:PiliPlus/pages/setting/widgets/cdn_select_dialog.dart';
@@ -41,17 +42,10 @@ List<SettingsModel> get videoSettings => [
     title: 'B站定向流量支持',
     subtitle: '若套餐含B站定向流量，则会自动使用。可查阅运营商的流量记录确认。',
     leading: const Icon(Icons.perm_data_setting_outlined),
-    getTrailing: (theme) => IgnorePointer(
-      child: Transform.scale(
-        scale: 0.8,
-        alignment: Alignment.centerRight,
-        child: Switch(
-          value: true,
-          onChanged: (_) {},
-          thumbIcon: WidgetStateProperty.all(
-            const Icon(Icons.lock_outline_rounded),
-          ),
-        ),
+    getTrailing: (theme) => const IgnorePointer(
+      child: CouiSwitch(
+        value: true,
+        onChanged: null,
       ),
     ),
   ),

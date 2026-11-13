@@ -339,6 +339,7 @@ class _MainAppState extends PopScopeState<MainApp>
   }
 
   Widget _homeGradientBg() {
+    final coui = CouiThemeData.of(context);
     final dark = _colorScheme.brightness == Brightness.dark;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -346,14 +347,13 @@ class _MainAppState extends PopScopeState<MainApp>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: dark
-              ? const [Color(0xff2b2025), Color(0xff201c20), Color(0xff141416)]
-              : const [
-                  Color(0xffffedf3),
-                  Color(0xfffff5f7),
-                  Color(0xfffdfbfc),
-                  Color(0xfff8f9fa),
+              ? [coui.surfaceBackground, coui.surfaceGradientMid, coui.surfaceGradientEnd]
+              : [
+                  coui.surfaceBackground,
+                  coui.surfaceGradientMid,
+                  coui.surfaceGradientEnd,
                 ],
-          stops: dark ? const [0, 0.45, 1] : const [0, 0.22, 0.55, 1],
+          stops: const [0, 0.45, 1],
         ),
       ),
     );

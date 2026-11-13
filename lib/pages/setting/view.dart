@@ -211,26 +211,30 @@ class _SettingPageState extends State<SettingPage> {
       trailing: const Icon(Icons.chevron_right),
     );
 
+    final coui = CouiThemeData.of(context);
     Widget group(List<Widget> children) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-      child: ClipRRect(
-        borderRadius: Coui.cardRadius,
-        child: Material(
-          color: theme.colorScheme.surfaceContainerLow,
-          child: Column(
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  Divider(
-                    height: 1,
-                    thickness: 0.5,
-                    indent: 72,
-                    endIndent: 16,
-                    color: theme.colorScheme.outlineVariant,
-                  ),
-                children[i],
+      child: DecoratedBox(
+        decoration: Coui.cardDecoration(theme.colorScheme, coui: coui),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 72,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

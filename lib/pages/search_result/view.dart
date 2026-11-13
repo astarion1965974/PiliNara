@@ -5,6 +5,7 @@ import 'package:PiliPlus/common/widgets/view_safe_area.dart';
 import 'package:PiliPlus/models/common/search/search_type.dart';
 import 'package:PiliPlus/pages/search/controller.dart';
 import 'package:PiliPlus/pages/search/widgets/search_chrome.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/pages/search_panel/all/view.dart';
 import 'package:PiliPlus/pages/search_panel/article/view.dart';
 import 'package:PiliPlus/pages/search_panel/live/view.dart';
@@ -69,9 +70,10 @@ class _SearchResultPageState extends State<SearchResultPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final coui = CouiThemeData.of(context);
     return SimpleScaffold(
       appBar: AppBar(
-        backgroundColor: SearchChrome.background(theme.colorScheme),
+        backgroundColor: coui.surfaceBackground,
         surfaceTintColor: Colors.transparent,
         titleSpacing: 0,
         title: SearchFieldSurface(
@@ -124,12 +126,12 @@ class _SearchResultPageState extends State<SearchResultPage>
                 horizontal: 3,
                 vertical: 8,
               ),
-              indicator: BoxDecoration(
-                color: SearchChrome.pill(theme.colorScheme),
-                borderRadius: Coui.cardRadius,
+              indicator: VideoDetailChrome.pillDecoration(
+                theme.colorScheme,
+                coui: coui,
               ),
               indicatorSize: TabBarIndicatorSize.tab,
-              labelColor: SearchChrome.accent(theme.colorScheme),
+              labelColor: coui.accent,
               labelStyle:
                   TabBarTheme.of(
                     context,

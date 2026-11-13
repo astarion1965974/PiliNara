@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/pages/setting/ai_setting/controller.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -45,11 +46,18 @@ class AiSettingPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           // 总开关
-          Obx(() => SwitchListTile(
+          Obx(() => ListTile(
                 title: const Text('启用 AI 视频助手'),
                 subtitle: const Text('关闭后视频详情页不再显示 AI 按钮'),
-                value: controller.enableAiChat.value,
-                onChanged: (value) {
+                trailing: CouiSwitch(
+                  value: controller.enableAiChat.value,
+                  onChanged: (value) {
+                    controller.enableAiChat.value = value;
+                    Pref.enableAiChat = value;
+                  },
+                ),
+                onTap: () {
+                  final value = !controller.enableAiChat.value;
                   controller.enableAiChat.value = value;
                   Pref.enableAiChat = value;
                 },
@@ -303,13 +311,18 @@ class AiSettingPage extends StatelessWidget {
                 children: [
                   Text('交互与显示', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  Obx(() => SwitchListTile(
+                  Obx(() => ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: const Text('禁用 AI 回复自动滚动'),
                         subtitle: const Text('AI 回复时不主动滚动到最新内容'),
-                        value: !controller.aiAutoScroll.value,
-                        onChanged: (value) =>
-                            controller.saveAiAutoScroll(!value),
+                        trailing: CouiSwitch(
+                          value: !controller.aiAutoScroll.value,
+                          onChanged: (value) =>
+                              controller.saveAiAutoScroll(!value),
+                        ),
+                        onTap: () => controller.saveAiAutoScroll(
+                          controller.aiAutoScroll.value,
+                        ),
                       )),
                 ],
               ),

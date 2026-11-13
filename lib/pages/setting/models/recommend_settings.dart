@@ -1,6 +1,7 @@
 import 'package:PiliPlus/http/video.dart';
 import 'package:PiliPlus/models/common/rcmd_mode.dart';
 import 'package:PiliPlus/pages/rcmd/controller.dart';
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/widgets/select_dialog.dart';
 import 'package:PiliPlus/utils/global_data.dart';
@@ -138,7 +139,7 @@ List<SettingsModel> get recommendSettings => [
             event.key == SettingBoxKey.rcmdMode ||
             event.key == SettingBoxKey.removeBlockedRcmd,
       ),
-      builder: (_, _) => Switch(
+      builder: (_, _) => CouiSwitch(
         value: Pref.removeBlockedRcmd,
         onChanged: Pref.rcmdMode != RcmdMode.web
             ? (value) {
