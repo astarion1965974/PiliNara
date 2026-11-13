@@ -1,11 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_contour_box.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum CouiGlassTier { chrome, sheet, floating }
 
-/// Standardized COUI glass surface handling ClipRRect -> BackdropFilter -> fill/rim order.
+/// Standardized COUI glass surface handling ClipRRect -> BackdropFilter -> gradient fill -> CouiContourBox.
 /// Only use on fixed chrome (top bars, sheets, floating capsules) backed by app surfaces.
 class CouiGlassSurface extends StatelessWidget {
   const CouiGlassSurface({
@@ -36,28 +37,82 @@ class CouiGlassSurface extends StatelessWidget {
 
     Widget surface = DecoratedBox(
       decoration: BoxDecoration(
-        color: recipe.fillColor,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [recipe.fillColor, recipe.fillEndColor],
+        ),
         borderRadius: borderRadius,
-        border: !showBorder
-            ? null
-            : topBorderOnly
-            ? Border(top: BorderSide(color: recipe.highlightColor, width: 0.75))
-            : Border.all(color: recipe.borderColor, width: 0.75),
       ),
       child: child,
     );
 
-    if (useBlur && recipe.blurSigma > 0) {
-      surface = ClipRRect(
+    if (showBorder) {
+      surface = CouiContourBox(
         borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(
-            sigmaX: recipe.blurSigma,
-            sigmaY: recipe.blurSigma,
-          ),
-          child: surface,
-        ),
+        style: CouiContourStyle.menu,
+        topBorderOnly: topBorderOnly,
+        topColor: recipe.highlightColor,
+        bottomColor: recipe.borderColor,
+        child: surface,
       );
+    }
+
+    if (useBlur && recipe.blurSigma > 0) {
+      if (tier == CouiGlassTier.chrome) {
+        // Two-band progressive blur approximation of CouiGradientBlur:
+        // full sigma on the upper 55% band and 0.45x sigma on the lower 45% band.
+        surface = ClipRRect(
+          borderRadius: borderRadius,
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Positioned.fill(
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 55,
+                      child: ClipRect(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: recipe.blurSigma,
+                            sigmaY: recipe.blurSigma,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 45,
+                      child: ClipRect(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                            sigmaX: recipe.blurSigma * 0.45,
+                            sigmaY: recipe.blurSigma * 0.45,
+                          ),
+                          child: const SizedBox.expand(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              surface,
+            ],
+          ),
+        );
+      } else {
+        surface = ClipRRect(
+          borderRadius: borderRadius,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(
+              sigmaX: recipe.blurSigma,
+              sigmaY: recipe.blurSigma,
+            ),
+            child: surface,
+          ),
+        );
+      }
     } else if (borderRadius != BorderRadius.zero) {
       surface = ClipRRect(borderRadius: borderRadius, child: surface);
     }

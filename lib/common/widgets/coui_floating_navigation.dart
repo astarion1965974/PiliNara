@@ -1,6 +1,8 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_contour_box.dart';
+import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
 
 class CouiNavigationDestination {
@@ -26,12 +28,13 @@ class CouiFloatingNavigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final coui = CouiThemeData.of(context);
     final floating = coui.glassFloating;
+    final capsuleRadius = BorderRadius.circular(28);
     return SizedBox(
       width: items.length < 4 ? 260 : items.length * 68.0,
       height: 56,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: capsuleRadius,
           boxShadow: [
             BoxShadow(
               color: floating.shadowColor,
@@ -46,26 +49,25 @@ class CouiFloatingNavigation extends StatelessWidget {
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: capsuleRadius,
           child: BackdropFilter(
             filter: ImageFilter.blur(
               sigmaX: floating.blurSigma,
               sigmaY: floating.blurSigma,
             ),
-            child: CustomPaint(
-              painter: _CouiContourRimPainter(
-                radius: 28,
-                topColor: floating.highlightColor,
-                bottomColor: floating.borderColor,
-              ),
+            child: CouiContourBox(
+              borderRadius: capsuleRadius,
+              style: CouiContourStyle.menu,
+              topColor: floating.highlightColor,
+              bottomColor: floating.borderColor,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [floating.fillColor, coui.navBottomColor],
+                    colors: [floating.fillColor, floating.fillEndColor],
                   ),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: capsuleRadius,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -92,42 +94,6 @@ class CouiFloatingNavigation extends StatelessWidget {
   }
 }
 
-class _CouiContourRimPainter extends CustomPainter {
-  const _CouiContourRimPainter({
-    required this.radius,
-    required this.topColor,
-    required this.bottomColor,
-  });
-
-  final double radius;
-  final Color topColor;
-  final Color bottomColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(
-      rect.deflate(0.5),
-      Radius.circular(radius),
-    );
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..shader = LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [topColor, bottomColor],
-      ).createShader(rect);
-    canvas.drawRRect(rrect, paint);
-  }
-
-  @override
-  bool shouldRepaint(_CouiContourRimPainter oldDelegate) =>
-      radius != oldDelegate.radius ||
-      topColor != oldDelegate.topColor ||
-      bottomColor != oldDelegate.bottomColor;
-}
-
 class _NavigationItem extends StatefulWidget {
   const _NavigationItem({
     required this.destination,
@@ -144,8 +110,39 @@ class _NavigationItem extends StatefulWidget {
   State<_NavigationItem> createState() => _NavigationItemState();
 }
 
-class _NavigationItemState extends State<_NavigationItem> {
-  bool _pressed = false;
+class _NavigationItemState extends State<_NavigationItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _scaleController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController.unbounded(
+      vsync: this,
+      value: 1.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  void _onHighlightChanged(bool pressed) {
+    final spring = pressed
+        ? CouiMotion.pressDefaultSpring
+        : CouiMotion.releaseDefaultSpring;
+    _scaleController.animateWith(
+      SpringSimulation(
+        spring,
+        _scaleController.value,
+        pressed ? 0.90 : 1.0,
+        _scaleController.velocity,
+        tolerance: CouiMotion.springTolerance,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,17 +159,19 @@ class _NavigationItemState extends State<_NavigationItem> {
         color: Colors.transparent,
         child: InkWell(
           onTap: widget.onTap,
-          onHighlightChanged: (pressed) => setState(() => _pressed = pressed),
+          onHighlightChanged: _onHighlightChanged,
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           borderRadius: BorderRadius.circular(24),
           excludeFromSemantics: true,
           child: SizedBox(
             height: 48,
-            child: AnimatedScale(
-              scale: _pressed ? .90 : 1,
-              duration: CouiMotion.pressDuration,
-              curve: CouiMotion.pressCurve,
+            child: AnimatedBuilder(
+              animation: _scaleController,
+              builder: (context, child) => Transform.scale(
+                scale: _scaleController.value,
+                child: child,
+              ),
               child: AnimatedContainer(
                 duration: CouiMotion.stateDuration,
                 curve: CouiMotion.stateCurve,

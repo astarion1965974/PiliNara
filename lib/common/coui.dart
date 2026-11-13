@@ -1,5 +1,7 @@
+import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
+import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// Shared COUI component sizes, continuous-curvature shapes, and material tokens.
@@ -9,6 +11,10 @@ abstract final class Coui {
   static const image = 16.0;
   static const badge = 8.0;
   static const sheet = 28.0;
+
+  /// Physical line width from CouiContour.kt (`2.5f * density`), expressed as
+  /// logical dp at typical 2.5-3.0x mobile density (~1.0dp).
+  static const contourWidth = 1.0;
 
   static const cardRadius = BorderRadius.all(Radius.circular(card));
   static const controlRadius = BorderRadius.all(Radius.circular(control));
@@ -47,7 +53,11 @@ abstract final class Coui {
   }) {
     final resolved = coui ?? CouiThemeData.fromScheme(scheme);
     return BoxDecoration(
-      color: resolved.cardColor,
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [resolved.cardColor, resolved.cardBottomColor],
+      ),
       borderRadius: borderRadius,
       border: Border.all(
         color: resolved.subtleBorderColor,
@@ -64,7 +74,7 @@ abstract final class Coui {
   }
 }
 
-/// Shared COUI motion curves and durations aligned with ColorOS deceleration.
+/// Shared COUI motion curves, durations, and spring physics from CouiSpring / CouiPressMotion / CouiSwitchMotion.
 abstract final class CouiMotion {
   static const Curve pageTransitionCurve = Cubic(0.22, 1.0, 0.36, 1.0);
   static const Duration pageTransitionDuration = Duration(milliseconds: 360);
@@ -81,12 +91,64 @@ abstract final class CouiMotion {
 
   static const Curve stateCurve = Curves.easeOutCubic;
   static const Duration stateDuration = Duration(milliseconds: 220);
+
+  static const Curve pressAreaInterpolator = Cubic(0, 0, 0, 1);
+
+  static const Tolerance springTolerance = Tolerance(
+    distance: 0.0005,
+    velocity: 0.005,
+  );
+
+  /// Converts COUI (response, bounce) to Flutter [SpringDescription].
+  /// dampingRatio = 1 - bounce; stiffness = (2*pi / response)^2.
+  static SpringDescription spring({
+    required double response,
+    double bounce = 0.0,
+  }) {
+    final omega = 2.0 * math.pi / response;
+    return SpringDescription.withDampingRatio(
+      mass: 1.0,
+      stiffness: omega * omega,
+      ratio: (1.0 - bounce).clamp(0.05, 2.0),
+    );
+  }
+
+  static final SpringDescription pressDefaultSpring = spring(
+    response: 0.25,
+    bounce: 0.0,
+  );
+  static final SpringDescription pressCandySpring = spring(
+    response: 0.30,
+    bounce: 0.0,
+  );
+  static final SpringDescription releaseDefaultSpring = spring(
+    response: 0.50,
+    bounce: 0.60,
+  );
+  static final SpringDescription releaseCandySpring = spring(
+    response: 0.50,
+    bounce: 0.50,
+  );
+
+  static final SpringDescription switchToggleSpring = spring(
+    response: 0.40,
+    bounce: 0.30,
+  );
+  static final SpringDescription switchDragSpring = spring(
+    response: 0.30,
+    bounce: 0.0,
+  );
+  static final SpringDescription switchAttachSpring = spring(
+    response: 0.40,
+    bounce: 0.20,
+  );
 }
 
-/// Official COUI glass material recipe for a single surface tier.
+/// Official COUI glass material recipe with gradient endpoints for dual-layer material feel.
 class CouiGlassRecipe {
   const CouiGlassRecipe({
     required this.fillColor,
+    required this.fillEndColor,
     required this.borderColor,
     required this.highlightColor,
     required this.blurSigma,
@@ -96,6 +158,7 @@ class CouiGlassRecipe {
   });
 
   final Color fillColor;
+  final Color fillEndColor;
   final Color borderColor;
   final Color highlightColor;
   final double blurSigma;
@@ -110,6 +173,7 @@ class CouiGlassRecipe {
   ) {
     return CouiGlassRecipe(
       fillColor: Color.lerp(a.fillColor, b.fillColor, t)!,
+      fillEndColor: Color.lerp(a.fillEndColor, b.fillEndColor, t)!,
       borderColor: Color.lerp(a.borderColor, b.borderColor, t)!,
       highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t)!,
       blurSigma: lerpDouble(a.blurSigma, b.blurSigma, t)!,
@@ -120,10 +184,11 @@ class CouiGlassRecipe {
   }
 }
 
-/// Dynamic COUI visual tokens derived from the active [ColorScheme].
+/// Dynamic COUI visual tokens calibrated against COUI-Kit alpha11 presets while preserving dynamic accent.
 class CouiThemeData extends ThemeExtension<CouiThemeData> {
   const CouiThemeData({
     required this.cardColor,
+    required this.cardBottomColor,
     required this.rimColor,
     required this.subtleBorderColor,
     required this.shadowColor,
@@ -146,6 +211,10 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     required this.switchTrackOffColor,
     required this.switchTrackOnColor,
     required this.switchThumbColor,
+    required this.switchDisabledTrackOffColor,
+    required this.switchDisabledTrackOnColor,
+    required this.switchDisabledThumbColor,
+    required this.switchFocusOutlineColor,
     required this.switchTrackRimActiveColor,
     required this.switchTrackRimInactiveColor,
     required this.liveOverlaySurface,
@@ -159,6 +228,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   });
 
   final Color cardColor;
+  final Color cardBottomColor;
   final Color rimColor;
   final Color subtleBorderColor;
   final Color shadowColor;
@@ -185,6 +255,10 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   final Color switchTrackOffColor;
   final Color switchTrackOnColor;
   final Color switchThumbColor;
+  final Color switchDisabledTrackOffColor;
+  final Color switchDisabledTrackOnColor;
+  final Color switchDisabledThumbColor;
+  final Color switchFocusOutlineColor;
   final Color switchTrackRimActiveColor;
   final Color switchTrackRimInactiveColor;
 
@@ -206,63 +280,68 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     final dark = scheme.brightness == Brightness.dark;
     final pureBlack = dark && (isPureBlack || scheme.surface == Colors.black);
 
+    // Calibrated against CouiPresets.Light (white card on 0xFFF0F1F2) & Dark (0x1AFFFFFF card on 0xFF1E1E1E / Black)
     final cardColor = pureBlack
-        ? Color.alphaBlend(
-            scheme.surfaceContainerHigh.withValues(alpha: 0.72),
-            Colors.black,
-          )
+        ? const Color(0x1AFFFFFF)
         : dark
-        ? scheme.surfaceContainerHigh.withValues(alpha: 0.90)
+        ? Color.alphaBlend(const Color(0x1AFFFFFF), const Color(0xFF1E1E1E))
+        : Colors.white;
+
+    final cardBottomColor = pureBlack
+        ? const Color(0x12FFFFFF)
+        : dark
+        ? Color.alphaBlend(const Color(0x12FFFFFF), const Color(0xFF1E1E1E))
         : Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.015),
-            Colors.white,
-          ).withValues(alpha: 0.94);
+            scheme.primary.withValues(alpha: 0.012),
+            const Color(0xFFFAFAFB),
+          );
 
     final rimColor = dark
-        ? Colors.white.withValues(alpha: pureBlack ? 0.08 : 0.11)
-        : Colors.white.withValues(alpha: 0.85);
+        ? Colors.white.withValues(alpha: pureBlack ? 0.12 : 0.16)
+        : Colors.white.withValues(alpha: 0.88);
 
     final subtleBorderColor = dark
-        ? Colors.white.withValues(alpha: pureBlack ? 0.10 : 0.08)
+        ? Colors.white.withValues(alpha: pureBlack ? 0.10 : 0.09)
         : scheme.onSurface.withValues(alpha: 0.04);
 
     final shadowColor = Colors.black.withValues(
-      alpha: pureBlack ? 0.0 : (dark ? 0.18 : 0.04),
+      alpha: pureBlack ? 0.0 : (dark ? 0.22 : 0.045),
     );
 
-    final dividerColor = scheme.outline.withValues(
-      alpha: pureBlack ? 0.16 : 0.12,
-    );
+    // Calibrated against CouiPresets outlineVariant (0x1F000000 / 0x33FFFFFF)
+    final dividerColor = dark
+        ? const Color(0x33FFFFFF).withValues(alpha: pureBlack ? 0.16 : 0.18)
+        : const Color(0x1F000000).withValues(alpha: 0.09);
 
     final surfaceBackground = pureBlack
         ? Colors.black
         : dark
         ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.08),
-            scheme.surfaceContainerLowest,
+            scheme.primary.withValues(alpha: 0.06),
+            const Color(0xFF1E1E1E),
           )
         : Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.06),
-            scheme.surface,
+            scheme.primary.withValues(alpha: 0.045),
+            const Color(0xFFF0F1F2),
           );
 
     final surfaceGradientMid = pureBlack
         ? Colors.black
         : dark
         ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.04),
-            scheme.surface,
+            scheme.primary.withValues(alpha: 0.03),
+            const Color(0xFF18181A),
           )
         : Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.02),
-            scheme.surface,
+            scheme.primary.withValues(alpha: 0.015),
+            const Color(0xFFF0F1F2),
           );
 
     final surfaceGradientEnd = pureBlack
         ? Colors.black
         : dark
-        ? scheme.surface
-        : scheme.surfaceContainerLowest;
+        ? const Color(0xFF121214)
+        : const Color(0xFFF0F1F2);
 
     final accent = scheme.primary;
     final pillColor = accent.withValues(
@@ -281,46 +360,49 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     final navTopColor = pureBlack
         ? Color.alphaBlend(
             scheme.primary.withValues(alpha: 0.06),
-            const Color(0xff1c1c1e),
-          ).withValues(alpha: 0.84)
+            const Color(0xFF1E1E20),
+          ).withValues(alpha: 0.78)
         : dark
         ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.08),
-            scheme.surfaceContainerHigh,
-          ).withValues(alpha: 0.78)
+            scheme.primary.withValues(alpha: 0.07),
+            const Color(0xFF333333),
+          ).withValues(alpha: 0.72)
         : Color.alphaBlend(
             scheme.primary.withValues(alpha: 0.03),
             Colors.white,
-          ).withValues(alpha: 0.86);
-
-    final navBottomColor = pureBlack
-        ? const Color(0xff0a0a0c).withValues(alpha: 0.90)
-        : dark
-        ? Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.04),
-            scheme.surfaceContainerLow,
-          ).withValues(alpha: 0.88)
-        : Color.alphaBlend(
-            scheme.primary.withValues(alpha: 0.05),
-            scheme.surfaceContainerLow,
           ).withValues(alpha: 0.76);
 
+    final navBottomColor = pureBlack
+        ? const Color(0xFF0E0E10).withValues(alpha: 0.86)
+        : dark
+        ? Color.alphaBlend(
+            scheme.primary.withValues(alpha: 0.03),
+            const Color(0xFF1E1E1E),
+          ).withValues(alpha: 0.82)
+        : Color.alphaBlend(
+            scheme.primary.withValues(alpha: 0.04),
+            const Color(0xFFF0F1F2),
+          ).withValues(alpha: 0.68);
+
     final navHighlightColor = Colors.white.withValues(
-      alpha: pureBlack ? 0.20 : (dark ? 0.28 : 0.86),
+      alpha: pureBlack ? 0.22 : (dark ? 0.30 : 0.88),
     );
-    final navRimBottomColor = scheme.onSurface.withValues(
-      alpha: pureBlack ? 0.12 : (dark ? 0.10 : 0.07),
-    );
+    final navRimBottomColor = dark
+        ? Colors.white.withValues(alpha: 0.08)
+        : scheme.onSurface.withValues(alpha: 0.06);
 
     final glassChrome = CouiGlassRecipe(
       fillColor: surfaceBackground.withValues(
-        alpha: pureBlack ? 0.82 : (dark ? 0.76 : 0.78),
+        alpha: pureBlack ? 0.78 : (dark ? 0.68 : 0.68),
+      ),
+      fillEndColor: surfaceGradientMid.withValues(
+        alpha: pureBlack ? 0.64 : (dark ? 0.54 : 0.52),
       ),
       borderColor: dark
           ? subtleBorderColor
           : Colors.white.withValues(alpha: 0.32),
       highlightColor: rimColor,
-      blurSigma: 16,
+      blurSigma: 18,
       shadowColor: Colors.black.withValues(alpha: 0.0),
       shadowBlur: 0,
       shadowOffset: Offset.zero,
@@ -328,13 +410,18 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
 
     final glassSheet = CouiGlassRecipe(
       fillColor: pureBlack
-          ? const Color(0xff141416).withValues(alpha: 0.94)
+          ? const Color(0xFF18181A).withValues(alpha: 0.88)
           : dark
-          ? scheme.surfaceContainerHigh.withValues(alpha: 0.90)
-          : Colors.white.withValues(alpha: 0.92),
+          ? const Color(0xFF333333).withValues(alpha: 0.82)
+          : Colors.white.withValues(alpha: 0.84),
+      fillEndColor: pureBlack
+          ? const Color(0xFF101012).withValues(alpha: 0.94)
+          : dark
+          ? const Color(0xFF1E1E1E).withValues(alpha: 0.90)
+          : const Color(0xFFF6F7F8).withValues(alpha: 0.90),
       borderColor: subtleBorderColor,
       highlightColor: rimColor,
-      blurSigma: 24,
+      blurSigma: 26,
       shadowColor: Colors.black.withValues(
         alpha: pureBlack ? 0.0 : (dark ? 0.28 : 0.10),
       ),
@@ -344,6 +431,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
 
     final glassFloating = CouiGlassRecipe(
       fillColor: navTopColor,
+      fillEndColor: navBottomColor,
       borderColor: navRimBottomColor,
       highlightColor: navHighlightColor,
       blurSigma: 28,
@@ -354,6 +442,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
 
     return CouiThemeData(
       cardColor: cardColor,
+      cardBottomColor: cardBottomColor,
       rimColor: rimColor,
       subtleBorderColor: subtleBorderColor,
       shadowColor: shadowColor,
@@ -370,18 +459,27 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       navBottomColor: navBottomColor,
       navHighlightColor: navHighlightColor,
       navRimBottomColor: navRimBottomColor,
-      navForeground: scheme.onSurface,
+      navForeground: dark ? const Color(0xE6FFFFFF) : const Color(0xE6000000),
       navSelectedPillColor: accent.withValues(
         alpha: pureBlack ? 0.24 : (dark ? 0.20 : 0.12),
       ),
       navSelectedBorderColor: accent.withValues(
         alpha: pureBlack ? 0.30 : (dark ? 0.24 : 0.16),
       ),
-      switchTrackOffColor: scheme.onSurface.withValues(
-        alpha: pureBlack ? 0.28 : (dark ? 0.24 : 0.16),
-      ),
+      // Exact CouiSwitchDefaults.colors(accent, dark) table
+      switchTrackOffColor: dark
+          ? const Color(0x40FFFFFF)
+          : const Color(0x29000000),
       switchTrackOnColor: accent,
       switchThumbColor: Colors.white,
+      switchDisabledTrackOffColor: dark
+          ? const Color(0x26FFFFFF)
+          : const Color(0x14000000),
+      switchDisabledTrackOnColor: accent.withValues(alpha: 0x4D / 255.0),
+      switchDisabledThumbColor: dark
+          ? const Color(0x29FFFFFF)
+          : const Color(0x8AFFFFFF),
+      switchFocusOutlineColor: accent.withValues(alpha: 0x66 / 255.0),
       switchTrackRimActiveColor: Colors.white.withValues(
         alpha: dark ? 0.12 : 0.18,
       ),
@@ -400,7 +498,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       inputFillColor: pureBlack
           ? const Color(0xff161618)
           : dark
-          ? scheme.surfaceContainerHigh
+          ? const Color(0xFF2B2B2E)
           : Color.alphaBlend(
               scheme.primary.withValues(alpha: 0.025),
               Colors.white,
@@ -423,6 +521,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   @override
   CouiThemeData copyWith({
     Color? cardColor,
+    Color? cardBottomColor,
     Color? rimColor,
     Color? subtleBorderColor,
     Color? shadowColor,
@@ -445,6 +544,10 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     Color? switchTrackOffColor,
     Color? switchTrackOnColor,
     Color? switchThumbColor,
+    Color? switchDisabledTrackOffColor,
+    Color? switchDisabledTrackOnColor,
+    Color? switchDisabledThumbColor,
+    Color? switchFocusOutlineColor,
     Color? switchTrackRimActiveColor,
     Color? switchTrackRimInactiveColor,
     Color? liveOverlaySurface,
@@ -458,6 +561,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   }) {
     return CouiThemeData(
       cardColor: cardColor ?? this.cardColor,
+      cardBottomColor: cardBottomColor ?? this.cardBottomColor,
       rimColor: rimColor ?? this.rimColor,
       subtleBorderColor: subtleBorderColor ?? this.subtleBorderColor,
       shadowColor: shadowColor ?? this.shadowColor,
@@ -481,6 +585,14 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       switchTrackOffColor: switchTrackOffColor ?? this.switchTrackOffColor,
       switchTrackOnColor: switchTrackOnColor ?? this.switchTrackOnColor,
       switchThumbColor: switchThumbColor ?? this.switchThumbColor,
+      switchDisabledTrackOffColor:
+          switchDisabledTrackOffColor ?? this.switchDisabledTrackOffColor,
+      switchDisabledTrackOnColor:
+          switchDisabledTrackOnColor ?? this.switchDisabledTrackOnColor,
+      switchDisabledThumbColor:
+          switchDisabledThumbColor ?? this.switchDisabledThumbColor,
+      switchFocusOutlineColor:
+          switchFocusOutlineColor ?? this.switchFocusOutlineColor,
       switchTrackRimActiveColor:
           switchTrackRimActiveColor ?? this.switchTrackRimActiveColor,
       switchTrackRimInactiveColor:
@@ -501,6 +613,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     if (other is! CouiThemeData) return this;
     return CouiThemeData(
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
+      cardBottomColor: Color.lerp(cardBottomColor, other.cardBottomColor, t)!,
       rimColor: Color.lerp(rimColor, other.rimColor, t)!,
       subtleBorderColor: Color.lerp(
         subtleBorderColor,
@@ -573,6 +686,26 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       switchThumbColor: Color.lerp(
         switchThumbColor,
         other.switchThumbColor,
+        t,
+      )!,
+      switchDisabledTrackOffColor: Color.lerp(
+        switchDisabledTrackOffColor,
+        other.switchDisabledTrackOffColor,
+        t,
+      )!,
+      switchDisabledTrackOnColor: Color.lerp(
+        switchDisabledTrackOnColor,
+        other.switchDisabledTrackOnColor,
+        t,
+      )!,
+      switchDisabledThumbColor: Color.lerp(
+        switchDisabledThumbColor,
+        other.switchDisabledThumbColor,
+        t,
+      )!,
+      switchFocusOutlineColor: Color.lerp(
+        switchFocusOutlineColor,
+        other.switchFocusOutlineColor,
         t,
       )!,
       switchTrackRimActiveColor: Color.lerp(

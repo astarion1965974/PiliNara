@@ -1,9 +1,11 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_contour_box.dart';
+import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
 
 enum CouiButtonVariant { primary, tonal, ghost }
 
-/// COUI button skeleton with three variants, large continuous corners, and scale feedback.
+/// COUI button with continuous corners, CouiContourBox rim, and CouiPressMotion spring physics.
 class CouiButton extends StatefulWidget {
   const CouiButton({
     super.key,
@@ -28,8 +30,88 @@ class CouiButton extends StatefulWidget {
   State<CouiButton> createState() => _CouiButtonState();
 }
 
-class _CouiButtonState extends State<CouiButton> {
+class _CouiButtonState extends State<CouiButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _scaleController;
   bool _pressed = false;
+  bool _isCandy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController.unbounded(
+      vsync: this,
+      value: 1.0,
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  void _handleHighlightChanged(bool pressed) {
+    if (_pressed == pressed) return;
+    setState(() => _pressed = pressed);
+
+    if (pressed) {
+      final renderObject = context.findRenderObject();
+      final size = renderObject is RenderBox && renderObject.hasSize
+          ? renderObject.size
+          : Size(widget.expanded ? 300 : 120, widget.height);
+
+      const minArea = 20.0 * 20.0;
+      const maxArea = 150.0 * 150.0;
+      final area = size.width * size.height;
+      final areaProgress = ((area - minArea) / (maxArea - minArea)).clamp(
+        0.0,
+        1.0,
+      );
+      final areaScale =
+          0.85 + 0.12 * CouiMotion.pressAreaInterpolator.transform(areaProgress);
+
+      final aspect = size.height > 0 ? size.width / size.height : 1.0;
+      _isCandy = aspect > 2.0;
+
+      final double target;
+      if (_isCandy) {
+        final aspectProgress = ((aspect - 2.0) / 13.0).clamp(0.0, 1.0);
+        final aspectScale =
+            0.85 +
+            0.15 * CouiMotion.pressAreaInterpolator.transform(aspectProgress);
+        target = ((areaScale + aspectScale) * 0.5).clamp(0.4, 1.0);
+      } else {
+        target = areaScale.clamp(0.4, 1.0);
+      }
+
+      final spring = _isCandy
+          ? CouiMotion.pressCandySpring
+          : CouiMotion.pressDefaultSpring;
+      _scaleController.animateWith(
+        SpringSimulation(
+          spring,
+          _scaleController.value,
+          target,
+          _scaleController.velocity,
+          tolerance: CouiMotion.springTolerance,
+        ),
+      );
+    } else {
+      final spring = _isCandy
+          ? CouiMotion.releaseCandySpring
+          : CouiMotion.releaseDefaultSpring;
+      _scaleController.animateWith(
+        SpringSimulation(
+          spring,
+          _scaleController.value,
+          1.0,
+          _scaleController.velocity,
+          tolerance: CouiMotion.springTolerance,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +121,16 @@ class _CouiButtonState extends State<CouiButton> {
 
     final Color bg;
     final Color fg;
-    final Color border;
+    final Color? contourTop;
+    final Color? contourBottom;
     final List<BoxShadow>? shadows;
 
     switch (widget.variant) {
       case CouiButtonVariant.primary:
         bg = coui.accent;
         fg = scheme.onPrimary;
-        border = Colors.transparent;
+        contourTop = null;
+        contourBottom = coui.accent.withValues(alpha: 0.18);
         shadows = enabled
             ? [
                 BoxShadow(
@@ -59,66 +143,72 @@ class _CouiButtonState extends State<CouiButton> {
       case CouiButtonVariant.tonal:
         bg = coui.pillColor;
         fg = coui.accent;
-        border = coui.pillBorder;
+        contourTop = coui.rimColor.withValues(alpha: coui.rimColor.a * 0.55);
+        contourBottom = coui.pillBorder;
         shadows = null;
       case CouiButtonVariant.ghost:
         bg = Colors.transparent;
         fg = scheme.onSurface;
-        border = coui.subtleBorderColor;
+        contourTop = coui.subtleBorderColor;
+        contourBottom = coui.subtleBorderColor;
         shadows = null;
     }
 
-    final content = AnimatedOpacity(
-      opacity: enabled ? (_pressed ? 0.85 : 1.0) : 0.45,
+    return AnimatedOpacity(
+      opacity: enabled ? (_pressed ? 0.88 : 1.0) : 0.45,
       duration: CouiMotion.pressDuration,
       curve: CouiMotion.pressCurve,
-      child: AnimatedScale(
-        scale: _pressed ? 0.96 : 1.0,
-        duration: CouiMotion.pressDuration,
-        curve: CouiMotion.pressCurve,
+      child: AnimatedBuilder(
+        animation: _scaleController,
+        builder: (context, child) => Transform.scale(
+          scale: _scaleController.value,
+          child: child,
+        ),
         child: DecoratedBox(
           decoration: BoxDecoration(
             color: bg,
             borderRadius: Coui.controlRadius,
-            border: border == Colors.transparent
-                ? null
-                : Border.all(color: border, width: 0.75),
             boxShadow: shadows,
           ),
-          child: Material(
-            type: MaterialType.transparency,
+          child: CouiContourBox(
             borderRadius: Coui.controlRadius,
-            child: InkWell(
+            style: CouiContourStyle.button,
+            topColor: contourTop,
+            bottomColor: contourBottom,
+            child: Material(
+              type: MaterialType.transparency,
               borderRadius: Coui.controlRadius,
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: widget.onPressed,
-              onHighlightChanged: enabled
-                  ? (v) => setState(() => _pressed = v)
-                  : null,
-              child: SizedBox(
-                height: widget.height,
-                width: widget.expanded ? double.infinity : null,
-                child: Padding(
-                  padding: widget.padding,
-                  child: Row(
-                    mainAxisSize:
-                        widget.expanded ? MainAxisSize.max : MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.icon != null) ...[
-                        Icon(widget.icon, size: 18, color: fg),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          color: fg,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+              child: InkWell(
+                borderRadius: Coui.controlRadius,
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: widget.onPressed,
+                onHighlightChanged: enabled ? _handleHighlightChanged : null,
+                child: SizedBox(
+                  height: widget.height,
+                  width: widget.expanded ? double.infinity : null,
+                  child: Padding(
+                    padding: widget.padding,
+                    child: Row(
+                      mainAxisSize: widget.expanded
+                          ? MainAxisSize.max
+                          : MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (widget.icon != null) ...[
+                          Icon(widget.icon, size: 18, color: fg),
+                          const SizedBox(width: 6),
+                        ],
+                        Text(
+                          widget.label,
+                          style: TextStyle(
+                            color: fg,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -127,7 +217,5 @@ class _CouiButtonState extends State<CouiButton> {
         ),
       ),
     );
-
-    return content;
   }
 }
