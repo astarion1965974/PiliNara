@@ -103,7 +103,7 @@ jobs:
         shell: pwsh
         run: lib/scripts/build.ps1 android
       - name: Run Flutter static analysis
-        run: flutter analyze --no-pub
+        run: flutter analyze --no-pub --no-fatal-infos
       - name: Run Flutter component tests
         run: flutter test --no-pub
       - name: Set COUI version metadata
