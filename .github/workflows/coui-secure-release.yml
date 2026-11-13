@@ -6,6 +6,7 @@ on:
     paths-ignore:
       - ci/coui-signing-envelope.json
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - feat/coui-flutter-refinement
     paths-ignore:
