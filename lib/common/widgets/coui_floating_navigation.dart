@@ -1,5 +1,6 @@
 import 'dart:ui' show ImageFilter;
 
+import 'package:PiliPlus/common/coui.dart';
 import 'package:material_ui/material_ui.dart';
 
 class CouiNavigationDestination {
@@ -24,8 +25,7 @@ class CouiFloatingNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final foreground = dark ? Colors.white : Colors.black;
-    final accent = Theme.of(context).colorScheme.primary;
+    final coui = CouiThemeData.of(context);
     return SizedBox(
       width: items.length < 4 ? 260 : items.length * 68.0,
       height: 56,
@@ -52,23 +52,15 @@ class CouiFloatingNavigation extends StatelessWidget {
             child: CustomPaint(
               painter: _CouiContourRimPainter(
                 radius: 28,
-                topColor: Colors.white.withValues(alpha: dark ? .28 : .86),
-                bottomColor: foreground.withValues(alpha: dark ? .10 : .07),
+                topColor: coui.navHighlightColor,
+                bottomColor: coui.navRimBottomColor,
               ),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: dark
-                        ? [
-                            const Color(0xff585258).withValues(alpha: .72),
-                            const Color(0xff201e22).withValues(alpha: .84),
-                          ]
-                        : [
-                            Colors.white.withValues(alpha: .84),
-                            const Color(0xfff4eef1).withValues(alpha: .74),
-                          ],
+                    colors: [coui.navTopColor, coui.navBottomColor],
                   ),
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -81,9 +73,7 @@ class CouiFloatingNavigation extends StatelessWidget {
                           child: _NavigationItem(
                             destination: items[i],
                             selected: selectedIndex == i,
-                            foreground: foreground,
-                            accent: accent,
-                            dark: dark,
+                            coui: coui,
                             onTap: () => onSelection(i),
                           ),
                         ),
@@ -139,16 +129,12 @@ class _NavigationItem extends StatefulWidget {
   const _NavigationItem({
     required this.destination,
     required this.selected,
-    required this.foreground,
-    required this.accent,
-    required this.dark,
+    required this.coui,
     required this.onTap,
   });
   final CouiNavigationDestination destination;
   final bool selected;
-  final Color foreground;
-  final Color accent;
-  final bool dark;
+  final CouiThemeData coui;
   final VoidCallback onTap;
 
   @override
@@ -160,9 +146,10 @@ class _NavigationItemState extends State<_NavigationItem> {
 
   @override
   Widget build(BuildContext context) {
+    final foreground = widget.coui.navForeground;
     final color = widget.selected
-        ? widget.foreground.withValues(alpha: .95)
-        : widget.foreground.withValues(alpha: .64);
+        ? foreground.withValues(alpha: .95)
+        : foreground.withValues(alpha: .64);
     return Semantics(
       selected: widget.selected,
       label: widget.destination.label,
@@ -189,14 +176,12 @@ class _NavigationItemState extends State<_NavigationItem> {
                 margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                 decoration: BoxDecoration(
                   color: widget.selected
-                      ? widget.accent.withValues(alpha: widget.dark ? .20 : .12)
+                      ? widget.coui.navSelectedPillColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(22),
                   border: widget.selected
                       ? Border.all(
-                          color: widget.accent.withValues(
-                            alpha: widget.dark ? .24 : .16,
-                          ),
+                          color: widget.coui.navSelectedBorderColor,
                           width: 0.75,
                         )
                       : null,
