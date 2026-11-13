@@ -192,14 +192,20 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
                   ),
                   Expanded(child: child()),
                   if (showComposer)
-                    Obx(() {
-                      final root = firstFloor;
-                      if (root == null) return const SizedBox.shrink();
-                      return YoutubeCommentComposer(
+                    if (widget.firstFloor case final root?)
+                      YoutubeCommentComposer(
                         bottomPadding: bottomPadding,
                         onTap: () => controller.onReply(root, index: -1),
-                      );
-                    }),
+                      )
+                    else
+                      Obx(() {
+                        final root = controller.firstFloor.value;
+                        if (root == null) return const SizedBox.shrink();
+                        return YoutubeCommentComposer(
+                          bottomPadding: bottomPadding,
+                          onTap: () => controller.onReply(root, index: -1),
+                        );
+                      }),
                 ],
               )
             : child(),
