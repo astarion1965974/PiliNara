@@ -1,0 +1,135 @@
+name: Signed COUI preview release R2
+on:
+  push:
+    branches:
+      - release/coui-secure-preview-1
+    paths-ignore:
+      - ci/coui-signing-envelope.json
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - feat/coui-flutter-refinement
+    paths-ignore:
+      - ci/coui-signing-envelope.json
+permissions:
+  contents: write
+jobs:
+  release:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.ref == 'release/coui-secure-preview-1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Generate temporary encryption key
+        run: |
+          umask 077
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$RUNNER_TEMP/session-private.pem" 2>/dev/null
+          openssl pkey -in "$RUNNER_TEMP/session-private.pem" -pubout -out "$RUNNER_TEMP/session-public.pem"
+      - name: Upload temporary public key
+        uses: actions/upload-artifact@v7
+        with:
+          name: coui-session-public-key
+          path: ${{ runner.temp }}/session-public.pem
+          retention-days: 1
+      - name: Receive encrypted signing backup
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          for attempt in $(seq 1 120); do
+            gh api "repos/$GITHUB_REPOSITORY/contents/ci/coui-signing-envelope.json?ref=release/coui-secure-preview-1" --jq .content 2>/dev/null | base64 --decode > "$RUNNER_TEMP/envelope.json" || true
+            if python3 -c 'import json,os,sys; d=json.load(open(sys.argv[1])); sys.exit(0 if str(d.get("run_id")) == os.environ["GITHUB_RUN_ID"] else 1)' "$RUNNER_TEMP/envelope.json" 2>/dev/null; then
+              echo "Received encrypted backup for this run."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Encrypted signing backup was not received."
+          exit 1
+      - uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            android/*.gradle*
+            android/**/gradle-wrapper.properties
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version-file: pubspec.yaml
+          cache: true
+      - name: Decrypt signing backup
+        shell: bash
+        run: |
+          umask 077
+          python3 -m venv "$RUNNER_TEMP/crypto-venv"
+          "$RUNNER_TEMP/crypto-venv/bin/pip" -q install cryptography
+          "$RUNNER_TEMP/crypto-venv/bin/python" - <<'PY'
+          import base64,json,os
+          from cryptography.hazmat.primitives import serialization, hashes
+          from cryptography.hazmat.primitives.asymmetric import padding
+          from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+          temp=os.environ['RUNNER_TEMP']
+          with open(temp+'/envelope.json') as f: envelope=json.load(f)
+          with open(temp+'/session-private.pem','rb') as f: private=serialization.load_pem_private_key(f.read(),password=None)
+          decode=lambda s: base64.b64decode(s,validate=True)
+          key=private.decrypt(decode(envelope['k']),padding.OAEP(mgf=padding.MGF1(hashes.SHA256()),algorithm=hashes.SHA256(),label=None))
+          data=json.loads(AESGCM(key).decrypt(decode(envelope['n']),decode(envelope['c']),None))
+          with open('android/app/key.jks','wb') as f: f.write(decode(data['SIGN_KEYSTORE_BASE64']))
+          def esc(s): return s.replace('\\','\\\\').replace('\n','\\n').replace('\r','\\r').replace('=','\\=').replace(':','\\:')
+          with open('android/key.properties','w') as f:
+              f.write('storeFile=key.jks\n')
+              for prop, name in [('storePassword','KEYSTORE_PASSWORD'),('keyAlias','KEY_ALIAS'),('keyPassword','KEY_PASSWORD')]:
+                  f.write(prop+'='+esc(data[name])+'\n')
+          PY
+      - name: Apply project patches
+        shell: pwsh
+        run: lib/scripts/patch.ps1 android
+        continue-on-error: true
+      - name: Set build metadata
+        shell: pwsh
+        run: lib/scripts/build.ps1 android
+      - name: Run Flutter static analysis
+        run: flutter analyze --no-pub
+      - name: Run Flutter component tests
+        run: flutter test --no-pub
+      - name: Set COUI version metadata
+        shell: bash
+        run: |
+          VERSION_CODE="$((100000 + $(git rev-list --count HEAD)))"
+          if [ "$VERSION_CODE" -le 106254 ]; then VERSION_CODE=106255; fi
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
+          import json,os
+          with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
+          metadata['pili.name']='2.2.0-coui.15'
+          metadata['pili.code']=int(os.environ['VERSION_CODE'])
+          with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
+          PY
+      - name: Build signed arm64 APK
+        run: |
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.15 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.15-arm64.apk
+      - name: Verify APK signature
+        run: |
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
+          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.15-arm64.apk
+          sha256sum PiliNara-2.2.0-coui.15-arm64.apk
+      - name: Publish preview release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v2.2.0-coui.15
+          name: PiliNara 2.2.0 COUI Preview 15
+          target_commitish: ${{ github.event.pull_request.head.sha || github.sha }}
+          prerelease: true
+          body: |
+            PiliNara COUI Preview 15 (R2)
+            包含 R2 全局 COUI 轮廓与阴影、悬浮底栏、播放页沉浸过渡、YouTube 风格评论区及横向返回转场改造。
+            包名保持 com.example.pilinara；沿用原签名；versionCode 不低于 106255。
+          files: PiliNara-2.2.0-coui.15-arm64.apk
+      - name: Remove signing material
+        if: always()
+        run: rm -f android/app/key.jks android/key.properties "$RUNNER_TEMP/session-private.pem" "$RUNNER_TEMP/envelope.json"
