@@ -1,4 +1,5 @@
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_h.dart';
 import 'package:PiliPlus/http/loading_state.dart';
@@ -42,6 +43,10 @@ class _ZonePageState extends State<ZonePage>
     super.build(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+      edgeOffset: homeRefreshEdgeOffset(
+        HomeHeaderInsetScope.of(context),
+        displacement,
+      ),
       onRefresh: controller.onRefresh,
       child: CustomScrollView(
         controller: controller.scrollController,

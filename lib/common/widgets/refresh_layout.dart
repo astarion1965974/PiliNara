@@ -14,12 +14,14 @@ class RefreshLayout
     required this.position,
     required this.indicator,
     required this.body,
+    this.edgeOffset = 0.0,
   });
 
   final Animation<double> scale;
   final Animation<double> position;
   final Widget? indicator;
   final Widget body;
+  final double edgeOffset;
 
   @override
   Iterable<RefreshType> get slots => RefreshType.values;
@@ -32,7 +34,19 @@ class RefreshLayout
 
   @override
   RenderRefreshLayout createRenderObject(BuildContext context) {
-    return RenderRefreshLayout(scale: scale, position: position);
+    return RenderRefreshLayout(
+      scale: scale,
+      position: position,
+      edgeOffset: edgeOffset,
+    );
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    RenderRefreshLayout renderObject,
+  ) {
+    renderObject.edgeOffset = edgeOffset;
   }
 }
 
@@ -41,9 +55,21 @@ class RenderRefreshLayout extends RenderBox
   RenderRefreshLayout({
     required this.scale,
     required this.position,
-  }) {
+    double edgeOffset = 0.0,
+  }) : _edgeOffset = edgeOffset {
     scale.addListener(_scaleListener);
     position.addListener(_positionListener);
+  }
+
+  double _edgeOffset;
+  double get edgeOffset => _edgeOffset;
+  set edgeOffset(double value) {
+    if (_edgeOffset == value) {
+      return;
+    }
+    _edgeOffset = value;
+    _layoutIndicator();
+    markNeedsPaint();
   }
 
   final Animation<double> scale;
@@ -114,6 +140,7 @@ class RenderRefreshLayout extends RenderBox
         (constraints.maxWidth - scaleSize) / 2,
         (kIndicatorSize + displacement) * heightFactor -
             kIndicatorSize +
+            _edgeOffset +
             (kIndicatorSize - scaleSize) / 2,
       ),
     );

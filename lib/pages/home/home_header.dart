@@ -28,6 +28,73 @@ class HomeHeaderInsetScope extends InheritedWidget {
       topInset != oldWidget.topInset;
 }
 
+/// Computes the RefreshIndicator edgeOffset so the settled indicator rests ~8dp
+/// below the floating glass bottom edge regardless of global displacement.
+double homeRefreshEdgeOffset(double topInset, double displacement) {
+  if (topInset <= 0) return 0.0;
+  return (topInset - displacement + 8.0).clamp(0.0, topInset).toDouble();
+}
+
+/// Directional hysteresis gate preventing accidental header/bar reveal during downward browsing.
+class HeaderRevealGate {
+  HeaderRevealGate({
+    this.collapseThreshold = 12.0,
+    this.revealThresholdAtTop = 24.0,
+    this.revealThreshold = 48.0,
+  });
+
+  final double collapseThreshold;
+  final double revealThresholdAtTop;
+  final double revealThreshold;
+
+  double _collapseAccum = 0.0;
+  double _revealAccum = 0.0;
+  bool _collapseOpen = false;
+  bool _revealOpen = false;
+
+  void reset() {
+    _collapseAccum = 0.0;
+    _revealAccum = 0.0;
+    _collapseOpen = false;
+    _revealOpen = false;
+  }
+
+  /// Filters a vertical scroll [delta] (`> 0` collapses, `< 0` reveals) at [pixels].
+  /// Returns the permitted delta (`0.0` while gated).
+  double applyScrollDelta(
+    double delta, {
+    required double pixels,
+    bool isOverscroll = false,
+  }) {
+    if (delta == 0.0) return 0.0;
+
+    if (delta > 0) {
+      _revealAccum = 0.0;
+      _revealOpen = false;
+      if (isOverscroll) return 0.0;
+      _collapseAccum += delta;
+      if (_collapseOpen) return delta;
+      if (_collapseAccum >= collapseThreshold) {
+        _collapseOpen = true;
+        return delta;
+      }
+      return 0.0;
+    }
+
+    _collapseAccum = 0.0;
+    _collapseOpen = false;
+    if (isOverscroll) return 0.0;
+    _revealAccum += -delta;
+    if (_revealOpen) return delta;
+    if (_revealAccum >= revealThreshold ||
+        (_revealAccum >= revealThresholdAtTop && pixels <= 0.0)) {
+      _revealOpen = true;
+      return delta;
+    }
+    return 0.0;
+  }
+}
+
 /// Finish a partially collapsed header in the direction of the user's drag.
 double homeHeaderSnapTarget(double offset, double scrollDirection) {
   if (offset <= 0) return 0;

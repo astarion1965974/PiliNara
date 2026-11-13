@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:PiliPlus/common/coui.dart';
@@ -17,7 +18,10 @@ class CouiGlassSurface extends StatelessWidget {
     this.topBorderOnly = false,
     this.showBorder = true,
     this.useBlur = true,
+    this.progressiveBlur = false,
   });
+
+  static const int _progressiveBandCount = 20;
 
   final CouiGlassTier tier;
   final Widget child;
@@ -25,6 +29,7 @@ class CouiGlassSurface extends StatelessWidget {
   final bool topBorderOnly;
   final bool showBorder;
   final bool useBlur;
+  final bool progressiveBlur;
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +64,38 @@ class CouiGlassSurface extends StatelessWidget {
     }
 
     if (useBlur && recipe.blurSigma > 0) {
-      if (tier == CouiGlassTier.chrome) {
-        // Two-band progressive blur approximation of CouiGradientBlur:
-        // full sigma on the upper 55% band and 0.45x sigma on the lower 45% band.
+      if (tier == CouiGlassTier.chrome && progressiveBlur) {
+        // 20-band non-overlapping progressive Gaussian blur along normalized height t in [0, 1]:
+        // sigma(t) = blurSigma * (1 - t^1.75), smoothly feathering to 0 at bottom edge.
+        surface = ClipRRect(
+          borderRadius: borderRadius,
+          child: Stack(
+            fit: StackFit.passthrough,
+            children: [
+              Positioned.fill(
+                child: Column(
+                  children: [
+                    for (var i = 0; i < _progressiveBandCount; i++)
+                      Expanded(
+                        child: _ProgressiveBlurBand(
+                          sigma:
+                              recipe.blurSigma *
+                              (1.0 -
+                                  math.pow(
+                                    (i + 0.5) / _progressiveBandCount,
+                                    1.75,
+                                  )),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              surface,
+            ],
+          ),
+        );
+      } else if (tier == CouiGlassTier.chrome) {
+        // Two-band progressive blur approximation for non-progressive chrome (e.g. bottom composer).
         surface = ClipRRect(
           borderRadius: borderRadius,
           child: Stack(
@@ -134,5 +168,24 @@ class CouiGlassSurface extends StatelessWidget {
     }
 
     return surface;
+  }
+}
+
+class _ProgressiveBlurBand extends StatelessWidget {
+  const _ProgressiveBlurBand({required this.sigma});
+
+  final double sigma;
+
+  @override
+  Widget build(BuildContext context) {
+    if (sigma < 0.05) {
+      return const SizedBox.expand();
+    }
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+        child: const SizedBox.expand(),
+      ),
+    );
   }
 }

@@ -152,6 +152,7 @@ class RefreshIndicator extends StatefulWidget {
     this.strokeWidth = RefreshProgressIndicator.defaultStrokeWidth,
     this.elevation = 2.0,
     this.isClampingScrollPhysics = false,
+    this.edgeOffset = 0.0,
     required this.child,
   }) : assert(elevation >= 0.0);
 
@@ -177,7 +178,7 @@ class RefreshIndicator extends StatefulWidget {
   ///
   ///  * [displacement], can be used to change the distance from the edge that
   ///    the indicator settles.
-  // final double edgeOffset;
+  final double edgeOffset;
 
   /// A function that's called when the user has dragged the refresh indicator
   /// far enough to demonstrate that they want the app to refresh. The returned
@@ -520,6 +521,7 @@ class RefreshIndicatorState extends State<RefreshIndicator>
       body: child,
       scale: _scaleFactor,
       position: _positionFactor,
+      edgeOffset: widget.edgeOffset,
       indicator: _status == null
           ? null
           : AnimatedBuilder(
