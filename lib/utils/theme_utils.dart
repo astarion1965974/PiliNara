@@ -288,8 +288,11 @@ abstract final class ThemeUtils {
       ),
       popupMenuTheme: theme.popupMenuTheme.copyWith(color: color),
       colorScheme: darkScheme,
-      extensions: <ThemeExtension<dynamic>>[
-        ...theme.extensions.values.where((e) => e is! CouiThemeData),
+      extensions: [
+        for (final extension in theme.extensions.values)
+          if (extension is! CouiThemeData &&
+              extension is ThemeExtension<ThemeExtension<dynamic>>)
+            extension,
         CouiThemeData.fromScheme(darkScheme, isPureBlack: true),
       ],
     );
