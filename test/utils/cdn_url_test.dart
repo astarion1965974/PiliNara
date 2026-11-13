@@ -1,8 +1,25 @@
+import 'dart:io';
+
 import 'package:PiliPlus/models/common/video/cdn_type.dart';
 import 'package:PiliPlus/utils/video_utils.dart';
+import 'package:PiliPlus/utils/storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_ce/hive.dart';
 
 void main() {
+  late Directory tempDir;
+
+  setUpAll(() async {
+    tempDir = await Directory.systemTemp.createTemp('pilinara-cdn-test-');
+    Hive.init(tempDir.path);
+    GStorage.setting = await Hive.openBox<dynamic>('setting');
+  });
+
+  tearDownAll(() async {
+    await Hive.close();
+    await tempDir.delete(recursive: true);
+  });
+
   const cosov =
       'https://upos-sz-mirrorcosov.bilivideo.com/upgcxcode/01/video.m4s'
       '?os=cosovbv&upsig=cosov-signature';
