@@ -22,7 +22,7 @@ permissions:
   contents: write
 jobs:
   release:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'release/coui-secure-preview-1') }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.source_branch == 'release/coui-secure-preview-1') || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'release/coui-secure-preview-1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
