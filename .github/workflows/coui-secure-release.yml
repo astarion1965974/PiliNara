@@ -5,6 +5,13 @@ on:
       - release/coui-secure-preview-1
     paths-ignore:
       - ci/coui-signing-envelope.json
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Branch to build"
+        required: true
+        default: "release/coui-secure-preview-1"
+        type: string
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
@@ -15,7 +22,7 @@ permissions:
   contents: write
 jobs:
   release:
-    if: ${{ github.event_name == 'push' || github.event.pull_request.head.ref == 'release/coui-secure-preview-1' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'release/coui-secure-preview-1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -123,7 +130,7 @@ jobs:
         with:
           tag_name: v2.2.0-coui.15
           name: PiliNara 2.2.0 COUI Preview 15
-          target_commitish: ${{ github.event.pull_request.head.sha || github.sha }}
+          target_commitish: ${{ inputs.source_branch || github.event.pull_request.head.sha || github.sha }}
           prerelease: true
           body: |
             PiliNara COUI Preview 15 (R2)
