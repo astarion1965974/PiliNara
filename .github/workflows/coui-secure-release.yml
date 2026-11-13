@@ -1,4 +1,4 @@
-name: Signed COUI preview release R7
+name: Signed COUI preview release R8
 on:
   push:
     branches:
@@ -117,31 +117,31 @@ jobs:
           VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
           import json,os
           with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
-          metadata['pili.name']='2.2.0-coui.18'
+          metadata['pili.name']='2.2.0-coui.19'
           metadata['pili.code']=int(os.environ['VERSION_CODE'])
           with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
           PY
       - name: Build signed arm64 APK
         run: |
-          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.18 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
-          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.18-arm64.apk
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.19 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.19-arm64.apk
       - name: Verify APK signature
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
-          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.18-arm64.apk
-          sha256sum PiliNara-2.2.0-coui.18-arm64.apk
+          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.19-arm64.apk
+          sha256sum PiliNara-2.2.0-coui.19-arm64.apk
       - name: Publish preview release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v2.2.0-coui.18
-          name: PiliNara COUI Preview 18 (R7)
+          tag_name: v2.2.0-coui.19
+          name: PiliNara COUI Preview 19 (R8)
           target_commitish: ${{ env.SOURCE_SHA }}
           prerelease: true
           body: |
-            PiliNara COUI Preview 18 (R7)
-            R7：新增 CouiBottomSheet / CouiPillFab 公共组件，个人空间与直播浮层 COUI 化；延续全局动态配色和凝光轮廓。
+            PiliNara COUI Preview 19 (R8)
+            R8：修复输入框黑框与设置子页动画/状态栏，补个人空间沉浸顶栏，统一信息流卡片与评论样式。
             包名保持 com.example.pilinara；沿用原签名；versionCode 不低于 106255。
-          files: PiliNara-2.2.0-coui.18-arm64.apk
+          files: PiliNara-2.2.0-coui.19-arm64.apk
       - name: Remove signing material
         if: always()
         run: rm -f android/app/key.jks android/key.properties "$RUNNER_TEMP/session-private.pem" "$RUNNER_TEMP/envelope.json"
