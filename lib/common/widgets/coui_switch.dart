@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:material_ui/material_ui.dart';
 
 /// A compact settings switch using the dimensions of the COUI demo.
@@ -29,13 +30,17 @@ class _CouiSwitchState extends State<CouiSwitch> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final coui = CouiThemeData.of(context);
     final enabled = widget.onChanged != null;
-    final dark = scheme.brightness == Brightness.dark;
     final position = _dragPosition ?? (widget.value ? 1.0 : 0.0);
     final track = Color.lerp(
-      dark ? const Color(0x40ffffff) : const Color(0x26000000),
-      scheme.primary,
+      coui.switchTrackOffColor,
+      coui.switchTrackOnColor,
+      position,
+    )!;
+    final rimColor = Color.lerp(
+      coui.switchTrackRimInactiveColor,
+      coui.switchTrackRimActiveColor,
       position,
     )!;
     final rtl = Directionality.of(context) == TextDirection.rtl;
@@ -86,9 +91,7 @@ class _CouiSwitchState extends State<CouiSwitch> {
                   alpha: enabled ? track.a : track.a * .45,
                 ),
                 border: Border.all(
-                  color: Colors.white.withValues(
-                    alpha: dark ? .10 : (position > .5 ? .18 : .06),
-                  ),
+                  color: rimColor,
                   width: 0.5,
                 ),
               ),
@@ -106,7 +109,9 @@ class _CouiSwitchState extends State<CouiSwitch> {
                   height: 18,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(9),
-                    color: Colors.white.withValues(alpha: enabled ? 1 : .65),
+                    color: coui.switchThumbColor.withValues(
+                      alpha: enabled ? 1 : .65,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: .16),

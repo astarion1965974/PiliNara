@@ -23,9 +23,8 @@ class CouiSettingRow extends StatelessWidget {
     final hasIcon =
         item.leading != null ||
         (item is SplitModel && item.normalModel.leading != null);
-    final scheme = Theme.of(context).colorScheme;
-    final borderColor = Coui.subtleBorderColor(scheme);
-    final borderSide = BorderSide(color: borderColor, width: 0.75);
+    final coui = CouiThemeData.of(context);
+    final borderSide = BorderSide(color: coui.subtleBorderColor, width: 0.75);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(16, first ? 8 : 0, 16, last ? 8 : 0),
@@ -48,7 +47,7 @@ class CouiSettingRow extends StatelessWidget {
             bottom: last ? const Radius.circular(Coui.card) : Radius.zero,
           ),
           child: Material(
-            color: Coui.cardColor(scheme),
+            color: coui.cardColor,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -59,7 +58,7 @@ class CouiSettingRow extends StatelessWidget {
                     thickness: .5,
                     indent: hasIcon ? 72 : 16,
                     endIndent: 16,
-                    color: scheme.outline.withValues(alpha: .12),
+                    color: coui.dividerColor,
                   ),
               ],
             ),

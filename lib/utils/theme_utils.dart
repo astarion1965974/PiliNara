@@ -235,6 +235,9 @@ abstract final class ThemeUtils {
               : const CupertinoPageTransitionsBuilder(),
         },
       ),
+      extensions: <ThemeExtension<dynamic>>[
+        CouiThemeData.fromScheme(colorScheme),
+      ],
     );
     if (isDark && Pref.isPureBlackTheme) {
       return darkenTheme(theme);
@@ -245,6 +248,26 @@ abstract final class ThemeUtils {
   static ThemeData darkenTheme(ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final color = colorScheme.surfaceContainerHighest.darken(0.7);
+    final darkScheme = colorScheme.copyWith(
+      primary: colorScheme.primary.darken(0.1),
+      onPrimary: colorScheme.onPrimary.darken(0.1),
+      primaryContainer: colorScheme.primaryContainer.darken(0.1),
+      onPrimaryContainer: colorScheme.onPrimaryContainer.darken(0.1),
+      inversePrimary: colorScheme.inversePrimary.darken(0.1),
+      secondary: colorScheme.secondary.darken(0.05),
+      onSecondary: colorScheme.onSecondary.darken(0.05),
+      secondaryContainer: colorScheme.secondaryContainer.darken(0.05),
+      onSecondaryContainer: colorScheme.onSecondaryContainer.darken(0.05),
+      error: colorScheme.error.darken(0.05),
+      surface: Colors.black,
+      onSurface: colorScheme.onSurface.darken(0.15),
+      surfaceTint: colorScheme.surfaceTint.darken(),
+      inverseSurface: colorScheme.inverseSurface.darken(),
+      onInverseSurface: colorScheme.onInverseSurface.darken(),
+      surfaceContainer: colorScheme.surfaceContainer.darken(),
+      surfaceContainerHigh: colorScheme.surfaceContainerHigh.darken(),
+      surfaceContainerHighest: colorScheme.surfaceContainerHighest.darken(0.4),
+    );
     return theme.copyWith(
       canvasColor: Colors.black,
       scaffoldBackgroundColor: Colors.black,
@@ -264,28 +287,11 @@ abstract final class ThemeUtils {
         backgroundColor: Colors.black,
       ),
       popupMenuTheme: theme.popupMenuTheme.copyWith(color: color),
-      colorScheme: colorScheme.copyWith(
-        primary: colorScheme.primary.darken(0.1),
-        onPrimary: colorScheme.onPrimary.darken(0.1),
-        primaryContainer: colorScheme.primaryContainer.darken(0.1),
-        onPrimaryContainer: colorScheme.onPrimaryContainer.darken(0.1),
-        inversePrimary: colorScheme.inversePrimary.darken(0.1),
-        secondary: colorScheme.secondary.darken(0.05),
-        onSecondary: colorScheme.onSecondary.darken(0.05),
-        secondaryContainer: colorScheme.secondaryContainer.darken(0.05),
-        onSecondaryContainer: colorScheme.onSecondaryContainer.darken(0.05),
-        error: colorScheme.error.darken(0.05),
-        surface: Colors.black,
-        onSurface: colorScheme.onSurface.darken(0.15),
-        surfaceTint: colorScheme.surfaceTint.darken(),
-        inverseSurface: colorScheme.inverseSurface.darken(),
-        onInverseSurface: colorScheme.onInverseSurface.darken(),
-        surfaceContainer: colorScheme.surfaceContainer.darken(),
-        surfaceContainerHigh: colorScheme.surfaceContainerHigh.darken(),
-        surfaceContainerHighest: colorScheme.surfaceContainerHighest.darken(
-          0.4,
-        ),
-      ),
+      colorScheme: darkScheme,
+      extensions: <ThemeExtension<dynamic>>[
+        ...theme.extensions.values.where((e) => e is! CouiThemeData),
+        CouiThemeData.fromScheme(darkScheme, isPureBlack: true),
+      ],
     );
   }
 }
