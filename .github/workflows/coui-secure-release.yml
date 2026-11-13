@@ -8,7 +8,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - feat/coui-flutter-refinement
+      - main
     paths-ignore:
       - ci/coui-signing-envelope.json
 permissions:
@@ -21,6 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
       - name: Generate temporary encryption key
         run: |
