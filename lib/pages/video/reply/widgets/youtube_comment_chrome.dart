@@ -1,5 +1,4 @@
-import 'dart:ui' show ImageFilter;
-
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
@@ -76,53 +75,39 @@ class YoutubeCommentComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    final dark = scheme.brightness == Brightness.dark;
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+    final coui = CouiThemeData.of(context);
+    return CouiGlassSurface(
+      tier: CouiGlassTier.chrome,
+      topBorderOnly: true,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + bottomPadding),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: VideoDetailChrome.background(scheme).withValues(
-              alpha: dark ? 0.84 : 0.88,
-            ),
-            border: Border(
-              top: BorderSide(
-                color: scheme.outline.withValues(alpha: dark ? 0.12 : 0.07),
-                width: 0.5,
-              ),
+            color: coui.inputFillColor,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: coui.inputBorderColor,
+              width: 0.75,
             ),
           ),
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + bottomPadding),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: scheme.onSurface.withValues(alpha: dark ? 0.09 : 0.06),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: Coui.subtleBorderColor(scheme),
-                  width: 0.75,
-                ),
-              ),
-              child: Material(
-                type: MaterialType.transparency,
-                borderRadius: BorderRadius.circular(24),
-                child: InkWell(
-                  onTap: onTap,
-                  borderRadius: BorderRadius.circular(24),
-                  child: SizedBox(
-                    height: 44,
-                    width: double.infinity,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '写评论…',
-                          style: TextStyle(
-                            color: scheme.onSurfaceVariant,
-                            fontSize: 14,
-                          ),
-                        ),
+          child: Material(
+            type: MaterialType.transparency,
+            borderRadius: BorderRadius.circular(24),
+            child: InkWell(
+              onTap: onTap,
+              borderRadius: BorderRadius.circular(24),
+              child: SizedBox(
+                height: 44,
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      '写评论…',
+                      style: TextStyle(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 14,
                       ),
                     ),
                   ),

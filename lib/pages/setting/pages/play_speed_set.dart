@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_button.dart';
 import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
@@ -266,10 +267,12 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
                 runSpacing: 2,
                 children: List.generate(
                   speedList.length,
-                  (index) => FilledButton.tonal(
-                    style: FilledButton.styleFrom(tapTargetSize: .padded),
+                  (index) => CouiButton(
+                    variant: CouiButtonVariant.tonal,
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    label: speedList[index].toString(),
                     onPressed: () => showBottomSheet(theme, index),
-                    child: Text(speedList[index].toString()),
                   ),
                 ),
               ),

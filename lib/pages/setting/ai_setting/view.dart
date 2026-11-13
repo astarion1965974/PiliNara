@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_button.dart';
 import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_switch.dart';
@@ -179,9 +180,12 @@ class AiSettingPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      FilledButton.tonalIcon(
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('添加'),
+                      CouiButton(
+                        variant: CouiButtonVariant.tonal,
+                        icon: Icons.add,
+                        label: '添加',
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         onPressed: () =>
                             _showTemplateDialog(context, controller),
                       ),
