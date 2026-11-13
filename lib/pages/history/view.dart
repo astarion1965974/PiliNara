@@ -123,11 +123,11 @@ class _HistoryPageState extends State<HistoryPage>
                         vertical: 5,
                       ),
                       indicator: VideoDetailChrome.pillDecoration(
-                        theme.colorScheme,
+                        Theme.of(context).colorScheme,
                         coui: CouiThemeData.of(context),
                       ),
                       labelColor: CouiThemeData.of(context).accent,
-                      unselectedLabelColor: theme.colorScheme.onSurfaceVariant,
+                      unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                       onTap: (index) {
                         if (!_historyController
                             .tabController!
