@@ -23,6 +23,7 @@ void main() {
     tempDir = await Directory.systemTemp.createTemp('pilinara-account-test-');
     Hive.init(tempDir.path);
     GStorage.regAdapter();
+    GStorage.setting = await Hive.openBox<dynamic>('setting');
     Accounts.account = await Hive.openBox<LoginAccount>('account');
   });
 
