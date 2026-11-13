@@ -1,5 +1,6 @@
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:get/get.dart';
@@ -10,6 +11,7 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
   RxBool? _showTopBar;
   RxBool? _showBottomBar;
   final _mainController = Get.find<MainController>();
+  final HeaderRevealGate _revealGate = HeaderRevealGate();
 
   bool get needsCorrection => false;
 
@@ -34,12 +36,49 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
       );
     }
     if (_showTopBar != null || _showBottomBar != null) {
-      return NotificationListener<UserScrollNotification>(
-        onNotification: onNotificationType1,
+      return NotificationListener<ScrollNotification>(
+        onNotification: _onNotificationInstant,
         child: child,
       );
     }
     return child;
+  }
+
+  bool _onNotificationInstant(ScrollNotification notification) {
+    if (!_mainController.useBottomNav) return false;
+    final metrics = notification.metrics;
+    if (metrics.axis == .horizontal) return false;
+
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      _revealGate.reset();
+      return false;
+    }
+
+    if (notification is ScrollUpdateNotification) {
+      if (notification.dragDetails == null) return false;
+      final delta = notification.scrollDelta ?? 0.0;
+      final gated = _revealGate.applyScrollDelta(delta, pixels: metrics.pixels);
+      if (gated > 0) {
+        _showTopBar?.value = false;
+        _showBottomBar?.value = false;
+      } else if (gated < 0) {
+        _showTopBar?.value = true;
+        _showBottomBar?.value = true;
+      }
+      return false;
+    }
+
+    if (notification is OverscrollNotification) {
+      _revealGate.applyScrollDelta(
+        notification.overscroll,
+        pixels: metrics.pixels,
+        isOverscroll: true,
+      );
+      return false;
+    }
+
+    return false;
   }
 
   bool onNotificationType1(UserScrollNotification notification) {
@@ -71,34 +110,52 @@ abstract class CommonPageState<T extends StatefulWidget> extends State<T> {
     final metrics = notification.metrics;
     if (metrics.axis == .horizontal) return false;
 
+    if (notification is ScrollStartNotification &&
+        notification.dragDetails != null) {
+      _revealGate.reset();
+      return false;
+    }
+
     if (notification is ScrollUpdateNotification) {
       if (notification.dragDetails == null) return false;
       final pixel = metrics.pixels;
       final scrollDelta = notification.scrollDelta ?? 0;
       if (pixel < 0.0 && scrollDelta > 0) return false;
+      final gatedDelta = _revealGate.applyScrollDelta(
+        scrollDelta,
+        pixels: pixel,
+      );
+      if (gatedDelta == 0.0) return false;
       if (needsCorrection) {
         final value = _barOffset!.value;
         final newValue = clampDouble(
-          value + scrollDelta,
+          value + gatedDelta,
           0.0,
           barScrollExtent,
         );
         final offset = value - newValue;
         if (offset != 0) {
           _barOffset!.value = newValue;
-          if (pixel < 0.0 && scrollDelta < 0.0 && value > 0.0) {
+          if (pixel < 0.0 && gatedDelta < 0.0 && value > 0.0) {
             return false;
           }
           Scrollable.of(notification.context!).position.correctBy(offset);
         }
       } else {
-        _updateOffset(scrollDelta);
+        _updateOffset(gatedDelta);
       }
       return false;
     }
 
     if (notification is OverscrollNotification) {
-      _updateOffset(notification.overscroll);
+      final gatedOverscroll = _revealGate.applyScrollDelta(
+        notification.overscroll,
+        pixels: metrics.pixels,
+        isOverscroll: true,
+      );
+      if (gatedOverscroll != 0.0) {
+        _updateOffset(gatedOverscroll);
+      }
       return false;
     }
 

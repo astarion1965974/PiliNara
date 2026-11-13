@@ -165,15 +165,24 @@ class _HomePageState extends CommonPageState<HomePage>
       ),
     );
 
+    final statusBarHeight = MediaQuery.viewPaddingOf(context).top;
+
     if (!_hasHomeHeader) {
+      Widget fallback = Column(
+        children: [
+          tabBar,
+          Expanded(child: bodyView),
+        ],
+      );
+      if (_mainController.useBottomNav && statusBarHeight > 0) {
+        fallback = Padding(
+          padding: EdgeInsets.only(top: statusBarHeight),
+          child: fallback,
+        );
+      }
       return HomePreviewScope(
         enabled: widget.preview,
-        child: Column(
-          children: [
-            tabBar,
-            Expanded(child: bodyView),
-          ],
-        ),
+        child: fallback,
       );
     }
 
@@ -194,7 +203,8 @@ class _HomePageState extends CommonPageState<HomePage>
 
     Widget buildFloatingStack(double offset) {
       final hidden = offset.clamp(0.0, homeHeaderHeight).toDouble();
-      final topInset = tabBarHeight + (homeHeaderHeight - hidden);
+      final topInset =
+          statusBarHeight + tabBarHeight + (homeHeaderHeight - hidden);
       return Stack(
         children: [
           Positioned.fill(
@@ -210,9 +220,11 @@ class _HomePageState extends CommonPageState<HomePage>
             child: CouiGlassSurface(
               tier: CouiGlassTier.chrome,
               showBorder: false,
+              progressiveBlur: true,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  SizedBox(height: statusBarHeight),
                   HomeHeaderClip(offset: offset, child: headerContent),
                   tabBar,
                 ],

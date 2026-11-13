@@ -264,19 +264,29 @@ class _MainAppState extends PopScopeState<MainApp>
 
   @override
   Widget build(BuildContext context) {
+    Widget wrapNavPage(NavigationBarType type) {
+      if (_mainController.useBottomNav && type != NavigationBarType.home) {
+        return Padding(
+          padding: EdgeInsets.only(top: _padding.top),
+          child: type.page,
+        );
+      }
+      return type.page;
+    }
+
     Widget child;
     if (_mainController.mainTabBarView) {
       child = TabBarView(
         controller: _mainController.controller,
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: _mainController.useBottomNav ? .horizontal : .vertical,
-        children: _mainController.navigationBars.map((i) => i.page).toList(),
+        children: _mainController.navigationBars.map(wrapNavPage).toList(),
       );
     } else {
       child = PageView(
         controller: _mainController.controller,
         physics: const NeverScrollableScrollPhysics(),
-        children: _mainController.navigationBars.map((i) => i.page).toList(),
+        children: _mainController.navigationBars.map(wrapNavPage).toList(),
       );
     }
 
@@ -292,7 +302,7 @@ class _MainAppState extends PopScopeState<MainApp>
           child: bottomNav,
         );
       }
-      padding = _padding.copyWith(bottom: 0);
+      padding = _padding.copyWith(top: 0, bottom: 0);
     } else {
       sideBar = DecoratedBox(
         decoration: BoxDecoration(
