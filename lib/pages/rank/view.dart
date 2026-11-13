@@ -1,5 +1,6 @@
 import 'package:PiliPlus/common/widgets/flutter/vertical_tabs.dart';
 import 'package:PiliPlus/models/common/rank_type.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/rank/controller.dart';
 import 'package:PiliPlus/pages/rank/zone/view.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -52,7 +53,10 @@ class _RankPageState extends State<RankPage>
       indicatorWeight: 3,
       indicatorSize: .tab,
       controller: _rankController.tabController,
-      padding: .only(bottom: MediaQuery.paddingOf(context).bottom + 105),
+      padding: EdgeInsets.only(
+        top: HomeHeaderInsetScope.of(context),
+        bottom: MediaQuery.paddingOf(context).bottom + 105,
+      ),
       tabs: RankType.values.map((e) => VerticalTab(text: e.label)).toList(),
       onTap: (index) {
         if (!_rankController.tabController.indexIsChanging) {
