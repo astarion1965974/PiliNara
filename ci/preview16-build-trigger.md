@@ -1,0 +1,3 @@
+# COUI Preview 16 build trigger
+
+This file records the signed Preview 16 CI build attempt after the R5 `darkenTheme` ThemeExtension type fix. The build source is `release/coui-secure-preview-1`; the signing key is supplied separately as an ephemeral encrypted envelope.
