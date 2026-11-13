@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
 import 'package:PiliPlus/http/constants.dart';
 import 'package:PiliPlus/http/fav.dart';
@@ -204,7 +205,7 @@ class PgcIntroController extends CommonIntroController {
               onPressed: () {
                 Get.back();
                 final item = findEpisode(cid.value);
-                showModalBottomSheet(
+                showCouiBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   useSafeArea: true,

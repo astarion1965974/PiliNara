@@ -77,8 +77,15 @@ class VideoCardVMemberHome extends StatelessWidget {
       aid: videoItem.param,
       bvid: videoItem.bvid,
     );
-    return Card(
-      child: InkWell(
+    final scheme = ColorScheme.of(context);
+    final coui = CouiThemeData.of(context);
+    return DecoratedBox(
+      decoration: Coui.cardDecoration(scheme, coui: coui),
+      child: ClipRRect(
+        borderRadius: Coui.cardRadius,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
         onTap: onPushDetail,
         onLongPress: onLongPress,
         onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
@@ -142,6 +149,8 @@ class VideoCardVMemberHome extends StatelessWidget {
             content(context),
           ],
         ),
+      ),
+      ),
       ),
     );
   }

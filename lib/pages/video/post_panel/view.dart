@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:async';
 import 'dart:math';
@@ -154,7 +155,7 @@ class PostPanel extends CommonSlidePage {
                     ),
                   );
                 } else {
-                  res = await showModalBottomSheet<String>(
+                  res = await showCouiBottomSheet<String>(
                     context: context,
                     useSafeArea: true,
                     isScrollControlled: true,

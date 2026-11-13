@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/style.dart';
@@ -113,7 +114,7 @@ class ReplyItemGrpc extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
 
-    void showMore() => showModalBottomSheet(
+    void showMore() => showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -798,7 +799,7 @@ class ReplyItemGrpc extends StatelessWidget {
                     padding = const .fromLTRB(8, 4, 8, 4);
                   }
                 }
-                void showMore() => showModalBottomSheet(
+                void showMore() => showCouiBottomSheet(
                   context: context,
                   useSafeArea: true,
                   isScrollControlled: true,

@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
@@ -476,12 +477,11 @@ class AiSettingPage extends StatelessWidget {
     BuildContext context,
     AiSettingController controller,
   ) {
-    showModalBottomSheet(
+    showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
       showDragHandle: true,
-      clipBehavior: Clip.hardEdge,
       constraints: const BoxConstraints(maxWidth: 640),
       builder: (context) => _ReasoningEffortSheet(controller: controller),
     );

@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_pill_fab.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -66,43 +67,11 @@ class DynamicsComposeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.of(context);
-    final coui = CouiThemeData.of(context);
-    final accent = coui.accent;
-    return Padding(
-      padding: margin,
-      child: DecoratedBox(
-        decoration: VideoDetailChrome.pillDecoration(scheme, coui: coui),
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: Coui.controlRadius,
-        child: InkWell(
-          borderRadius: Coui.controlRadius,
-          onTap: onPressed,
-          child: SizedBox(
-            height: 34,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.edit_outlined, size: 16, color: accent),
-                  const SizedBox(width: 4),
-                  Text(
-                    '发布',
-                    style: TextStyle(
-                      color: accent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        ),
-      ),
+    return CouiPillFab(
+      icon: Icons.edit_outlined,
+      label: '发布',
+      onPressed: onPressed,
+      margin: margin,
     );
   }
 }

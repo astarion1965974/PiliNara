@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
 
@@ -115,11 +116,10 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
 
   // 设定倍速弹窗
   void showBottomSheet(ThemeData theme, int index) {
-    showModalBottomSheet(
+    showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      clipBehavior: Clip.hardEdge,
       constraints: BoxConstraints(
         maxWidth: min(640, context.mediaQueryShortestSide),
       ),

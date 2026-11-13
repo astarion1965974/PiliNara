@@ -1,3 +1,4 @@
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
@@ -89,9 +90,10 @@ class _MemberPageState extends State<MemberPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
+    final coui = CouiThemeData.of(context);
     final padding = MediaQuery.viewPaddingOf(context);
     return Material(
-      color: theme.surface,
+      color: coui.surfaceBackground,
       child: Obx(
         () => switch (_userController.loadingState.value) {
           Loading() => m3eLoading,
@@ -157,8 +159,26 @@ class _MemberPageState extends State<MemberPage> {
                               controller: _userController.tabController,
                               tabs: _userController.tabs,
                               onTap: _userController.onTapTab,
-                              dividerColor: theme.outline.withValues(
-                                alpha: 0.2,
+                              dividerHeight: 0,
+                              dividerColor: Colors.transparent,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicatorPadding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 5,
+                              ),
+                              indicator: VideoDetailChrome.pillDecoration(
+                                theme,
+                                coui: coui,
+                              ),
+                              labelColor: coui.accent,
+                              unselectedLabelColor: theme.onSurfaceVariant,
+                              labelStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              unselectedLabelStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
