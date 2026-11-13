@@ -2,7 +2,8 @@ import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
-import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPageTransitionsBuilder, CupertinoThemeData;
+import 'package:PiliPlus/common/widgets/coui_page_transition.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoThemeData;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:material_ui/material_ui.dart';
@@ -228,15 +229,15 @@ abstract final class ThemeUtils {
         fillColor: coui.inputFillColor,
         hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
         border: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: coui.accent, width: 1.2),
         ),
       ),
@@ -250,7 +251,7 @@ abstract final class ThemeUtils {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: CouiPageTransitionsBuilder(),
         },
       ),
       extensions: <ThemeExtension<dynamic>>[
@@ -304,15 +305,15 @@ abstract final class ThemeUtils {
         fillColor: darkCoui.inputFillColor,
         hintStyle: TextStyle(color: darkScheme.onSurfaceVariant),
         border: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: Coui.controlRadius,
+          borderRadius: Coui.inputRadius,
           borderSide: BorderSide(color: darkCoui.accent, width: 1.2),
         ),
       ),

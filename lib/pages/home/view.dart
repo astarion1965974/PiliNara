@@ -1,6 +1,5 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -210,28 +209,20 @@ class _HomePageState extends CommonPageState<HomePage>
   );
 
   Widget homeHeader() {
-    final coui = CouiThemeData.of(context);
-    final header = ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: coui.surfaceBackground.withValues(alpha: 0.72),
+    final header = CouiGlassSurface(
+      tier: CouiGlassTier.chrome,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          homeTitleBar(),
+          SizedBox(
+            height: Style.topBarHeight,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: Row(children: [searchBar()]),
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              homeTitleBar(),
-              SizedBox(
-                height: Style.topBarHeight,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-                  child: Row(children: [searchBar()]),
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
     if (_homeController.hideTopBar) {

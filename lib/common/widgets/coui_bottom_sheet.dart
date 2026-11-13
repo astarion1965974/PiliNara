@@ -1,9 +1,8 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// COUI-styled frosted bottom sheet container with top contour rim.
+/// COUI-styled frosted bottom sheet container backed by [CouiGlassTier.sheet].
 class CouiBottomSheet extends StatelessWidget {
   const CouiBottomSheet({
     super.key,
@@ -16,38 +15,27 @@ class CouiBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final coui = CouiThemeData.of(context);
     final scheme = ColorScheme.of(context);
-    return ClipRRect(
+    return CouiGlassSurface(
+      tier: CouiGlassTier.sheet,
       borderRadius: Coui.sheetRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: coui.cardColor,
-            borderRadius: Coui.sheetRadius,
-            border: Border(
-              top: BorderSide(color: coui.rimColor, width: 0.75),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showDragHandle)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10, bottom: 4),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.35),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                    child: const SizedBox(width: 36, height: 4),
-                  ),
+      topBorderOnly: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showDragHandle)
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 4),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.35),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-              Flexible(child: child),
-            ],
-          ),
-        ),
+                child: const SizedBox(width: 36, height: 4),
+              ),
+            ),
+          Flexible(child: child),
+        ],
       ),
     );
   }
@@ -76,6 +64,11 @@ Future<T?> showCouiBottomSheet<T>({
     backgroundColor: Colors.transparent,
     elevation: 0,
     clipBehavior: Clip.none,
+    sheetAnimationStyle: const AnimationStyle(
+      duration: CouiMotion.sheetDuration,
+      reverseDuration: CouiMotion.sheetReverseDuration,
+      curve: CouiMotion.sheetCurve,
+    ),
     builder: (ctx) => CouiBottomSheet(
       showDragHandle: showDragHandle,
       child: builder(ctx),

@@ -9,7 +9,7 @@ class CouiNavigationDestination {
   final Widget icon;
 }
 
-/// Flutter approximation of the COUI floating navigation material.
+/// Flutter approximation of the COUI floating navigation material backed by [CouiThemeData.glassFloating].
 class CouiFloatingNavigation extends StatelessWidget {
   const CouiFloatingNavigation({
     super.key,
@@ -24,8 +24,8 @@ class CouiFloatingNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     final coui = CouiThemeData.of(context);
+    final floating = coui.glassFloating;
     return SizedBox(
       width: items.length < 4 ? 260 : items.length * 68.0,
       height: 56,
@@ -34,12 +34,12 @@ class CouiFloatingNavigation extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: dark ? .30 : .12),
-              blurRadius: 28,
-              offset: const Offset(0, 10),
+              color: floating.shadowColor,
+              blurRadius: floating.shadowBlur,
+              offset: floating.shadowOffset,
             ),
             BoxShadow(
-              color: Colors.black.withValues(alpha: dark ? .12 : .04),
+              color: coui.shadowColor,
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -48,19 +48,22 @@ class CouiFloatingNavigation extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+            filter: ImageFilter.blur(
+              sigmaX: floating.blurSigma,
+              sigmaY: floating.blurSigma,
+            ),
             child: CustomPaint(
               painter: _CouiContourRimPainter(
                 radius: 28,
-                topColor: coui.navHighlightColor,
-                bottomColor: coui.navRimBottomColor,
+                topColor: floating.highlightColor,
+                bottomColor: floating.borderColor,
               ),
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [coui.navTopColor, coui.navBottomColor],
+                    colors: [floating.fillColor, coui.navBottomColor],
                   ),
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -168,11 +171,11 @@ class _NavigationItemState extends State<_NavigationItem> {
             height: 48,
             child: AnimatedScale(
               scale: _pressed ? .90 : 1,
-              duration: const Duration(milliseconds: 160),
-              curve: Curves.easeOutCubic,
+              duration: CouiMotion.pressDuration,
+              curve: CouiMotion.pressCurve,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeOutCubic,
+                duration: CouiMotion.stateDuration,
+                curve: CouiMotion.stateCurve,
                 margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 3),
                 decoration: BoxDecoration(
                   color: widget.selected
