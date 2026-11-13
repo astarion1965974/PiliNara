@@ -1,3 +1,5 @@
+import 'dart:ui' show lerpDouble;
+
 import 'package:material_ui/material_ui.dart';
 
 /// Shared COUI component sizes, continuous-curvature shapes, and material tokens.
@@ -10,6 +12,7 @@ abstract final class Coui {
 
   static const cardRadius = BorderRadius.all(Radius.circular(card));
   static const controlRadius = BorderRadius.all(Radius.circular(control));
+  static const inputRadius = controlRadius;
   static const imageRadius = BorderRadius.all(Radius.circular(image));
   static const badgeRadius = BorderRadius.all(Radius.circular(badge));
   static const sheetRadius = BorderRadius.vertical(
@@ -61,6 +64,62 @@ abstract final class Coui {
   }
 }
 
+/// Shared COUI motion curves and durations aligned with ColorOS deceleration.
+abstract final class CouiMotion {
+  static const Curve pageTransitionCurve = Cubic(0.22, 1.0, 0.36, 1.0);
+  static const Duration pageTransitionDuration = Duration(milliseconds: 360);
+
+  static const Curve sheetCurve = Curves.easeOutQuint;
+  static const Duration sheetDuration = Duration(milliseconds: 340);
+  static const Duration sheetReverseDuration = Duration(milliseconds: 260);
+
+  static const Curve dialogCurve = Curves.easeOutQuint;
+  static const Duration dialogDuration = Duration(milliseconds: 280);
+
+  static const Curve pressCurve = Curves.easeOutCubic;
+  static const Duration pressDuration = Duration(milliseconds: 140);
+
+  static const Curve stateCurve = Curves.easeOutCubic;
+  static const Duration stateDuration = Duration(milliseconds: 220);
+}
+
+/// Official COUI glass material recipe for a single surface tier.
+class CouiGlassRecipe {
+  const CouiGlassRecipe({
+    required this.fillColor,
+    required this.borderColor,
+    required this.highlightColor,
+    required this.blurSigma,
+    required this.shadowColor,
+    required this.shadowBlur,
+    required this.shadowOffset,
+  });
+
+  final Color fillColor;
+  final Color borderColor;
+  final Color highlightColor;
+  final double blurSigma;
+  final Color shadowColor;
+  final double shadowBlur;
+  final Offset shadowOffset;
+
+  static CouiGlassRecipe lerp(
+    CouiGlassRecipe a,
+    CouiGlassRecipe b,
+    double t,
+  ) {
+    return CouiGlassRecipe(
+      fillColor: Color.lerp(a.fillColor, b.fillColor, t)!,
+      borderColor: Color.lerp(a.borderColor, b.borderColor, t)!,
+      highlightColor: Color.lerp(a.highlightColor, b.highlightColor, t)!,
+      blurSigma: lerpDouble(a.blurSigma, b.blurSigma, t)!,
+      shadowColor: Color.lerp(a.shadowColor, b.shadowColor, t)!,
+      shadowBlur: lerpDouble(a.shadowBlur, b.shadowBlur, t)!,
+      shadowOffset: Offset.lerp(a.shadowOffset, b.shadowOffset, t)!,
+    );
+  }
+}
+
 /// Dynamic COUI visual tokens derived from the active [ColorScheme].
 class CouiThemeData extends ThemeExtension<CouiThemeData> {
   const CouiThemeData({
@@ -94,6 +153,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     required this.liveOverlayPill,
     required this.inputFillColor,
     required this.inputBorderColor,
+    required this.glassChrome,
+    required this.glassSheet,
+    required this.glassFloating,
   });
 
   final Color cardColor;
@@ -132,6 +194,10 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
 
   final Color inputFillColor;
   final Color inputBorderColor;
+
+  final CouiGlassRecipe glassChrome;
+  final CouiGlassRecipe glassSheet;
+  final CouiGlassRecipe glassFloating;
 
   factory CouiThemeData.fromScheme(
     ColorScheme scheme, {
@@ -246,6 +312,44 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       alpha: pureBlack ? 0.12 : (dark ? 0.10 : 0.07),
     );
 
+    final glassChrome = CouiGlassRecipe(
+      fillColor: surfaceBackground.withValues(
+        alpha: pureBlack ? 0.82 : (dark ? 0.76 : 0.78),
+      ),
+      borderColor: subtleBorderColor,
+      highlightColor: rimColor,
+      blurSigma: 16,
+      shadowColor: Colors.black.withValues(alpha: 0.0),
+      shadowBlur: 0,
+      shadowOffset: Offset.zero,
+    );
+
+    final glassSheet = CouiGlassRecipe(
+      fillColor: pureBlack
+          ? const Color(0xff141416).withValues(alpha: 0.94)
+          : dark
+          ? scheme.surfaceContainerHigh.withValues(alpha: 0.90)
+          : Colors.white.withValues(alpha: 0.92),
+      borderColor: subtleBorderColor,
+      highlightColor: rimColor,
+      blurSigma: 24,
+      shadowColor: Colors.black.withValues(
+        alpha: pureBlack ? 0.0 : (dark ? 0.28 : 0.10),
+      ),
+      shadowBlur: 24,
+      shadowOffset: const Offset(0, -4),
+    );
+
+    final glassFloating = CouiGlassRecipe(
+      fillColor: navTopColor,
+      borderColor: navRimBottomColor,
+      highlightColor: navHighlightColor,
+      blurSigma: 28,
+      shadowColor: Colors.black.withValues(alpha: dark ? 0.30 : 0.12),
+      shadowBlur: 28,
+      shadowOffset: const Offset(0, 10),
+    );
+
     return CouiThemeData(
       cardColor: cardColor,
       rimColor: rimColor,
@@ -302,6 +406,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       inputBorderColor: pureBlack
           ? Colors.white.withValues(alpha: 0.16)
           : subtleBorderColor,
+      glassChrome: glassChrome,
+      glassSheet: glassSheet,
+      glassFloating: glassFloating,
     );
   }
 
@@ -343,6 +450,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     Color? liveOverlayPill,
     Color? inputFillColor,
     Color? inputBorderColor,
+    CouiGlassRecipe? glassChrome,
+    CouiGlassRecipe? glassSheet,
+    CouiGlassRecipe? glassFloating,
   }) {
     return CouiThemeData(
       cardColor: cardColor ?? this.cardColor,
@@ -378,6 +488,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       liveOverlayPill: liveOverlayPill ?? this.liveOverlayPill,
       inputFillColor: inputFillColor ?? this.inputFillColor,
       inputBorderColor: inputBorderColor ?? this.inputBorderColor,
+      glassChrome: glassChrome ?? this.glassChrome,
+      glassSheet: glassSheet ?? this.glassSheet,
+      glassFloating: glassFloating ?? this.glassFloating,
     );
   }
 
@@ -485,16 +598,19 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
         other.liveOverlayPill,
         t,
       )!,
-      inputFillColor: Color.lerp(
-        inputFillColor,
-        other.inputFillColor,
-        t,
-      )!,
+      inputFillColor: Color.lerp(inputFillColor, other.inputFillColor, t)!,
       inputBorderColor: Color.lerp(
         inputBorderColor,
         other.inputBorderColor,
         t,
       )!,
+      glassChrome: CouiGlassRecipe.lerp(glassChrome, other.glassChrome, t),
+      glassSheet: CouiGlassRecipe.lerp(glassSheet, other.glassSheet, t),
+      glassFloating: CouiGlassRecipe.lerp(
+        glassFloating,
+        other.glassFloating,
+        t,
+      ),
     );
   }
 }
