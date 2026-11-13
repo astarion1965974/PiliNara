@@ -28,7 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.source_branch || github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+      - name: Resolve source commit
+        run: echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Generate temporary encryption key
         run: |
           umask 077
@@ -130,7 +133,7 @@ jobs:
         with:
           tag_name: v2.2.0-coui.15
           name: PiliNara 2.2.0 COUI Preview 15
-          target_commitish: ${{ inputs.source_branch || github.event.pull_request.head.sha || github.sha }}
+          target_commitish: ${{ env.SOURCE_SHA }}
           prerelease: true
           body: |
             PiliNara COUI Preview 15 (R2)
