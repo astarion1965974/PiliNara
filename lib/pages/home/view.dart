@@ -1,4 +1,7 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
@@ -122,11 +125,11 @@ class _HomePageState extends CommonPageState<HomePage>
               horizontal: 3,
               vertical: 4,
             ),
-            indicator: BoxDecoration(
-              color: _colorScheme.onSurface.withValues(alpha: 0.08),
-              borderRadius: Coui.controlRadius,
+            indicator: VideoDetailChrome.pillDecoration(
+              _colorScheme,
+              coui: CouiThemeData.of(context),
             ),
-            labelColor: _colorScheme.onSurface,
+            labelColor: CouiThemeData.of(context).accent,
             unselectedLabelColor: _colorScheme.onSurfaceVariant,
             labelStyle: const TextStyle(fontWeight: FontWeight.w600),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
@@ -192,9 +195,7 @@ class _HomePageState extends CommonPageState<HomePage>
                 alignment: Alignment.centerLeft,
                 semanticsLabel: 'bilibili',
                 colorFilter: ColorFilter.mode(
-                  _colorScheme.brightness == Brightness.dark
-                      ? const Color(0xffff9db7)
-                      : const Color(0xffd84f78),
+                  CouiThemeData.of(context).accent,
                   BlendMode.srcIn,
                 ),
               ),
@@ -209,18 +210,29 @@ class _HomePageState extends CommonPageState<HomePage>
   );
 
   Widget homeHeader() {
-    final header = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        homeTitleBar(),
-        SizedBox(
-          height: Style.topBarHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-            child: Row(children: [searchBar()]),
+    final coui = CouiThemeData.of(context);
+    final header = ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: coui.surfaceBackground.withValues(alpha: 0.72),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              homeTitleBar(),
+              SizedBox(
+                height: Style.topBarHeight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                  child: Row(children: [searchBar()]),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
     if (_homeController.hideTopBar) {
       if (_mainController.barOffset case final barOffset?) {

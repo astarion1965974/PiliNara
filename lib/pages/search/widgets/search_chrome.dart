@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
@@ -12,9 +14,7 @@ class SearchChrome {
   static Color pill(ColorScheme scheme) => VideoDetailChrome.pill(scheme);
 
   static Color field(ColorScheme scheme) =>
-      scheme.brightness == Brightness.dark
-          ? scheme.surfaceContainerHigh.withValues(alpha: 0.85)
-          : Colors.white.withValues(alpha: 0.88);
+      CouiThemeData.fromScheme(scheme).cardColor;
 }
 
 class SearchBackground extends StatelessWidget {
@@ -32,21 +32,34 @@ class SearchFieldSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.of(context);
-    return Material(
-      color: SearchChrome.field(scheme),
+    final coui = CouiThemeData.of(context);
+    return ClipRRect(
       borderRadius: Coui.cardRadius,
-      child: InkWell(
-        borderRadius: Coui.cardRadius,
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            children: [
-              Icon(Icons.search, size: 19, color: SearchChrome.accent(scheme)),
-              const SizedBox(width: 8),
-              Expanded(child: child),
-            ],
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: coui.cardColor,
+            borderRadius: Coui.cardRadius,
+            border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+          ),
+          child: Material(
+            type: MaterialType.transparency,
+            borderRadius: Coui.cardRadius,
+            child: InkWell(
+              borderRadius: Coui.cardRadius,
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Row(
+                  children: [
+                    Icon(Icons.search, size: 19, color: coui.accent),
+                    const SizedBox(width: 8),
+                    Expanded(child: child),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

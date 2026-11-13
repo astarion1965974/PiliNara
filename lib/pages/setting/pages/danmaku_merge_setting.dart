@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -85,14 +86,21 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          SwitchListTile(
+          ListTile(
             title: const Text('启用合并弹幕'),
             subtitle: const Text('在时间窗口内合并相似弹幕'),
-            value: _mergeDanmaku,
-            onChanged: (value) => _updateBool(
-              () => _mergeDanmaku = value,
+            trailing: CouiSwitch(
+              value: _mergeDanmaku,
+              onChanged: (value) => _updateBool(
+                () => _mergeDanmaku = value,
+                SettingBoxKey.mergeDanmaku,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _mergeDanmaku = !_mergeDanmaku,
               SettingBoxKey.mergeDanmaku,
-              value,
+              !_mergeDanmaku,
             ),
           ),
           _SectionTitle('基础设置', theme),
@@ -131,41 +139,69 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
             ),
           ),
           _SectionTitle('例外设置', theme),
-          SwitchListTile(
+          ListTile(
             title: const Text('合并不同类型的弹幕'),
             subtitle: const Text('关闭后，底部/顶部/滚动弹幕不会互相合并'),
-            value: _crossMode,
-            onChanged: (value) => _updateBool(
-              () => _crossMode = value,
+            trailing: CouiSwitch(
+              value: _crossMode,
+              onChanged: (value) => _updateBool(
+                () => _crossMode = value,
+                SettingBoxKey.mergeDanmakuCrossMode,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _crossMode = !_crossMode,
               SettingBoxKey.mergeDanmakuCrossMode,
-              value,
+              !_crossMode,
             ),
           ),
-          SwitchListTile(
+          ListTile(
             title: const Text('跳过字幕弹幕'),
-            value: _skipSubtitle,
-            onChanged: (value) => _updateBool(
-              () => _skipSubtitle = value,
+            trailing: CouiSwitch(
+              value: _skipSubtitle,
+              onChanged: (value) => _updateBool(
+                () => _skipSubtitle = value,
+                SettingBoxKey.mergeDanmakuSkipSubtitle,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _skipSubtitle = !_skipSubtitle,
               SettingBoxKey.mergeDanmakuSkipSubtitle,
-              value,
+              !_skipSubtitle,
             ),
           ),
-          SwitchListTile(
+          ListTile(
             title: const Text('跳过高级弹幕'),
-            value: _skipAdvanced,
-            onChanged: (value) => _updateBool(
-              () => _skipAdvanced = value,
+            trailing: CouiSwitch(
+              value: _skipAdvanced,
+              onChanged: (value) => _updateBool(
+                () => _skipAdvanced = value,
+                SettingBoxKey.mergeDanmakuSkipAdvanced,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _skipAdvanced = !_skipAdvanced,
               SettingBoxKey.mergeDanmakuSkipAdvanced,
-              value,
+              !_skipAdvanced,
             ),
           ),
-          SwitchListTile(
+          ListTile(
             title: const Text('跳过底部弹幕'),
-            value: _skipBottom,
-            onChanged: (value) => _updateBool(
-              () => _skipBottom = value,
+            trailing: CouiSwitch(
+              value: _skipBottom,
+              onChanged: (value) => _updateBool(
+                () => _skipBottom = value,
+                SettingBoxKey.mergeDanmakuSkipBottom,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _skipBottom = !_skipBottom,
               SettingBoxKey.mergeDanmakuSkipBottom,
-              value,
+              !_skipBottom,
             ),
           ),
           _SectionTitle('显示设置', theme),
@@ -218,14 +254,21 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
               ),
             ),
           ),
-          SwitchListTile(
+          ListTile(
             title: const Text('字号随数量放大'),
             subtitle: const Text('重复弹幕越多字号越大，关闭后与普通弹幕字号一致'),
-            value: _enlarge,
-            onChanged: (value) => _updateBool(
-              () => _enlarge = value,
+            trailing: CouiSwitch(
+              value: _enlarge,
+              onChanged: (value) => _updateBool(
+                () => _enlarge = value,
+                SettingBoxKey.danmakuEnlarge,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _enlarge = !_enlarge,
               SettingBoxKey.danmakuEnlarge,
-              value,
+              !_enlarge,
             ),
           ),
           if (_enlarge) ...[
@@ -360,14 +403,21 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
               ),
             ),
           ),
-          SwitchListTile(
+          ListTile(
             title: const Text('识别谐音弹幕'),
             subtitle: const Text('将文本转换为拼音后再进行一次相似匹配'),
-            value: _usePinyin,
-            onChanged: (value) => _updateBool(
-              () => _usePinyin = value,
+            trailing: CouiSwitch(
+              value: _usePinyin,
+              onChanged: (value) => _updateBool(
+                () => _usePinyin = value,
+                SettingBoxKey.mergeDanmakuUsePinyin,
+                value,
+              ),
+            ),
+            onTap: () => _updateBool(
+              () => _usePinyin = !_usePinyin,
               SettingBoxKey.mergeDanmakuUsePinyin,
-              value,
+              !_usePinyin,
             ),
           ),
         ],
