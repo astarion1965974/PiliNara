@@ -1,4 +1,4 @@
-name: Signed COUI preview release
+name: Signed COUI preview release R2
 on:
   push:
     branches:
@@ -85,22 +85,27 @@ jobs:
       - name: Set build metadata
         shell: pwsh
         run: lib/scripts/build.ps1 android
+      - name: Run Flutter static analysis
+        run: flutter analyze --no-pub
+      - name: Run Flutter component tests
+        run: flutter test --no-pub
       - name: Set COUI version metadata
         shell: bash
         run: |
           VERSION_CODE="$((100000 + $(git rev-list --count HEAD)))"
+          if [ "$VERSION_CODE" -le 106254 ]; then VERSION_CODE=106255; fi
           echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
           VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
           import json,os
           with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
-          metadata['pili.name']='2.2.0-coui.1'
+          metadata['pili.name']='2.2.0-coui.15'
           metadata['pili.code']=int(os.environ['VERSION_CODE'])
           with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
           PY
       - name: Build signed arm64 APK
         run: |
-          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.1 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
-          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.1-arm64.apk
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.15 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.15-arm64.apk
       - name: Verify APK signature
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
@@ -109,13 +114,14 @@ jobs:
       - name: Publish preview release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v2.2.0-coui.1
-          name: PiliNara 2.2.0 COUI Preview 1
+          tag_name: v2.2.0-coui.15
+          name: PiliNara 2.2.0 COUI Preview 15
           target_commitish: ${{ github.sha }}
           prerelease: true
           body: |
-            COUI 风格预览版，包含首批界面样板；全应用迁移尚未完成。
-            后续覆盖升级需使用相同签名与包名，并递增版本代码。
+            PiliNara COUI Preview 15 (R2)
+            包含 R2 全局 COUI 轮廓与阴影、悬浮底栏、播放页沉浸过渡、YouTube 风格评论区及横向返回转场改造。
+            包名保持 com.example.pilinara；沿用原签名；versionCode 不低于 106255。
           files: PiliNara-2.2.0-coui.1-arm64.apk
       - name: Remove signing material
         if: always()
