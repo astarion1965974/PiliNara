@@ -12,6 +12,7 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_data_list_item.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_list.dart';
 import 'package:PiliPlus/pages/live/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/live/widgets/live_item_app.dart';
 import 'package:PiliPlus/pages/live/widgets/sliver_pinned_header.dart';
@@ -53,6 +54,7 @@ class _LivePageState extends State<LivePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return Container(
       clipBehavior: Clip.hardEdge,
       margin: const EdgeInsets.symmetric(horizontal: Style.safeSpace),
@@ -64,6 +66,8 @@ class _LivePageState extends State<LivePage>
           controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            if (topInset > 0)
+              SliverToBoxAdapter(child: SizedBox(height: topInset)),
             Obx(() => _buildTop(controller.topState.value)),
             Obx(() => _buildBody(controller.loadingState.value)),
             const SliverPadding(padding: .only(bottom: 100)),

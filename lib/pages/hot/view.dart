@@ -9,6 +9,7 @@ import 'package:PiliPlus/models/common/home_tab_type.dart';
 import 'package:PiliPlus/models/model_hot_video_item.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
 import 'package:PiliPlus/pages/hot/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/rank/view.dart';
 import 'package:PiliPlus/utils/grid.dart';
@@ -60,6 +61,7 @@ class _HotPageState extends State<HotPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
       onRefresh: controller.onRefresh,
@@ -67,6 +69,8 @@ class _HotPageState extends State<HotPage>
         physics: const AlwaysScrollableScrollPhysics(),
         controller: controller.scrollController,
         slivers: [
+          if (topInset > 0)
+            SliverToBoxAdapter(child: SizedBox(height: topInset)),
           if (Pref.showHotRcmd)
             SliverToBoxAdapter(
               child: Padding(

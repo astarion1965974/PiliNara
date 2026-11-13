@@ -6,6 +6,28 @@ import 'package:material_ui/material_ui.dart';
 const double homeTitleBarHeight = 56;
 const double homeHeaderHeight = homeTitleBarHeight + Style.topBarHeight;
 
+/// Provides the current top inset occupied by the floating home glass header
+/// so each tab's scroll view starts right below the glass and scrolls under it.
+class HomeHeaderInsetScope extends InheritedWidget {
+  const HomeHeaderInsetScope({
+    super.key,
+    required this.topInset,
+    required super.child,
+  });
+
+  final double topInset;
+
+  static double of(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<HomeHeaderInsetScope>()
+          ?.topInset ??
+      0.0;
+
+  @override
+  bool updateShouldNotify(HomeHeaderInsetScope oldWidget) =>
+      topInset != oldWidget.topInset;
+}
+
 /// Finish a partially collapsed header in the direction of the user's drag.
 double homeHeaderSnapTarget(double offset, double scrollDirection) {
   if (offset <= 0) return 0;

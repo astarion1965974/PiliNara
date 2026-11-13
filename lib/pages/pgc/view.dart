@@ -16,6 +16,7 @@ import 'package:PiliPlus/models_new/fav/fav_pgc/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_index_result/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_timeline/result.dart';
 import 'package:PiliPlus/pages/pgc/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v_timeline.dart';
@@ -57,6 +58,7 @@ class _PgcPageState extends State<PgcPage> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     final ThemeData theme = Theme.of(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
       onRefresh: controller.onRefresh,
@@ -64,6 +66,8 @@ class _PgcPageState extends State<PgcPage> with AutomaticKeepAliveClientMixin {
         controller: controller.scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          if (topInset > 0)
+            SliverToBoxAdapter(child: SizedBox(height: topInset)),
           _buildFollow(theme),
           if (controller.showPgcTimeline)
             SliverToBoxAdapter(
