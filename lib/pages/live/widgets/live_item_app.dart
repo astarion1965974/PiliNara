@@ -79,8 +79,8 @@ class LiveCardVApp extends StatelessWidget {
         ),
         if (!item.feedback.isNullOrEmpty)
           Positioned(
-            right: -5,
-            bottom: -2,
+            right: 3,
+            bottom: 3,
             width: 29,
             height: 29,
             child: IconButton(
@@ -178,15 +178,20 @@ class LiveCardVApp extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              item.uname.toString(),
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                fontSize: theme.textTheme.labelMedium!.fontSize,
-                color: theme.colorScheme.outline,
+            Padding(
+              padding: EdgeInsets.only(
+                right: item.feedback.isNullOrEmpty ? 0 : 28,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+              child: Text(
+                item.uname.toString(),
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontSize: theme.textTheme.labelMedium!.fontSize,
+                  color: theme.colorScheme.outline,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

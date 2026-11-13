@@ -247,7 +247,10 @@ abstract final class ThemeUtils {
       ),
       tabBarTheme: const TabBarThemeData(
         dividerHeight: 0,
+        dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
+        splashFactory: NoSplash.splashFactory,
+        overlayColor: WidgetStatePropertyAll<Color?>(Colors.transparent),
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {

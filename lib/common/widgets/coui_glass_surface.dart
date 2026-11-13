@@ -14,6 +14,7 @@ class CouiGlassSurface extends StatelessWidget {
     required this.child,
     this.borderRadius = BorderRadius.zero,
     this.topBorderOnly = false,
+    this.showBorder = true,
     this.useBlur = true,
   });
 
@@ -21,6 +22,7 @@ class CouiGlassSurface extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;
   final bool topBorderOnly;
+  final bool showBorder;
   final bool useBlur;
 
   @override
@@ -36,7 +38,9 @@ class CouiGlassSurface extends StatelessWidget {
       decoration: BoxDecoration(
         color: recipe.fillColor,
         borderRadius: borderRadius,
-        border: topBorderOnly
+        border: !showBorder
+            ? null
+            : topBorderOnly
             ? Border(top: BorderSide(color: recipe.highlightColor, width: 0.75))
             : Border.all(color: recipe.borderColor, width: 0.75),
       ),

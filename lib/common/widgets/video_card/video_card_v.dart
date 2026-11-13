@@ -164,8 +164,8 @@ class VideoCardV extends StatelessWidget {
         ),
         if (videoItem.goto == 'av')
           Positioned(
-            right: -5,
-            bottom: -2,
+            right: 3,
+            bottom: 3,
             width: 29,
             height: 29,
             child: VideoPopupMenu(
@@ -253,7 +253,7 @@ class VideoCardV extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (videoItem.goto == 'av') const SizedBox(width: 10),
+                if (videoItem.goto == 'av') const SizedBox(width: 24),
               ],
             ),
           ],
