@@ -224,7 +224,7 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
 
     final subtleBorderColor = dark
         ? Colors.white.withValues(alpha: pureBlack ? 0.10 : 0.08)
-        : scheme.onSurface.withValues(alpha: 0.06);
+        : scheme.onSurface.withValues(alpha: 0.04);
 
     final shadowColor = Colors.black.withValues(
       alpha: pureBlack ? 0.0 : (dark ? 0.18 : 0.04),
@@ -316,7 +316,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       fillColor: surfaceBackground.withValues(
         alpha: pureBlack ? 0.82 : (dark ? 0.76 : 0.78),
       ),
-      borderColor: subtleBorderColor,
+      borderColor: dark
+          ? subtleBorderColor
+          : Colors.white.withValues(alpha: 0.32),
       highlightColor: rimColor,
       blurSigma: 16,
       shadowColor: Colors.black.withValues(alpha: 0.0),

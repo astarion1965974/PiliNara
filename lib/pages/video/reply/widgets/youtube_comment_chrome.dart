@@ -128,7 +128,7 @@ class YoutubeReplyThreadPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.height <= 55) return;
-    final end = size.height - 18;
+    final end = size.height - 21;
     final path = Path()
       ..moveTo(17, 38)
       ..lineTo(17, end - 9)
