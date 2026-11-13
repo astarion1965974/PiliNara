@@ -4,6 +4,7 @@ import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPageTransitionsBuilder, CupertinoThemeData;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:material_ui/material_ui.dart';
 
 abstract final class ThemeUtils {
@@ -57,6 +58,7 @@ abstract final class ThemeUtils {
       );
     }
 
+    final coui = CouiThemeData.fromScheme(colorScheme);
     const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
       Coui.controlShape,
     );
@@ -65,7 +67,7 @@ abstract final class ThemeUtils {
       colorScheme: colorScheme,
       fontFamily: fontFamily,
       textTheme: textTheme,
-      scaffoldBackgroundColor: Colors.transparent,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
         toolbarHeight: 52,
         elevation: 0,
@@ -73,6 +75,12 @@ abstract final class ThemeUtils {
         centerTitle: false,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: colorScheme.brightness,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemStatusBarContrastEnforced: false,
+        ),
         titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: fontWeight == FontWeight.normal
@@ -215,10 +223,22 @@ abstract final class ThemeUtils {
       textButtonTheme: const TextButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: Coui.controlRadius),
-        enabledBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
-        focusedBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: coui.inputFillColor,
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        border: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: coui.accent, width: 1.2),
+        ),
       ),
       chipTheme: const ChipThemeData(shape: Coui.controlShape),
       menuTheme: const MenuThemeData(
@@ -228,15 +248,13 @@ abstract final class ThemeUtils {
         dividerHeight: 0,
         indicatorSize: TabBarIndicatorSize.tab,
       ),
-      pageTransitionsTheme: PageTransitionsTheme(
+      pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: Pref.enablePredictiveBack
-              ? const PredictiveBackPageTransitionsBuilder()
-              : const CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
         },
       ),
       extensions: <ThemeExtension<dynamic>>[
-        CouiThemeData.fromScheme(colorScheme),
+        coui,
       ],
     );
     if (isDark && Pref.isPureBlackTheme) {
@@ -268,10 +286,36 @@ abstract final class ThemeUtils {
       surfaceContainerHigh: colorScheme.surfaceContainerHigh.darken(),
       surfaceContainerHighest: colorScheme.surfaceContainerHighest.darken(0.4),
     );
+    final darkCoui = CouiThemeData.fromScheme(darkScheme, isPureBlack: true);
     return theme.copyWith(
       canvasColor: Colors.black,
       scaffoldBackgroundColor: Colors.black,
-      appBarTheme: theme.appBarTheme.copyWith(backgroundColor: Colors.black),
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: Colors.black,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.light,
+          systemStatusBarContrastEnforced: false,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkCoui.inputFillColor,
+        hintStyle: TextStyle(color: darkScheme.onSurfaceVariant),
+        border: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: Coui.controlRadius,
+          borderSide: BorderSide(color: darkCoui.accent, width: 1.2),
+        ),
+      ),
       cardTheme: theme.cardTheme.copyWith(
         color: colorScheme.surfaceContainer.darken(0.75),
       ),
@@ -289,11 +333,11 @@ abstract final class ThemeUtils {
       popupMenuTheme: theme.popupMenuTheme.copyWith(color: color),
       colorScheme: darkScheme,
       extensions: [
-        for (final extension in theme.extensions.values)
-          if (extension is! CouiThemeData &&
-              extension is ThemeExtension<ThemeExtension<dynamic>>)
-            extension,
-        CouiThemeData.fromScheme(darkScheme, isPureBlack: true),
+        for (final e in theme.extensions.values)
+          if (e is! CouiThemeData &&
+              e is ThemeExtension<ThemeExtension<dynamic>>)
+            e,
+        darkCoui,
       ],
     );
   }

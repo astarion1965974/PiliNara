@@ -92,6 +92,8 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     required this.liveOverlaySurface,
     required this.liveOverlayBorder,
     required this.liveOverlayPill,
+    required this.inputFillColor,
+    required this.inputBorderColor,
   });
 
   final Color cardColor;
@@ -127,6 +129,9 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
   final Color liveOverlaySurface;
   final Color liveOverlayBorder;
   final Color liveOverlayPill;
+
+  final Color inputFillColor;
+  final Color inputBorderColor;
 
   factory CouiThemeData.fromScheme(
     ColorScheme scheme, {
@@ -286,6 +291,17 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
         scheme.primary.withValues(alpha: 0.14),
         const Color(0xff1e1e24),
       ).withValues(alpha: 0.76),
+      inputFillColor: pureBlack
+          ? const Color(0xff161618)
+          : dark
+          ? scheme.surfaceContainerHigh
+          : Color.alphaBlend(
+              scheme.primary.withValues(alpha: 0.025),
+              Colors.white,
+            ),
+      inputBorderColor: pureBlack
+          ? Colors.white.withValues(alpha: 0.16)
+          : subtleBorderColor,
     );
   }
 
@@ -325,6 +341,8 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
     Color? liveOverlaySurface,
     Color? liveOverlayBorder,
     Color? liveOverlayPill,
+    Color? inputFillColor,
+    Color? inputBorderColor,
   }) {
     return CouiThemeData(
       cardColor: cardColor ?? this.cardColor,
@@ -358,6 +376,8 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       liveOverlaySurface: liveOverlaySurface ?? this.liveOverlaySurface,
       liveOverlayBorder: liveOverlayBorder ?? this.liveOverlayBorder,
       liveOverlayPill: liveOverlayPill ?? this.liveOverlayPill,
+      inputFillColor: inputFillColor ?? this.inputFillColor,
+      inputBorderColor: inputBorderColor ?? this.inputBorderColor,
     );
   }
 
@@ -463,6 +483,16 @@ class CouiThemeData extends ThemeExtension<CouiThemeData> {
       liveOverlayPill: Color.lerp(
         liveOverlayPill,
         other.liveOverlayPill,
+        t,
+      )!,
+      inputFillColor: Color.lerp(
+        inputFillColor,
+        other.inputFillColor,
+        t,
+      )!,
+      inputBorderColor: Color.lerp(
+        inputBorderColor,
+        other.inputBorderColor,
         t,
       )!,
     );

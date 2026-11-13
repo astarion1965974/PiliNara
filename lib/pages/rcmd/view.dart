@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/video_card_v.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
 import 'package:PiliPlus/common/style.dart';
@@ -81,7 +82,11 @@ class _RcmdPageState extends State<RcmdPage>
                         onTap: () => controller
                           ..animateToTop()
                           ..onRefresh(),
-                        child: Card(
+                        child: DecoratedBox(
+                          decoration: Coui.cardDecoration(
+                            colorScheme,
+                            coui: CouiThemeData.of(context),
+                          ),
                           child: Container(
                             alignment: Alignment.center,
                             padding: const .symmetric(horizontal: 10),

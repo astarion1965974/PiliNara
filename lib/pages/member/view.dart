@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
@@ -63,6 +64,7 @@ class _MemberPageState extends State<MemberPage> {
   late final int _mid;
   late final String _heroTag;
   late final MemberController _userController;
+  final _scrollRatio = 0.0.obs;
   PageController? _headerController;
   PageController getHeaderController() =>
       _headerController ??= PageController();
@@ -92,12 +94,37 @@ class _MemberPageState extends State<MemberPage> {
     final theme = Theme.of(context).colorScheme;
     final coui = CouiThemeData.of(context);
     final padding = MediaQuery.viewPaddingOf(context);
-    return Material(
-      color: coui.surfaceBackground,
-      child: Obx(
-        () => switch (_userController.loadingState.value) {
-          Loading() => m3eLoading,
-          Success(:final response) => ExtendedNestedScrollView(
+    return Obx(() {
+      final easedRatio = Curves.easeOut.transform(_scrollRatio.value);
+      final dark = theme.brightness == Brightness.dark;
+      final useLightBgIcons = easedRatio >= 0.45 && !dark;
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness:
+              useLightBgIcons ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness:
+              useLightBgIcons ? Brightness.dark : Brightness.light,
+          systemStatusBarContrastEnforced: false,
+        ),
+        child: VideoDetailBackground(
+          child: Material(
+            type: MaterialType.transparency,
+            child: switch (_userController.loadingState.value) {
+              Loading() => m3eLoading,
+              Success(:final response) => NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification.depth == 0) {
+                    final next =
+                        (notification.metrics.pixels / (kToolbarHeight * 2))
+                            .clamp(0.0, 1.0);
+                    if ((next - _scrollRatio.value).abs() > 0.01) {
+                      _scrollRatio.value = next;
+                    }
+                  }
+                  return false;
+                },
+                child: ExtendedNestedScrollView(
             onlyOneScrollInBody: true,
             key: _userController.scrollKey,
             scrollBehavior: const NoOverscrollIndicator(),
@@ -107,6 +134,11 @@ class _MemberPageState extends State<MemberPage> {
               if (response != null) {
                 return [
                   DynamicSliverAppBar.medium(
+                    backgroundColor: Color.lerp(
+                      Colors.transparent,
+                      coui.surfaceBackground,
+                      easedRatio,
+                    ),
                     actions: _actions(theme),
                     title: Text(_userController.username ?? ''),
                     flexibleSpace: Obx(
@@ -188,13 +220,16 @@ class _MemberPageState extends State<MemberPage> {
                   )
                 : scrollableError,
           ),
-          Error(:final errMsg) => scrollErrorWidget(
-            errMsg: errMsg,
-            onReload: _userController.onReload,
+              ),
+              Error(:final errMsg) => scrollErrorWidget(
+                errMsg: errMsg,
+                onReload: _userController.onReload,
+              ),
+            },
           ),
-        },
-      ),
-    );
+        ),
+      );
+    });
   }
 
   Widget _reserveBtn(List<ReservationCardItem> list, ColorScheme theme) {
