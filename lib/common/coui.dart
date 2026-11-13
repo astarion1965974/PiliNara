@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Shared component sizes. Pages should use these instead of local radii.
+/// Shared COUI component sizes, continuous-curvature shapes, and material tokens.
 abstract final class Coui {
   static const card = 22.0;
   static const control = 18.0;
@@ -19,17 +19,49 @@ abstract final class Coui {
     top: Radius.circular(card),
   );
 
-  static const controlShape = RoundedRectangleBorder(
+  static const controlShape = RoundedSuperellipseBorder(
     borderRadius: controlRadius,
   );
-  static const cardShape = RoundedRectangleBorder(borderRadius: cardRadius);
+  static const cardShape = RoundedSuperellipseBorder(borderRadius: cardRadius);
   static const dialogRadius = BorderRadius.all(Radius.circular(sheet));
-  static const dialogShape = RoundedRectangleBorder(
+  static const dialogShape = RoundedSuperellipseBorder(
     borderRadius: dialogRadius,
   );
 
   static Color cardColor(ColorScheme scheme) =>
       scheme.brightness == Brightness.dark
-      ? scheme.surfaceContainerHigh.withValues(alpha: 0.92)
-      : Colors.white.withValues(alpha: 0.94);
+      ? scheme.surfaceContainerHigh.withValues(alpha: 0.90)
+      : Colors.white.withValues(alpha: 0.92);
+
+  static Color rimColor(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark
+      ? Colors.white.withValues(alpha: 0.11)
+      : Colors.white.withValues(alpha: 0.85);
+
+  static Color subtleBorderColor(ColorScheme scheme) =>
+      scheme.brightness == Brightness.dark
+      ? Colors.white.withValues(alpha: 0.08)
+      : Colors.black.withValues(alpha: 0.05);
+
+  static BoxDecoration cardDecoration(
+    ColorScheme scheme, {
+    BorderRadiusGeometry borderRadius = cardRadius,
+  }) {
+    final dark = scheme.brightness == Brightness.dark;
+    return BoxDecoration(
+      color: cardColor(scheme),
+      borderRadius: borderRadius,
+      border: Border.all(
+        color: subtleBorderColor(scheme),
+        width: 0.75,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: dark ? 0.18 : 0.04),
+          blurRadius: 16,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
 }

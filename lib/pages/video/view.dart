@@ -1208,14 +1208,17 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                     final brightness = colorScheme.brightness;
                     final Brightness statusBarBrightness;
                     final Brightness statusBarIconBrightness;
-                    final backgroundColor = isPortrait && scrollRatio > 0
+                    final easedRatio = isPortrait && scrollRatio > 0
+                        ? Curves.easeOut.transform(scrollRatio)
+                        : 0.0;
+                    final backgroundColor = easedRatio > 0
                         ? Color.lerp(
                             Colors.black,
                             VideoDetailChrome.background(colorScheme),
-                            scrollRatio,
+                            easedRatio,
                           )!
                         : Colors.black;
-                    if (isPortrait && scrollRatio >= 0.5) {
+                    if (isPortrait && easedRatio >= 0.45) {
                       statusBarBrightness = brightness;
                       statusBarIconBrightness = brightness.reverse;
                     } else {
@@ -1361,30 +1364,50 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     }
     final accent = VideoDetailChrome.accent(colorScheme);
     final playBtn = DecoratedBox(
-      decoration: BoxDecoration(
-        color: VideoDetailChrome.pill(colorScheme),
-        borderRadius: Coui.controlRadius,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Row(
-          spacing: 2,
-          mainAxisSize: .min,
-          children: [
-            Icon(icon, color: accent, size: 20),
-            Text(
-              '$playStat播放',
-              style: TextStyle(color: accent, fontWeight: FontWeight.w600),
-            ),
-          ],
+      decoration: VideoDetailChrome.pillDecoration(colorScheme),
+      child: SizedBox(
+        height: 34,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Row(
+            spacing: 4,
+            mainAxisSize: .min,
+            children: [
+              Icon(icon, color: accent, size: 18),
+              Text(
+                '$playStat播放',
+                style: TextStyle(
+                  color: accent,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+    final easedRatio = Curves.easeOut.transform(scrollRatio);
     return Opacity(
-      opacity: videoDetailController.scrollRatio.value,
-      child: Container(
-        color: VideoDetailChrome.background(colorScheme),
-        alignment: .topCenter,
+      opacity: easedRatio,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Color.lerp(
+            Colors.black,
+            VideoDetailChrome.background(colorScheme),
+            easedRatio,
+          ),
+          border: Border(
+            bottom: BorderSide(
+              color: colorScheme.outline.withValues(
+                alpha: colorScheme.brightness == Brightness.dark ? 0.10 : 0.06,
+              ),
+              width: 0.5,
+            ),
+          ),
+        ),
+        child: Align(
+          alignment: .topCenter,
         child: SizedBox(
           height: kToolbarHeight,
           child: Stack(
@@ -1452,6 +1475,7 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
               ),
             ],
           ),
+        ),
         ),
       ),
     );

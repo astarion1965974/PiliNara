@@ -232,7 +232,7 @@ abstract final class ThemeUtils {
         builders: {
           TargetPlatform.android: Pref.enablePredictiveBack
               ? const PredictiveBackPageTransitionsBuilder()
-              : const ZoomPageTransitionsBuilder(),
+              : const CupertinoPageTransitionsBuilder(),
         },
       ),
     );

@@ -1,7 +1,7 @@
 import 'package:PiliPlus/common/coui.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Shared colors for the portrait detail page and its floating bars.
+/// Shared colors and pill styles for the portrait detail page and its floating bars.
 class VideoDetailChrome {
   static Color background(ColorScheme scheme) =>
       scheme.brightness == Brightness.dark
@@ -15,6 +15,27 @@ class VideoDetailChrome {
 
   static Color pill(ColorScheme scheme) => accent(scheme).withValues(
     alpha: scheme.brightness == Brightness.dark ? 0.18 : 0.10,
+  );
+
+  static Color pillBorder(ColorScheme scheme, {bool active = true}) {
+    final dark = scheme.brightness == Brightness.dark;
+    if (active) {
+      return accent(scheme).withValues(alpha: dark ? 0.26 : 0.18);
+    }
+    return scheme.outline.withValues(alpha: dark ? 0.14 : 0.08);
+  }
+
+  static Color inactivePill(ColorScheme scheme) => scheme.onSurface.withValues(
+    alpha: scheme.brightness == Brightness.dark ? 0.08 : 0.05,
+  );
+
+  static BoxDecoration pillDecoration(
+    ColorScheme scheme, {
+    bool active = true,
+  }) => BoxDecoration(
+    color: active ? pill(scheme) : inactivePill(scheme),
+    borderRadius: Coui.controlRadius,
+    border: Border.all(color: pillBorder(scheme, active: active)),
   );
 }
 
@@ -49,14 +70,8 @@ class VideoDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    final dark = scheme.brightness == Brightness.dark;
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: dark
-            ? scheme.surfaceContainerHigh.withValues(alpha: 0.92)
-            : Colors.white.withValues(alpha: 0.94),
-        borderRadius: Coui.cardRadius,
-      ),
+      decoration: Coui.cardDecoration(scheme),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
         child: child,
@@ -92,10 +107,7 @@ class VideoDetailTabStrip extends StatelessWidget {
       indicatorSize: TabBarIndicatorSize.tab,
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       indicator: showIndicator
-          ? BoxDecoration(
-              color: VideoDetailChrome.pill(scheme),
-              borderRadius: Coui.controlRadius,
-            )
+          ? VideoDetailChrome.pillDecoration(scheme)
           : const BoxDecoration(),
       labelColor: showIndicator ? accent : scheme.onSurface,
       unselectedLabelColor: scheme.onSurfaceVariant,

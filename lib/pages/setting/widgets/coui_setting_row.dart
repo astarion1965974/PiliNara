@@ -24,28 +24,45 @@ class CouiSettingRow extends StatelessWidget {
         item.leading != null ||
         (item is SplitModel && item.normalModel.leading != null);
     final scheme = Theme.of(context).colorScheme;
+    final borderColor = Coui.subtleBorderColor(scheme);
+    final borderSide = BorderSide(color: borderColor, width: 0.75);
+
     return Padding(
       padding: EdgeInsets.fromLTRB(16, first ? 8 : 0, 16, last ? 8 : 0),
-      child: ClipRRect(
-        borderRadius: BorderRadius.vertical(
-          top: first ? const Radius.circular(Coui.card) : Radius.zero,
-          bottom: last ? const Radius.circular(Coui.card) : Radius.zero,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.vertical(
+            top: first ? const Radius.circular(Coui.card) : Radius.zero,
+            bottom: last ? const Radius.circular(Coui.card) : Radius.zero,
+          ),
+          border: Border(
+            left: borderSide,
+            right: borderSide,
+            top: first ? borderSide : BorderSide.none,
+            bottom: last ? borderSide : BorderSide.none,
+          ),
         ),
-        child: Material(
-          color: Coui.cardColor(scheme),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              item.widget,
-              if (!last)
-                Divider(
-                  height: .5,
-                  thickness: .5,
-                  indent: hasIcon ? 72 : 16,
-                  endIndent: 16,
-                  color: scheme.outline.withValues(alpha: .12),
-                ),
-            ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(
+            top: first ? const Radius.circular(Coui.card) : Radius.zero,
+            bottom: last ? const Radius.circular(Coui.card) : Radius.zero,
+          ),
+          child: Material(
+            color: Coui.cardColor(scheme),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                item.widget,
+                if (!last)
+                  Divider(
+                    height: .5,
+                    thickness: .5,
+                    indent: hasIcon ? 72 : 16,
+                    endIndent: 16,
+                    color: scheme.outline.withValues(alpha: .12),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,6 +1,5 @@
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
-import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/mini_scaffold.dart';
@@ -12,7 +11,9 @@ import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/common/reply/reply_footer_mixin.dart';
 import 'package:PiliPlus/pages/common/slide/common_slide_page.dart';
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:PiliPlus/pages/video/reply_reply/controller.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
@@ -144,31 +145,61 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
   @override
   Widget buildPage() {
     Widget child() => enableSlide ? slideList() : buildList();
+    final bottomPadding = MediaQuery.viewPaddingOf(context).bottom;
+    final showComposer = widget.isNested && !isDialogue;
     return VideoDetailBackground(
       child: MiniScaffold(
         body: widget.isVideoDetail
             ? Column(
                 children: [
-                  Container(
-                    height: 45,
-                    color: VideoDetailChrome.background(colorScheme),
-                    padding: const EdgeInsets.only(left: 12, right: 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                          isDialogue ? '对话列表' : '评论详情',
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: VideoDetailChrome.background(colorScheme),
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colorScheme.outline.withValues(
+                            alpha: colorScheme.brightness == Brightness.dark
+                                ? 0.10
+                                : 0.06,
+                          ),
+                          width: 0.5,
                         ),
-                        IconButton(
-                          tooltip: '关闭',
-                          icon: const Icon(Icons.close, size: 20),
-                          onPressed: Get.back,
+                      ),
+                    ),
+                    child: SizedBox(
+                      height: 48,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 14, right: 4),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              isDialogue ? '对话列表' : '评论详情',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: '关闭',
+                              icon: const Icon(Icons.close, size: 20),
+                              onPressed: Get.back,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                   Expanded(child: child()),
+                  if (showComposer)
+                    Obx(() {
+                      final root = firstFloor;
+                      if (root == null) return const SizedBox.shrink();
+                      return YoutubeCommentComposer(
+                        bottomPadding: bottomPadding,
+                        onTap: () => controller.onReply(root, index: -1),
+                      );
+                    }),
                 ],
               )
             : child(),
@@ -226,6 +257,7 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
             getTag: () => widget.heroTag,
             onCheckReply: (item) =>
                 controller.onCheckReply(item, isManual: true),
+            youtubeStyle: widget.isNested,
           ),
         ),
         SliverToBoxAdapter(
@@ -243,7 +275,7 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
     return SliverPinnedHeader(
       backgroundColor: VideoDetailChrome.background(colorScheme),
       child: Padding(
-        padding: const .fromLTRB(12, 2.5, 6, 2.5),
+        padding: const .fromLTRB(12, 6, 12, 6),
         child: Row(
           mainAxisAlignment: .spaceBetween,
           children: [
@@ -253,19 +285,26 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
                 return count != -1
                     ? Text(
                         '相关回复共${NumUtils.numFormat(count)}条',
-                        style: const TextStyle(
-                          fontSize: 13,
+                        style: TextStyle(
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
                         ),
                       )
                     : const SizedBox.shrink();
               },
             ),
             TextButton.icon(
-              style: Style.buttonStyle.copyWith(
-                backgroundColor: WidgetStatePropertyAll(
-                  VideoDetailChrome.pill(colorScheme),
+              style: TextButton.styleFrom(
+                backgroundColor: VideoDetailChrome.pill(colorScheme),
+                foregroundColor: VideoDetailChrome.accent(colorScheme),
+                side: BorderSide(
+                  color: VideoDetailChrome.pillBorder(colorScheme),
                 ),
+                shape: Coui.controlShape,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                minimumSize: const Size(0, 34),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               onPressed: controller.queryBySort,
               icon: Icon(
@@ -277,7 +316,8 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
                 () => Text(
                   controller.sortType.value.label,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
                     color: VideoDetailChrome.accent(colorScheme),
                   ),
                 ),
@@ -347,6 +387,7 @@ class _VideoReplyReplyPanelState extends State<VideoReplyReplyPanel>
       },
       onCheckReply: (item) => controller.onCheckReply(item, isManual: true),
       getTag: () => widget.heroTag,
+      youtubeStyle: widget.isNested,
     );
   }
 }

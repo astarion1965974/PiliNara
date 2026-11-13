@@ -1,3 +1,6 @@
+import 'dart:ui' show ImageFilter;
+
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
@@ -29,15 +32,20 @@ class YoutubeCommentSort extends StatelessWidget {
             style: TextButton.styleFrom(
               backgroundColor: active
                   ? VideoDetailChrome.pill(scheme)
-                  : scheme.onSurface.withValues(alpha: 0.06),
+                  : VideoDetailChrome.inactivePill(scheme),
               foregroundColor: active
                   ? VideoDetailChrome.accent(scheme)
-                  : scheme.onSurface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                  : scheme.onSurfaceVariant,
+              side: BorderSide(
+                color: VideoDetailChrome.pillBorder(scheme, active: active),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              minimumSize: const Size(0, 36),
+              shape: Coui.controlShape,
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              minimumSize: const Size(0, 34),
+              textStyle: TextStyle(
+                fontSize: 13.5,
+                fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+              ),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Text(label),
@@ -68,26 +76,55 @@ class YoutubeCommentComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    return Material(
-      color: VideoDetailChrome.background(scheme),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + bottomPadding),
-        child: Material(
-          color: scheme.onSurface.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(24),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(24),
-            child: SizedBox(
-              height: 44,
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '写评论…',
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 14),
+    final dark = scheme.brightness == Brightness.dark;
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: VideoDetailChrome.background(scheme).withValues(
+              alpha: dark ? 0.84 : 0.88,
+            ),
+            border: Border(
+              top: BorderSide(
+                color: scheme.outline.withValues(alpha: dark ? 0.12 : 0.07),
+                width: 0.5,
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + bottomPadding),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: scheme.onSurface.withValues(alpha: dark ? 0.09 : 0.06),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Coui.subtleBorderColor(scheme),
+                  width: 0.75,
+                ),
+              ),
+              child: Material(
+                type: MaterialType.transparency,
+                borderRadius: BorderRadius.circular(24),
+                child: InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(24),
+                  child: SizedBox(
+                    height: 44,
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '写评论…',
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

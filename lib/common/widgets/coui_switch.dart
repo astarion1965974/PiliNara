@@ -14,10 +14,14 @@ class CouiSwitch extends StatefulWidget {
 
 class _CouiSwitchState extends State<CouiSwitch> {
   double? _dragPosition;
+  bool _pressed = false;
 
   void _finishDrag() {
     final position = _dragPosition;
-    setState(() => _dragPosition = null);
+    setState(() {
+      _dragPosition = null;
+      _pressed = false;
+    });
     if (position == null) return;
     final next = position >= .5;
     if (next != widget.value) widget.onChanged?.call(next);
@@ -30,11 +34,12 @@ class _CouiSwitchState extends State<CouiSwitch> {
     final dark = scheme.brightness == Brightness.dark;
     final position = _dragPosition ?? (widget.value ? 1.0 : 0.0);
     final track = Color.lerp(
-      dark ? const Color(0x40ffffff) : const Color(0x29000000),
+      dark ? const Color(0x40ffffff) : const Color(0x26000000),
       scheme.primary,
       position,
     )!;
     final rtl = Directionality.of(context) == TextDirection.rtl;
+    final activePress = _pressed || _dragPosition != null;
 
     return Semantics(
       toggled: widget.value,
@@ -43,9 +48,15 @@ class _CouiSwitchState extends State<CouiSwitch> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
+        onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
+        onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
+        onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
         onTap: enabled ? () => widget.onChanged!(!widget.value) : null,
         onHorizontalDragStart: enabled
-            ? (_) => setState(() => _dragPosition = widget.value ? 1 : 0)
+            ? (_) => setState(() {
+                _pressed = true;
+                _dragPosition = widget.value ? 1 : 0;
+              })
             : null,
         onHorizontalDragUpdate: enabled
             ? (details) => setState(() {
@@ -55,14 +66,17 @@ class _CouiSwitchState extends State<CouiSwitch> {
             : null,
         onHorizontalDragEnd: enabled ? (_) => _finishDrag() : null,
         onHorizontalDragCancel: enabled
-            ? () => setState(() => _dragPosition = null)
+            ? () => setState(() {
+                _dragPosition = null;
+                _pressed = false;
+              })
             : null,
         child: SizedBox(
           width: 48,
           height: 48,
           child: Center(
             child: AnimatedContainer(
-              duration: Duration(milliseconds: _dragPosition == null ? 220 : 0),
+              duration: Duration(milliseconds: _dragPosition == null ? 240 : 0),
               curve: Curves.easeOutCubic,
               width: 44,
               height: 24,
@@ -71,24 +85,32 @@ class _CouiSwitchState extends State<CouiSwitch> {
                 color: track.withValues(
                   alpha: enabled ? track.a : track.a * .45,
                 ),
+                border: Border.all(
+                  color: Colors.white.withValues(
+                    alpha: dark ? .10 : (position > .5 ? .18 : .06),
+                  ),
+                  width: 0.5,
+                ),
               ),
               padding: const EdgeInsets.all(3),
               child: AnimatedAlign(
                 duration: Duration(
-                  milliseconds: _dragPosition == null ? 220 : 0,
+                  milliseconds: _dragPosition == null ? 240 : 0,
                 ),
                 curve: Curves.easeOutCubic,
                 alignment: Alignment((rtl ? -1 : 1) * (position * 2 - 1), 0),
-                child: Container(
-                  width: 18,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 140),
+                  curve: Curves.easeOutCubic,
+                  width: activePress ? 21 : 18,
                   height: 18,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(9),
                     color: Colors.white.withValues(alpha: enabled ? 1 : .65),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: .14),
-                        blurRadius: 2,
+                        color: Colors.black.withValues(alpha: .16),
+                        blurRadius: 3,
                         offset: const Offset(0, 1),
                       ),
                     ],

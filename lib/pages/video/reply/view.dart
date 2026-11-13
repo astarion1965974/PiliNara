@@ -97,7 +97,7 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                     ? VideoDetailChrome.background(colorScheme)
                     : colorScheme.surface,
                 child: Padding(
-                  padding: const .fromLTRB(12, 2.5, 6, 2.5),
+                  padding: const .fromLTRB(12, 6, 12, 6),
                   child: Obx(() {
                     final sortType = controller.sortType.value;
                     if (widget.isNested) {
