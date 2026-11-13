@@ -4,6 +4,7 @@ import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/widgets/coui_setting_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart' as mui;
 
 void main() {
   testWidgets('switch follows controlled value after a tap', (tester) async {
@@ -101,7 +102,7 @@ void main() {
         ),
       ),
     );
-    expect(find.byType(Divider), findsOneWidget);
+    expect(find.byType(mui.Divider), findsOneWidget);
     expect(find.text('自定义内容'), findsOneWidget);
     await tester.tap(find.text('第一项'));
     expect(tapped, isTrue);
