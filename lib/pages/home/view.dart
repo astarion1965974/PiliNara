@@ -211,6 +211,7 @@ class _HomePageState extends CommonPageState<HomePage>
   Widget homeHeader() {
     final header = CouiGlassSurface(
       tier: CouiGlassTier.chrome,
+      showBorder: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

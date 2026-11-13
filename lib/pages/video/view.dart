@@ -1397,14 +1397,6 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
             VideoDetailChrome.background(colorScheme),
             easedRatio,
           ),
-          border: Border(
-            bottom: BorderSide(
-              color: colorScheme.outline.withValues(
-                alpha: colorScheme.brightness == Brightness.dark ? 0.10 : 0.06,
-              ),
-              width: 0.5,
-            ),
-          ),
         ),
         child: Align(
           alignment: .topCenter,
