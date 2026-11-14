@@ -189,6 +189,43 @@ class _FontSettingPageState extends State<FontSettingPage> {
     });
   }
 
+
+  Widget _couiCardGroup(BuildContext context, List<Widget> children) {
+    final coui = CouiThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: coui.cardColor,
+          borderRadius: Coui.cardRadius,
+          border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+        ),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customFonts = FontUtils.customFonts.keys.toList();
@@ -248,6 +285,9 @@ class _FontSettingPageState extends State<FontSettingPage> {
                 ),
               ),
             ),
+            _couiCardGroup(
+              context,
+              [
             _buildItem(
               Row(
                 children: [
@@ -442,6 +482,8 @@ class _FontSettingPageState extends State<FontSettingPage> {
                   ),
                 ],
               ),
+            ),
+              ],
             ),
           ],
         ),

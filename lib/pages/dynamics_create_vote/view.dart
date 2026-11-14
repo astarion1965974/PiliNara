@@ -2,7 +2,7 @@ import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show File;
 
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/common/widgets/time_picker.dart';
@@ -190,22 +190,29 @@ class _CreateVotePageState extends State<CreateVotePage> {
                 return Listener(
                   onPointerDown: (_) =>
                       FocusManager.instance.primaryFocus?.unfocus(),
-                  child: StaticPopupMenuButton<int>(
-                    initialValue: choiceCnt,
-                    requestFocus: false,
-                    onSelected: _controller.choiceCnt.call,
-                    itemBuilder: (context) {
-                      return choices
-                          .map(
-                            (e) => PopupMenuItem(
-                              value: e,
-                              child: Text(e == 1 ? '单选' : '最多选$e项'),
-                            ),
-                          )
-                          .toList();
-                    },
-                    child: Text(
-                      choiceCnt == 1 ? '单选         ' : '最多选$choiceCnt项',
+                  child: Builder(
+                    builder: (menuContext) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () async {
+                        final selected = await showCouiMenu<int>(
+                          context: menuContext,
+                          items: choices
+                              .map(
+                                (e) => CouiMenuItem<int>(
+                                  label: e == 1 ? '单选' : '最多选$e项',
+                                  value: e,
+                                  selected: e == choiceCnt,
+                                ),
+                              )
+                              .toList(),
+                        );
+                        if (selected != null) {
+                          _controller.choiceCnt.call(selected);
+                        }
+                      },
+                      child: Text(
+                        choiceCnt == 1 ? '单选         ' : '最多选$choiceCnt项',
+                      ),
                     ),
                   ),
                 );

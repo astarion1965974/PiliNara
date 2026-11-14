@@ -9,6 +9,7 @@ import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/cropped_image.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/disabled_icon.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/gesture/immediate_tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/gesture/mouse_interactive_viewer.dart';
@@ -551,38 +552,31 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       BottomControlType.superResolution => Obx(
         () {
           final type = plPlayerController.superResolutionType.value;
-          return StaticPopupMenuButton<SuperResolutionType>(
-            tooltip: '超分辨率',
-            requestFocus: false,
-            initialValue: type,
-            color: Colors.black.withValues(alpha: 0.8),
-            menuPadding: EdgeInsets.zero,
-            menuItemOuterPadding: EdgeInsets.zero,
-            menuItemStateLayerColor: Colors.white,
-            itemBuilder: (context) {
-              return SuperResolutionType.values
-                  .map(
-                    (type) => PopupMenuItem<SuperResolutionType>(
-                      height: 35,
-                      padding: const EdgeInsets.only(left: 30),
-                      value: type,
-                      onTap: () => plPlayerController.setShader(type),
-                      child: Text(
-                        type.label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
+          return Builder(
+            builder: (menuContext) => Tooltip(
+              message: '超分辨率',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => showCouiMenu<SuperResolutionType>(
+                  context: menuContext,
+                  items: SuperResolutionType.values
+                      .map(
+                        (item) => CouiMenuItem<SuperResolutionType>(
+                          label: item.label,
+                          value: item,
+                          selected: item == type,
+                          onTap: () => plPlayerController.setShader(item),
                         ),
-                      ),
-                    ),
-                  )
-                  .toList();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                type.label,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                      )
+                      .toList(),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    type.label,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
               ),
             ),
           );
@@ -720,38 +714,31 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
       BottomControlType.fit => Obx(
         () {
           final fit = plPlayerController.videoFit.value;
-          return StaticPopupMenuButton<VideoFitType>(
-            tooltip: '画面比例',
-            requestFocus: false,
-            initialValue: fit,
-            color: Colors.black.withValues(alpha: 0.8),
-            menuPadding: EdgeInsets.zero,
-            menuItemOuterPadding: EdgeInsets.zero,
-            menuItemStateLayerColor: Colors.white,
-            itemBuilder: (context) {
-              return VideoFitType.values
-                  .map(
-                    (boxFit) => PopupMenuItem<VideoFitType>(
-                      height: 35,
-                      padding: const EdgeInsets.only(left: 30),
-                      value: boxFit,
-                      onTap: () => plPlayerController.toggleVideoFit(boxFit),
-                      child: Text(
-                        boxFit.desc,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
+          return Builder(
+            builder: (menuContext) => Tooltip(
+              message: '画面比例',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => showCouiMenu<VideoFitType>(
+                  context: menuContext,
+                  items: VideoFitType.values
+                      .map(
+                        (boxFit) => CouiMenuItem<VideoFitType>(
+                          label: boxFit.desc,
+                          value: boxFit,
+                          selected: boxFit == fit,
+                          onTap: () => plPlayerController.toggleVideoFit(boxFit),
                         ),
-                      ),
-                    ),
-                  )
-                  .toList();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                fit.desc,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                      )
+                      .toList(),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    fit.desc,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
               ),
             ),
           );
@@ -762,42 +749,43 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
         () {
           final list = videoDetailController.languages.value;
           if (list != null && list.isNotEmpty) {
-            return StaticPopupMenuButton<String>(
-              tooltip: '翻译',
-              requestFocus: false,
-              initialValue: videoDetailController.currLang.value,
-              onSelected: videoDetailController.setLanguage,
-              color: Colors.black.withValues(alpha: 0.8),
-              menuPadding: EdgeInsets.zero,
-              menuItemOuterPadding: EdgeInsets.zero,
-              menuItemStateLayerColor: Colors.white,
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  height: 35,
-                  value: '',
-                  child: Text(
-                    "关闭翻译",
-                    style: TextStyle(color: Colors.white, fontSize: 13),
-                  ),
-                ),
-                ...list.map(
-                  (e) => PopupMenuItem<String>(
-                    height: 35,
-                    value: e.lang,
-                    child: Text(
-                      e.title!,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+            final currLang = videoDetailController.currLang.value;
+            return Builder(
+              builder: (menuContext) => Tooltip(
+                message: '翻译',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    final selected = await showCouiMenu<String>(
+                      context: menuContext,
+                      items: [
+                        CouiMenuItem<String>(
+                          label: '关闭翻译',
+                          value: '',
+                          selected: currLang == '',
+                        ),
+                        ...list.map(
+                          (e) => CouiMenuItem<String>(
+                            label: e.title!,
+                            value: e.lang,
+                            selected: e.lang == currLang,
+                          ),
+                        ),
+                      ],
+                    );
+                    if (selected != null) {
+                      videoDetailController.setLanguage(selected);
+                    }
+                  },
+                  child: SizedBox(
+                    width: widgetWidth,
+                    height: 30,
+                    child: const Icon(
+                      Icons.translate,
+                      size: 18,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-              ],
-              child: SizedBox(
-                width: widgetWidth,
-                height: 30,
-                child: const Icon(
-                  Icons.translate,
-                  size: 18,
-                  color: Colors.white,
                 ),
               ),
             );
@@ -885,41 +873,39 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
 
       /// 播放速度
       BottomControlType.speed => Obx(
-        () => StaticPopupMenuButton<double>(
-          tooltip: '倍速',
-          requestFocus: false,
-          initialValue: plPlayerController.playbackSpeed,
-          color: Colors.black.withValues(alpha: 0.8),
-          menuPadding: EdgeInsets.zero,
-          menuItemOuterPadding: EdgeInsets.zero,
-          menuItemStateLayerColor: Colors.white,
-          itemBuilder: (context) {
-            return plPlayerController.speedList
-                .map(
-                  (double speed) => PopupMenuItem<double>(
-                    height: 35,
-                    padding: const EdgeInsets.only(left: 30),
-                    value: speed,
-                    onTap: () =>
-                        plPlayerController.setManualPlaybackSpeed(speed),
-                    child: Text(
-                      "${speed}X",
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
-                      semanticsLabel: "$speed倍速",
-                    ),
+        () {
+          final currentSpeed = plPlayerController.playbackSpeed;
+          return Builder(
+            builder: (menuContext) => Tooltip(
+              message: '倍速',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => showCouiMenu<double>(
+                  context: menuContext,
+                  items: plPlayerController.speedList
+                      .map(
+                        (double speed) => CouiMenuItem<double>(
+                          label: "${speed}X",
+                          value: speed,
+                          selected: speed == currentSpeed,
+                          onTap: () =>
+                              plPlayerController.setManualPlaybackSpeed(speed),
+                        ),
+                      )
+                      .toList(),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    "${currentSpeed}X",
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    semanticsLabel: "$currentSpeed倍速",
                   ),
-                )
-                .toList();
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
-              "${plPlayerController.playbackSpeed}X",
-              style: const TextStyle(color: Colors.white, fontSize: 13),
-              semanticsLabel: "${plPlayerController.playbackSpeed}倍速",
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
 
       BottomControlType.qa => Obx(
@@ -935,59 +921,50 @@ class _PLVideoPlayerState extends State<PLVideoPlayer>
           }
           final videoFormat = videoInfo.supportFormats!;
           final availableQa = videoInfo.dash!.video!.availableVideoQualities;
-          return StaticPopupMenuButton<int>(
-            tooltip: '画质',
-            requestFocus: false,
-            initialValue: currentVideoQa.code,
-            color: Colors.black.withValues(alpha: 0.8),
-            menuPadding: EdgeInsets.zero,
-            menuItemOuterPadding: EdgeInsets.zero,
-            menuItemStateLayerColor: Colors.white,
-            itemBuilder: (context) {
-              return List.generate(
-                videoFormat.length,
-                (index) {
-                  final item = videoFormat[index];
-                  final enabled = availableQa.contains(item.quality);
-                  return PopupMenuItem<int>(
-                    enabled: enabled,
-                    height: 35,
-                    padding: const EdgeInsets.only(left: 15, right: 10),
-                    value: item.quality,
-                    onTap: () {
-                      if (currentVideoQa.code == item.quality) {
-                        return;
-                      }
-                      final int quality = item.quality!;
-                      final newQa = VideoQuality.fromCode(quality);
-                      videoDetailController
-                        ..plPlayerController.cacheVideoQa = newQa.code
-                        ..currentVideoQa.value = newQa
-                        ..updatePlayer();
+          return Builder(
+            builder: (menuContext) => Tooltip(
+              message: '画质',
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => showCouiMenu<int>(
+                  context: menuContext,
+                  items: List.generate(
+                    videoFormat.length,
+                    (index) {
+                      final item = videoFormat[index];
+                      final enabled = availableQa.contains(item.quality);
+                      return CouiMenuItem<int>(
+                        label: item.newDesc ?? item.quality.toString(),
+                        value: item.quality,
+                        enabled: enabled,
+                        selected: item.quality == currentVideoQa.code,
+                        onTap: () {
+                          if (currentVideoQa.code == item.quality) {
+                            return;
+                          }
+                          final int quality = item.quality!;
+                          final newQa = VideoQuality.fromCode(quality);
+                          videoDetailController
+                            ..plPlayerController.cacheVideoQa = newQa.code
+                            ..currentVideoQa.value = newQa
+                            ..updatePlayer();
 
-                      SmartDialog.showToast("画质已变为：${newQa.desc}");
+                          SmartDialog.showToast("画质已变为：${newQa.desc}");
 
-                      // update
-                      videoDetailController.persistVideoQa(quality);
+                          // update
+                          videoDetailController.persistVideoQa(quality);
+                        },
+                      );
                     },
-                    child: Text(
-                      item.newDesc ?? item.quality.toString(),
-                      style: enabled
-                          ? const TextStyle(color: Colors.white, fontSize: 13)
-                          : const TextStyle(
-                              color: Color(0x62FFFFFF),
-                              fontSize: 13,
-                            ),
-                    ),
-                  );
-                },
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                currentVideoQa.shortDesc,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    currentVideoQa.shortDesc,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
               ),
             ),
           );

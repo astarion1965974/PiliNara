@@ -269,8 +269,11 @@ class _CouiMenuItemTileState<T> extends State<_CouiMenuItemTile<T>>
           onTapCancel: item.enabled ? () => _setPressed(false) : null,
           onTap: item.enabled
               ? () {
-                  item.onTap?.call();
+                  final onTap = item.onTap;
                   widget.onSelected?.call(item.value);
+                  if (onTap != null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) => onTap());
+                  }
                 }
               : null,
           child: ScaleTransition(

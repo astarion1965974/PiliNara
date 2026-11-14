@@ -1,7 +1,7 @@
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/dynamic_sliver_app_bar/dynamic_sliver_app_bar.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
@@ -321,29 +321,32 @@ class _DynTopicPageState extends State<DynTopicPage>
             // https://www.bilibili.com/v/topic/detail?topic_id=${_controller.topicId}
             icon: const Icon(MdiIcons.share),
           ),
-          StaticPopupMenuButton(
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  onTap: _controller.onFav,
-                  child: Text(
-                    '${_controller.isFav.value ? '取消' : ''}收藏',
+          Builder(
+            builder: (menuContext) => IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => showCouiMenu(
+                context: menuContext,
+                items: [
+                  CouiMenuItem(
+                    label: '${_controller.isFav.value ? '取消' : ''}收藏',
+                    onTap: _controller.onFav,
                   ),
-                ),
-                PopupMenuItem(
-                  child: const Text('举报'),
-                  onTap: () {
-                    if (!_controller.isLogin) {
-                      SmartDialog.showToast('账号未登录');
-                      return;
-                    }
-                    PageUtils.inAppWebview(
-                      '${HttpString.baseUrl}/h5/topic-active/topic-report?topic_id=${_controller.topicId}&topic_name=${_controller.topicName}&${ThemeUtils.themeUrl(colorScheme.isDark)}',
-                    );
-                  },
-                ),
-              ];
-            },
+                  CouiMenuItem(
+                    label: '举报',
+                    isDestructive: true,
+                    onTap: () {
+                      if (!_controller.isLogin) {
+                        SmartDialog.showToast('账号未登录');
+                        return;
+                      }
+                      PageUtils.inAppWebview(
+                        '${HttpString.baseUrl}/h5/topic-active/topic-report?topic_id=${_controller.topicId}&topic_name=${_controller.topicName}&${ThemeUtils.themeUrl(colorScheme.isDark)}',
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(width: 4),
         ],

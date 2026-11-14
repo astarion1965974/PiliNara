@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
@@ -91,11 +92,72 @@ class _SetDisplayModeState extends State<SetDisplayMode> {
                 ),
                 itemBuilder: (context, index) {
                   final DisplayMode mode = modes[index];
-                  return RadioListTile<DisplayMode>(
-                    value: mode,
-                    title: mode == DisplayMode.auto
-                        ? const Text('自动')
-                        : Text('$mode${mode == active ? '  [系统]' : ''}'),
+                  final first = index == 0;
+                  final last = index == modes.length - 1;
+                  final coui = CouiThemeData.of(context);
+                  final borderSide = BorderSide(
+                    color: coui.subtleBorderColor,
+                    width: 0.75,
+                  );
+                  return Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      16,
+                      first ? 8 : 0,
+                      16,
+                      last ? 8 : 0,
+                    ),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.vertical(
+                          top: first
+                              ? const Radius.circular(Coui.card)
+                              : Radius.zero,
+                          bottom: last
+                              ? const Radius.circular(Coui.card)
+                              : Radius.zero,
+                        ),
+                        border: Border(
+                          left: borderSide,
+                          right: borderSide,
+                          top: first ? borderSide : BorderSide.none,
+                          bottom: last ? borderSide : BorderSide.none,
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.vertical(
+                          top: first
+                              ? const Radius.circular(Coui.card)
+                              : Radius.zero,
+                          bottom: last
+                              ? const Radius.circular(Coui.card)
+                              : Radius.zero,
+                        ),
+                        child: Material(
+                          color: coui.cardColor,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              RadioListTile<DisplayMode>(
+                                value: mode,
+                                title: mode == DisplayMode.auto
+                                    ? const Text('自动')
+                                    : Text(
+                                        '$mode${mode == active ? '  [系统]' : ''}',
+                                      ),
+                              ),
+                              if (!last)
+                                Divider(
+                                  height: 0.5,
+                                  thickness: 0.5,
+                                  indent: 16,
+                                  endIndent: 16,
+                                  color: coui.dividerColor,
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   );
                 },
               ),

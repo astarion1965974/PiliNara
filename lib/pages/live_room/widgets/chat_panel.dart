@@ -2,7 +2,7 @@ import 'dart:ui' show ImageFilter;
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/flutter/live_list_view.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart'
@@ -349,37 +349,30 @@ class LiveRoomChatPanel extends StatelessWidget {
     if (autoScroll) {
       liveRoomController.autoScroll = false;
     }
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: RelativeRect.fromLTRB(dx, dy, dx, 0),
-      clipBehavior: Clip.antiAlias,
-      items: <PopupMenuEntry<Never>>[
-        CustomPopupMenuItem(
-          height: 38,
-          child: Text(item.name, style: const TextStyle(fontSize: 13)),
+      offset: Offset(dx, dy),
+      items: [
+        CouiMenuItem<void>(
+          label: item.name,
+          enabled: false,
         ),
-        const CustomPopupMenuDivider(height: 1),
-        CustomPopupMenuItem(
-          height: 38,
+        const CouiMenuDivider<void>(),
+        CouiMenuItem<void>(
+          label: '复制弹幕信息',
           onTap: () => Utils.copyText(Utils.jsonEncoder.convert(item.toJson())),
-          child: const Text('复制弹幕信息', style: TextStyle(fontSize: 13)),
         ),
-        CustomPopupMenuItem(
-          height: 38,
+        CouiMenuItem<void>(
+          label: '去TA的个人空间',
           onTap: () => Get.toNamed('/member?mid=${item.extra.mid}'),
-          child: const Text('去TA的个人空间', style: TextStyle(fontSize: 13)),
         ),
         if (liveRoomController.isLogin) ...[
-          CustomPopupMenuItem(
-            height: 38,
+          CouiMenuItem<void>(
+            label: '@TA',
             onTap: () => liveRoomController.onAtUser(item),
-            child: const Text(
-              '@TA',
-              style: TextStyle(fontSize: 13),
-            ),
           ),
-          CustomPopupMenuItem(
-            height: 38,
+          CouiMenuItem<void>(
+            label: '屏蔽发送者',
             onTap: () async {
               final res = await LiveHttp.liveShieldUser(
                 uid: item.extra.mid,
@@ -392,22 +385,15 @@ class LiveRoomChatPanel extends StatelessWidget {
                 res.toast();
               }
             },
-            child: const Text(
-              '屏蔽发送者',
-              style: TextStyle(fontSize: 13),
-            ),
           ),
-          CustomPopupMenuItem(
-            height: 38,
+          CouiMenuItem<void>(
+            label: '举报选中弹幕',
+            isDestructive: true,
             onTap: () => HeaderControl.reportLiveDanmaku(
               context,
               roomId: liveRoomController.roomId,
               msg: item.text,
               extra: item.extra,
-            ),
-            child: const Text(
-              '举报选中弹幕',
-              style: TextStyle(fontSize: 13),
             ),
           ),
         ],

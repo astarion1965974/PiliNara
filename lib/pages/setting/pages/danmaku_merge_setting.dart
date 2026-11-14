@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
@@ -70,6 +71,43 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
     _enlargeLogBase = Pref.danmakuEnlargeLogBase.toDouble();
   }
 
+
+  Widget _couiCardGroup(BuildContext context, List<Widget> children) {
+    final coui = CouiThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: coui.cardColor,
+          borderRadius: Coui.cardRadius,
+          border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+        ),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -86,339 +124,417 @@ class _DanmakuMergeSettingPageState extends State<DanmakuMergeSettingPage> {
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          ListTile(
-            title: const Text('启用合并弹幕'),
-            subtitle: const Text('在时间窗口内合并相似弹幕'),
-            trailing: CouiSwitch(
-              value: _mergeDanmaku,
-              onChanged: (value) => _updateBool(
-                () => _mergeDanmaku = value,
-                SettingBoxKey.mergeDanmaku,
-                value,
+          _couiCardGroup(
+            context,
+            [
+              ListTile(
+                title: const Text('启用合并弹幕'),
+                subtitle: const Text('在时间窗口内合并相似弹幕'),
+                trailing: CouiSwitch(
+                  value: _mergeDanmaku,
+                  onChanged: (value) => _updateBool(
+                    () => _mergeDanmaku = value,
+                    SettingBoxKey.mergeDanmaku,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _mergeDanmaku = !_mergeDanmaku,
+                  SettingBoxKey.mergeDanmaku,
+                  !_mergeDanmaku,
+                ),
               ),
-            ),
-            onTap: () => _updateBool(
-              () => _mergeDanmaku = !_mergeDanmaku,
-              SettingBoxKey.mergeDanmaku,
-              !_mergeDanmaku,
-            ),
+            ],
           ),
           _SectionTitle('基础设置', theme),
-          ListTile(
-            title: const Text('时间阈值'),
-            subtitle: Text('合并时间差在 ${_windowSeconds.round()} 秒以内的相似弹幕'),
-            trailing: Text(
-              '${_windowSeconds.round()}s',
-              style: TextStyle(color: theme.colorScheme.primary, fontSize: 16),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Slider(
-              value: _windowSeconds,
-              min: 5,
-              max: 40,
-              divisions: 35,
-              label: '${_windowSeconds.round()}',
-              onChanged: (value) => _updateDouble(
-                () => _windowSeconds = value,
+          _couiCardGroup(
+            context,
+            [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: const Text('时间阈值'),
+                    subtitle: Text('合并时间差在 ${_windowSeconds.round()} 秒以内的相似弹幕'),
+                    trailing: Text(
+                      '${_windowSeconds.round()}s',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Slider(
+                      value: _windowSeconds,
+                      min: 5,
+                      max: 40,
+                      divisions: 35,
+                      label: '${_windowSeconds.round()}',
+                      onChanged: (value) => _updateDouble(
+                        () => _windowSeconds = value,
+                      ),
+                      onChangeEnd: (value) => _persist(
+                        SettingBoxKey.mergeDanmakuWindowSeconds,
+                        value.round(),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Text(
+                      '时间窗越长，越容易合并跨场景刷屏弹幕，但计算量也会增加。',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              onChangeEnd: (value) => _persist(
-                SettingBoxKey.mergeDanmakuWindowSeconds,
-                value.round(),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              '时间窗越长，越容易合并跨场景刷屏弹幕，但计算量也会增加。',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
-              ),
-            ),
+            ],
           ),
           _SectionTitle('例外设置', theme),
-          ListTile(
-            title: const Text('合并不同类型的弹幕'),
-            subtitle: const Text('关闭后，底部/顶部/滚动弹幕不会互相合并'),
-            trailing: CouiSwitch(
-              value: _crossMode,
-              onChanged: (value) => _updateBool(
-                () => _crossMode = value,
-                SettingBoxKey.mergeDanmakuCrossMode,
-                value,
+          _couiCardGroup(
+            context,
+            [
+              ListTile(
+                title: const Text('合并不同类型的弹幕'),
+                subtitle: const Text('关闭后，底部/顶部/滚动弹幕不会互相合并'),
+                trailing: CouiSwitch(
+                  value: _crossMode,
+                  onChanged: (value) => _updateBool(
+                    () => _crossMode = value,
+                    SettingBoxKey.mergeDanmakuCrossMode,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _crossMode = !_crossMode,
+                  SettingBoxKey.mergeDanmakuCrossMode,
+                  !_crossMode,
+                ),
               ),
-            ),
-            onTap: () => _updateBool(
-              () => _crossMode = !_crossMode,
-              SettingBoxKey.mergeDanmakuCrossMode,
-              !_crossMode,
-            ),
-          ),
-          ListTile(
-            title: const Text('跳过字幕弹幕'),
-            trailing: CouiSwitch(
-              value: _skipSubtitle,
-              onChanged: (value) => _updateBool(
-                () => _skipSubtitle = value,
-                SettingBoxKey.mergeDanmakuSkipSubtitle,
-                value,
+              ListTile(
+                title: const Text('跳过字幕弹幕'),
+                trailing: CouiSwitch(
+                  value: _skipSubtitle,
+                  onChanged: (value) => _updateBool(
+                    () => _skipSubtitle = value,
+                    SettingBoxKey.mergeDanmakuSkipSubtitle,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _skipSubtitle = !_skipSubtitle,
+                  SettingBoxKey.mergeDanmakuSkipSubtitle,
+                  !_skipSubtitle,
+                ),
               ),
-            ),
-            onTap: () => _updateBool(
-              () => _skipSubtitle = !_skipSubtitle,
-              SettingBoxKey.mergeDanmakuSkipSubtitle,
-              !_skipSubtitle,
-            ),
-          ),
-          ListTile(
-            title: const Text('跳过高级弹幕'),
-            trailing: CouiSwitch(
-              value: _skipAdvanced,
-              onChanged: (value) => _updateBool(
-                () => _skipAdvanced = value,
-                SettingBoxKey.mergeDanmakuSkipAdvanced,
-                value,
+              ListTile(
+                title: const Text('跳过高级弹幕'),
+                trailing: CouiSwitch(
+                  value: _skipAdvanced,
+                  onChanged: (value) => _updateBool(
+                    () => _skipAdvanced = value,
+                    SettingBoxKey.mergeDanmakuSkipAdvanced,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _skipAdvanced = !_skipAdvanced,
+                  SettingBoxKey.mergeDanmakuSkipAdvanced,
+                  !_skipAdvanced,
+                ),
               ),
-            ),
-            onTap: () => _updateBool(
-              () => _skipAdvanced = !_skipAdvanced,
-              SettingBoxKey.mergeDanmakuSkipAdvanced,
-              !_skipAdvanced,
-            ),
-          ),
-          ListTile(
-            title: const Text('跳过底部弹幕'),
-            trailing: CouiSwitch(
-              value: _skipBottom,
-              onChanged: (value) => _updateBool(
-                () => _skipBottom = value,
-                SettingBoxKey.mergeDanmakuSkipBottom,
-                value,
+              ListTile(
+                title: const Text('跳过底部弹幕'),
+                trailing: CouiSwitch(
+                  value: _skipBottom,
+                  onChanged: (value) => _updateBool(
+                    () => _skipBottom = value,
+                    SettingBoxKey.mergeDanmakuSkipBottom,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _skipBottom = !_skipBottom,
+                  SettingBoxKey.mergeDanmakuSkipBottom,
+                  !_skipBottom,
+                ),
               ),
-            ),
-            onTap: () => _updateBool(
-              () => _skipBottom = !_skipBottom,
-              SettingBoxKey.mergeDanmakuSkipBottom,
-              !_skipBottom,
-            ),
+            ],
           ),
           _SectionTitle('显示设置', theme),
-          ListTile(
-            title: const Text('数量标记位置'),
-            subtitle: Text(switch (_markPosition) {
-              0 => '始终隐藏数量标记',
-              2 => '显示在弹幕尾部',
-              _ => '显示在弹幕开头',
-            }),
-            trailing: SegmentedButton<int>(
-              segments: const [
-                ButtonSegment<int>(value: 0, label: Text('隐藏')),
-                ButtonSegment<int>(value: 1, label: Text('开头')),
-                ButtonSegment<int>(value: 2, label: Text('尾部')),
+          _couiCardGroup(
+            context,
+            [
+              ListTile(
+                title: const Text('数量标记位置'),
+                subtitle: Text(switch (_markPosition) {
+                  0 => '始终隐藏数量标记',
+                  2 => '显示在弹幕尾部',
+                  _ => '显示在弹幕开头',
+                }),
+                trailing: SegmentedButton<int>(
+                  segments: const [
+                    ButtonSegment<int>(value: 0, label: Text('隐藏')),
+                    ButtonSegment<int>(value: 1, label: Text('开头')),
+                    ButtonSegment<int>(value: 2, label: Text('尾部')),
+                  ],
+                  selected: {_markPosition},
+                  onSelectionChanged: (selection) {
+                    final value = selection.first;
+                    _updateInt(
+                      () => _markPosition = value,
+                      SettingBoxKey.mergeDanmakuMarkPosition,
+                      value,
+                    );
+                  },
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('数量标记门槛'),
+                    subtitle: Text('仅当数量大于 ${_markThreshold.round()} 时显示标记'),
+                    trailing: Text(
+                      '> ${_markThreshold.round()}',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Slider(
+                      value: _markThreshold,
+                      min: 1,
+                      max: 20,
+                      divisions: 19,
+                      label: '${_markThreshold.round()}',
+                      onChanged: (value) => _updateDouble(
+                        () => _markThreshold = value,
+                      ),
+                      onChangeEnd: (value) => _persist(
+                        SettingBoxKey.mergeDanmakuMarkThreshold,
+                        value.round(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              ListTile(
+                title: const Text('字号随数量放大'),
+                subtitle: const Text('重复弹幕越多字号越大，关闭后与普通弹幕字号一致'),
+                trailing: CouiSwitch(
+                  value: _enlarge,
+                  onChanged: (value) => _updateBool(
+                    () => _enlarge = value,
+                    SettingBoxKey.danmakuEnlarge,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _enlarge = !_enlarge,
+                  SettingBoxKey.danmakuEnlarge,
+                  !_enlarge,
+                ),
+              ),
+              if (_enlarge) ...[
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: const Text('字体放大门槛'),
+                      subtitle: Text('重复 ${_enlargeThreshold.round()} 条以上开始放大'),
+                      trailing: Text(
+                        '${_enlargeThreshold.round()}',
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Slider(
+                        value: _enlargeThreshold,
+                        min: 2,
+                        max: 20,
+                        divisions: 18,
+                        label: '${_enlargeThreshold.round()}',
+                        onChanged: (value) => _updateDouble(
+                          () => _enlargeThreshold = value,
+                        ),
+                        onChangeEnd: (value) => _persist(
+                          SettingBoxKey.danmakuEnlargeThreshold,
+                          value.round(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      title: const Text('放大速度'),
+                      subtitle: Text('对数底数 ${_enlargeLogBase.round()}（越小放大越快）'),
+                      trailing: Text(
+                        '${_enlargeLogBase.round()}',
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Slider(
+                        value: _enlargeLogBase,
+                        min: 3,
+                        max: 10,
+                        divisions: 7,
+                        label: '${_enlargeLogBase.round()}',
+                        onChanged: (value) => _updateDouble(
+                          () => _enlargeLogBase = value,
+                        ),
+                        onChangeEnd: (value) => _persist(
+                          SettingBoxKey.danmakuEnlargeLogBase,
+                          value.round(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-              selected: {_markPosition},
-              onSelectionChanged: (selection) {
-                final value = selection.first;
-                _updateInt(
-                  () => _markPosition = value,
-                  SettingBoxKey.mergeDanmakuMarkPosition,
-                  value,
-                );
-              },
-            ),
+            ],
           ),
-          ListTile(
-            title: const Text('数量标记门槛'),
-            subtitle: Text('仅当数量大于 ${_markThreshold.round()} 时显示标记'),
-            trailing: Text(
-              '> ${_markThreshold.round()}',
-              style: TextStyle(color: theme.colorScheme.primary, fontSize: 16),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Slider(
-              value: _markThreshold,
-              min: 1,
-              max: 20,
-              divisions: 19,
-              label: '${_markThreshold.round()}',
-              onChanged: (value) => _updateDouble(
-                () => _markThreshold = value,
-              ),
-              onChangeEnd: (value) => _persist(
-                SettingBoxKey.mergeDanmakuMarkThreshold,
-                value.round(),
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('字号随数量放大'),
-            subtitle: const Text('重复弹幕越多字号越大，关闭后与普通弹幕字号一致'),
-            trailing: CouiSwitch(
-              value: _enlarge,
-              onChanged: (value) => _updateBool(
-                () => _enlarge = value,
-                SettingBoxKey.danmakuEnlarge,
-                value,
-              ),
-            ),
-            onTap: () => _updateBool(
-              () => _enlarge = !_enlarge,
-              SettingBoxKey.danmakuEnlarge,
-              !_enlarge,
-            ),
-          ),
-          if (_enlarge) ...[
-            ListTile(
-              title: const Text('字体放大门槛'),
-              subtitle: Text('重复 ${_enlargeThreshold.round()} 条以上开始放大'),
-              trailing: Text(
-                '${_enlargeThreshold.round()}',
-                style: TextStyle(color: theme.colorScheme.primary, fontSize: 16),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Slider(
-                value: _enlargeThreshold,
-                min: 2,
-                max: 20,
-                divisions: 18,
-                label: '${_enlargeThreshold.round()}',
-                onChanged: (value) => _updateDouble(
-                  () => _enlargeThreshold = value,
-                ),
-                onChangeEnd: (value) => _persist(
-                  SettingBoxKey.danmakuEnlargeThreshold,
-                  value.round(),
-                ),
-              ),
-            ),
-            ListTile(
-              title: const Text('放大速度'),
-              subtitle: Text('对数底数 ${_enlargeLogBase.round()}（越小放大越快）'),
-              trailing: Text(
-                '${_enlargeLogBase.round()}',
-                style: TextStyle(color: theme.colorScheme.primary, fontSize: 16),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Slider(
-                value: _enlargeLogBase,
-                min: 3,
-                max: 10,
-                divisions: 7,
-                label: '${_enlargeLogBase.round()}',
-                onChanged: (value) => _updateDouble(
-                  () => _enlargeLogBase = value,
-                ),
-                onChangeEnd: (value) => _persist(
-                  SettingBoxKey.danmakuEnlargeLogBase,
-                  value.round(),
-                ),
-              ),
-            ),
-          ],
           _SectionTitle('高级选项', theme),
-          ListTile(
-            title: const Text('编辑距离合并阈值'),
-            subtitle: Text(
-              _maxDistance == 0
-                  ? '禁用字符频次差合并，仅保留其他相似度判定'
-                  : '根据编辑距离判断不完全一致但内容接近的弹幕',
-            ),
-            trailing: _PresetDropdown(
-              value: _maxDistance,
-              presets: _distancePresets,
-              onChanged: (value) => _updateInt(
-                () => _maxDistance = value,
-                SettingBoxKey.mergeDanmakuMaxDistance,
-                value,
+          _couiCardGroup(
+            context,
+            [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: const Text('编辑距离合并阈值'),
+                    subtitle: Text(
+                      _maxDistance == 0
+                          ? '禁用字符频次差合并，仅保留其他相似度判定'
+                          : '根据编辑距离判断不完全一致但内容接近的弹幕',
+                    ),
+                    trailing: _PresetDropdown(
+                      value: _maxDistance,
+                      presets: _distancePresets,
+                      onChanged: (value) => _updateInt(
+                        () => _maxDistance = value,
+                        SettingBoxKey.mergeDanmakuMaxDistance,
+                        value,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                    child: Text(
+                      '较高阈值能更积极地吞并错别字、少量漏字或重复字符弹幕。',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              '较高阈值能更积极地吞并错别字、少量漏字或重复字符弹幕。',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: const Text('词频向量合并阈值'),
+                    subtitle: Text(
+                      _maxCosine > 100
+                          ? '禁用 2-Gram 词频向量相似判定'
+                          : '根据 2-Gram 词频向量夹角判断内容类似的弹幕',
+                    ),
+                    trailing: _PresetDropdown(
+                      value: _maxCosine,
+                      presets: _cosinePresets,
+                      onChanged: (value) => _updateInt(
+                        () => _maxCosine = value,
+                        SettingBoxKey.mergeDanmakuMaxCosine,
+                        value,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                    child: Text(
+                      '阈值越低越容易命中，越高则越严格；禁用后只依赖前面的规则。',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-          ListTile(
-            title: const Text('词频向量合并阈值'),
-            subtitle: Text(
-              _maxCosine > 100
-                  ? '禁用 2-Gram 词频向量相似判定'
-                  : '根据 2-Gram 词频向量夹角判断内容类似的弹幕',
-            ),
-            trailing: _PresetDropdown(
-              value: _maxCosine,
-              presets: _cosinePresets,
-              onChanged: (value) => _updateInt(
-                () => _maxCosine = value,
-                SettingBoxKey.mergeDanmakuMaxCosine,
-                value,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    title: const Text('代表性百分位'),
+                    subtitle: Text(
+                      '合并后弹幕时间取该组前 ${_representativePercent.round()}% 位置的代表弹幕',
+                    ),
+                    trailing: Text(
+                      '${_representativePercent.round()}%',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Slider(
+                      value: _representativePercent,
+                      min: 0,
+                      max: 100,
+                      divisions: 20,
+                      label: '${_representativePercent.round()}',
+                      onChanged: (value) => _updateDouble(
+                        () => _representativePercent = value,
+                      ),
+                      onChangeEnd: (value) => _persist(
+                        SettingBoxKey.mergeDanmakuRepresentativePercent,
+                        value.round(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              '阈值越低越容易命中，越高则越严格；禁用后只依赖前面的规则。',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
+              ListTile(
+                title: const Text('识别谐音弹幕'),
+                subtitle: const Text('将文本转换为拼音后再进行一次相似匹配'),
+                trailing: CouiSwitch(
+                  value: _usePinyin,
+                  onChanged: (value) => _updateBool(
+                    () => _usePinyin = value,
+                    SettingBoxKey.mergeDanmakuUsePinyin,
+                    value,
+                  ),
+                ),
+                onTap: () => _updateBool(
+                  () => _usePinyin = !_usePinyin,
+                  SettingBoxKey.mergeDanmakuUsePinyin,
+                  !_usePinyin,
+                ),
               ),
-            ),
-          ),
-          ListTile(
-            title: const Text('代表性百分位'),
-            subtitle: Text(
-              '合并后弹幕时间取该组前 ${_representativePercent.round()}% 位置的代表弹幕',
-            ),
-            trailing: Text(
-              '${_representativePercent.round()}%',
-              style: TextStyle(color: theme.colorScheme.primary, fontSize: 16),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Slider(
-              value: _representativePercent,
-              min: 0,
-              max: 100,
-              divisions: 20,
-              label: '${_representativePercent.round()}',
-              onChanged: (value) => _updateDouble(
-                () => _representativePercent = value,
-              ),
-              onChangeEnd: (value) => _persist(
-                SettingBoxKey.mergeDanmakuRepresentativePercent,
-                value.round(),
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('识别谐音弹幕'),
-            subtitle: const Text('将文本转换为拼音后再进行一次相似匹配'),
-            trailing: CouiSwitch(
-              value: _usePinyin,
-              onChanged: (value) => _updateBool(
-                () => _usePinyin = value,
-                SettingBoxKey.mergeDanmakuUsePinyin,
-                value,
-              ),
-            ),
-            onTap: () => _updateBool(
-              () => _usePinyin = !_usePinyin,
-              SettingBoxKey.mergeDanmakuUsePinyin,
-              !_usePinyin,
-            ),
+            ],
           ),
         ],
       ),

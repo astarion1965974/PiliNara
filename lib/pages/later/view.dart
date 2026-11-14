@@ -1,7 +1,7 @@
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/gesture/horizontal_drag_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -232,13 +232,83 @@ class _LaterPageState extends State<LaterPage>
             key: _sortKey,
             builder: (context) {
               final value = currCtr().asc.value;
-              return StaticPopupMenuButton(
-                initialValue: value,
-                tooltip: '排序',
-                onSelected: (value) => currCtr()
-                  ..asc.value = value
-                  ..onReload(),
+              return Tooltip(
+                message: '排序',
+                child: InkWell(
+                  borderRadius: Coui.cardRadius,
+                  onTap: () async {
+                    final selected = await showCouiMenu<bool>(
+                      context: context,
+                      items: [
+                        CouiMenuItem<bool>(
+                          label: '最近添加',
+                          value: false,
+                          selected: !value,
+                        ),
+                        CouiMenuItem<bool>(
+                          label: '最早添加',
+                          value: true,
+                          selected: value,
+                        ),
+                      ],
+                    );
+                    if (selected != null) {
+                      currCtr()
+                        ..asc.value = selected
+                        ..onReload();
+                    }
+                  },
+                  child: Padding(
+                    padding: const .symmetric(horizontal: 12, vertical: 6),
+                    child: Text.rich(
+                      style: TextStyle(fontSize: 14, height: 1, color: color),
+                      strutStyle: const StrutStyle(
+                        leading: 0,
+                        height: 1,
+                        fontSize: 14,
+                      ),
+                      TextSpan(
+                        children: [
+                          TextSpan(text: value ? '最早添加' : '最近添加'),
+                          WidgetSpan(
+                            alignment: .middle,
+                            child: Icon(
+                              size: 14,
+                              MdiIcons.unfoldMoreHorizontal,
+                              color: color,
+                            ),
+                          ),
+                        ],
+                        style: TextStyle(color: color),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          Builder(
+            builder: (menuContext) => Tooltip(
+              message: '清空',
+              child: InkWell(
                 borderRadius: Coui.cardRadius,
+                onTap: () => showCouiMenu(
+                  context: menuContext,
+                  items: [
+                    CouiMenuItem(
+                      label: '清空失效',
+                      onTap: () => currCtr().toViewClear(context, 1),
+                    ),
+                    CouiMenuItem(
+                      label: '清空看完',
+                      onTap: () => currCtr().toViewClear(context, 2),
+                    ),
+                    CouiMenuItem(
+                      label: '清空全部',
+                      onTap: () => currCtr().toViewClear(context),
+                    ),
+                  ],
+                ),
                 child: Padding(
                   padding: const .symmetric(horizontal: 12, vertical: 6),
                   child: Text.rich(
@@ -250,7 +320,7 @@ class _LaterPageState extends State<LaterPage>
                     ),
                     TextSpan(
                       children: [
-                        TextSpan(text: value ? '最早添加' : '最近添加'),
+                        const TextSpan(text: '清空'),
                         WidgetSpan(
                           alignment: .middle,
                           child: Icon(
@@ -264,61 +334,8 @@ class _LaterPageState extends State<LaterPage>
                     ),
                   ),
                 ),
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
-                    value: false,
-                    child: Text('最近添加'),
-                  ),
-                  const PopupMenuItem(
-                    value: true,
-                    child: Text('最早添加'),
-                  ),
-                ],
-              );
-            },
-          ),
-          StaticPopupMenuButton(
-            tooltip: '清空',
-            borderRadius: Coui.cardRadius,
-            child: Padding(
-              padding: const .symmetric(horizontal: 12, vertical: 6),
-              child: Text.rich(
-                style: TextStyle(fontSize: 14, height: 1, color: color),
-                strutStyle: const StrutStyle(
-                  leading: 0,
-                  height: 1,
-                  fontSize: 14,
-                ),
-                TextSpan(
-                  children: [
-                    const TextSpan(text: '清空'),
-                    WidgetSpan(
-                      alignment: .middle,
-                      child: Icon(
-                        size: 14,
-                        MdiIcons.unfoldMoreHorizontal,
-                        color: color,
-                      ),
-                    ),
-                  ],
-                  style: TextStyle(color: color),
-                ),
               ),
             ),
-            itemBuilder: (_) => [
-              PopupMenuItem(
-                onTap: () => currCtr().toViewClear(context, 1),
-                child: const Text('清空失效'),
-              ),
-              PopupMenuItem(
-                onTap: () => currCtr().toViewClear(context, 2),
-                child: const Text('清空看完'),
-              ),
-              PopupMenuItem(
-                onTap: () => currCtr().toViewClear(context),
-                child: const Text('清空全部'),
-              ),
-            ],
           ),
           const SizedBox(width: 8),
         ],

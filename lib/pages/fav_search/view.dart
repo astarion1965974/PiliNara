@@ -1,4 +1,4 @@
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/models/common/fav_order_type.dart';
 import 'package:PiliPlus/models_new/fav/fav_detail/data.dart';
 import 'package:PiliPlus/models_new/fav/fav_detail/media.dart';
@@ -65,22 +65,31 @@ class _FavSearchPageState
   List<Widget>? get extraActions => [
     Obx(
       () {
-        return StaticPopupMenuButton<FavOrderType>(
-          icon: const Icon(Icons.sort),
-          requestFocus: false,
-          initialValue: controller.order.value,
-          tooltip: '排序方式',
-          onSelected: (value) => controller
-            ..order.value = value
-            ..onReload(),
-          itemBuilder: (context) => FavOrderType.values
-              .map(
-                (e) => PopupMenuItem(
-                  value: e,
-                  child: Text(e.label),
-                ),
-              )
-              .toList(),
+        final currentOrder = controller.order.value;
+        return Builder(
+          builder: (menuContext) => IconButton(
+            icon: const Icon(Icons.sort),
+            tooltip: '排序方式',
+            onPressed: () async {
+              final value = await showCouiMenu<FavOrderType>(
+                context: menuContext,
+                items: FavOrderType.values
+                    .map(
+                      (e) => CouiMenuItem<FavOrderType>(
+                        label: e.label,
+                        value: e,
+                        selected: e == currentOrder,
+                      ),
+                    )
+                    .toList(),
+              );
+              if (value != null) {
+                controller
+                  ..order.value = value
+                  ..onReload();
+              }
+            },
+          ),
         );
       },
     ),

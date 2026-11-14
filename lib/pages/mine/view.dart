@@ -96,7 +96,7 @@ class _MediaPageState extends CommonPageState<MinePage>
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                       child: DecoratedBox(
                         decoration: Coui.cardDecoration(
                           theme.colorScheme,
@@ -287,7 +287,7 @@ class _MediaPageState extends CommonPageState<MinePage>
             child: Row(
               mainAxisSize: .min,
               children: [
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 userInfo.face != null
                     ? Stack(
                         clipBehavior: .none,
@@ -394,7 +394,7 @@ class _MediaPageState extends CommonPageState<MinePage>
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
               ],
             ),
           ),
@@ -547,7 +547,7 @@ class _MediaPageState extends CommonPageState<MinePage>
             itemCount: response.length,
             controller: tabCtr.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const .only(left: 20, top: 10, right: 20),
+            padding: const .only(left: 16, top: 10, right: 16),
             itemBuilder: (context, index) {
               if (index == response.length - 1) {
                 tabCtr.onLoadMore();
@@ -568,7 +568,7 @@ class _MediaPageState extends CommonPageState<MinePage>
     final coui = CouiThemeData.of(context);
     final accent = coui.accent;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: DecoratedBox(
         decoration: Coui.cardDecoration(theme.colorScheme, coui: coui),
         child: ClipRRect(
