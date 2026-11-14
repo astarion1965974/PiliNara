@@ -5,7 +5,7 @@ import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/pendant_avatar.dart';
 import 'package:PiliPlus/grpc/bilibili/app/im/v1.pb.dart'
     show Session, SessionId, SessionPageType;
@@ -16,7 +16,6 @@ import 'package:PiliPlus/pages/whisper_secondary/view.dart';
 import 'package:PiliPlus/utils/date_utils.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -128,26 +127,23 @@ class WhisperSessionItem extends StatelessWidget {
         ),
       ),
       onSecondaryTapUp: PlatformUtils.isDesktop
-          ? (details) => showMenu(
+          ? (details) => showCouiMenu<void>(
               context: context,
-              position: PageUtils.menuPosition(details.globalPosition),
-              clipBehavior: Clip.antiAlias,
-              items: <PopupMenuEntry<void>>[
-                CustomPopupMenuItem<void>(
-                  height: 42,
+              offset: details.globalPosition,
+              items: [
+                CouiMenuItem<void>(
+                  label: item.isPinned ? '移除置顶' : '置顶',
                   onTap: () => onSetTop(item.isPinned, item.id),
-                  child: Text(item.isPinned ? '移除置顶' : '置顶'),
                 ),
                 if (item.id.privateId.hasTalkerUid()) ...[
                   if (kDebugMode || item.hasUnread())
-                    CustomPopupMenuItem<void>(
-                      height: 42,
+                    CouiMenuItem<void>(
+                      label: '标为已读',
                       onTap: () => _updateAck(context),
-                      child: const Text('标为已读'),
                     ),
                   // if (kDebugMode)
-                  //   CustomPopupMenuItem<void>(
-                  //     height: 42,
+                  //   CouiMenuItem<void>(
+                  //     label: '标为未读',
                   //     onTap: () {
                   //       item.unread = Unread(
                   //         style: .UNREAD_STYLE_NUMBER,
@@ -155,26 +151,21 @@ class WhisperSessionItem extends StatelessWidget {
                   //       );
                   //       (context as Element).markNeedsBuild();
                   //     },
-                  //     child: const Text('标为未读'),
                   //   ),
-                  CustomPopupMenuItem<void>(
-                    height: 42,
+                  CouiMenuItem<void>(
+                    label: '${item.isMuted ? '关闭' : '开启'}免打扰',
                     onTap: () =>
                         onSetMute(item.isMuted, item.id.privateId.talkerUid),
-                    child: Text('${item.isMuted ? '关闭' : '开启'}免打扰'),
                   ),
-                  const PopupMenuDivider(height: 10),
-                  CustomPopupMenuItem<void>(
-                    height: 42,
+                  const CouiMenuDivider<void>(),
+                  CouiMenuItem<void>(
+                    label: '删除',
+                    isDestructive: true,
                     onTap: () => showConfirmDialog(
                       context: context,
                       title: const Text('确定删除该对话？'),
                       onConfirm: () =>
                           onRemove(item.id.privateId.talkerUid.toInt()),
-                    ),
-                    child: Text(
-                      '删除',
-                      style: TextStyle(color: theme.colorScheme.error),
                     ),
                   ),
                 ],

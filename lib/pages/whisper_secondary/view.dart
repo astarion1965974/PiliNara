@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/skeleton/whisper_item.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -47,26 +47,26 @@ class _WhisperSecPageState extends State<WhisperSecPage> {
           Obx(() {
             final threeDotItems = _controller.threeDotItems.value;
             if (threeDotItems != null && threeDotItems.isNotEmpty) {
-              return StaticPopupMenuButton(
-                itemBuilder: (context) {
-                  return threeDotItems
-                      .map(
-                        (e) => PopupMenuItem(
-                          onTap: () => e.type.action(
-                            context: context,
-                            controller: _controller,
-                            item: e,
+              return Builder(
+                builder: (menuContext) => IconButton(
+                  icon: const Icon(Icons.more_vert),
+                  onPressed: () => showCouiMenu(
+                    context: menuContext,
+                    items: threeDotItems
+                        .map(
+                          (e) => CouiMenuItem(
+                            label: e.title ?? '',
+                            leading: e.type.icon,
+                            onTap: () => e.type.action(
+                              context: context,
+                              controller: _controller,
+                              item: e,
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              e.type.icon,
-                              Text('  ${e.title}'),
-                            ],
-                          ),
-                        ),
-                      )
-                      .toList();
-                },
+                        )
+                        .toList(),
+                  ),
+                ),
               );
             }
             return const SizedBox.shrink();

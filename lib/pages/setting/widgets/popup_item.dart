@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/models/common/enum_with_label.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
@@ -69,46 +70,43 @@ class _PopupListTileState<T> extends State<PopupListTile<T>> {
       final titleOffset = titleBox.localToGlobal(.zero, ancestor: thisBox);
       dx = thisOffset.dx + titleOffset.dx;
     }
-    final items = widget.itemBuilder(context).map((item) {
+    String extractLabel(Widget? child) {
+      if (child is Text) {
+        return child.data ?? child.textSpan?.toPlainText() ?? '';
+      }
+      return '';
+    }
+
+    final couiItems = <CouiMenuEntry<T>>[];
+    for (final item in widget.itemBuilder(context)) {
       if (item is CustomPopupMenuItem<T>) {
-        return CustomPopupMenuItem<T>(
-          value: item.value,
-          height: item.height,
-          selected: item.represents(value),
-          enabled: item.enabled,
-          padding: item.padding,
-          labelTextStyle: item.labelTextStyle,
-          textStyle: item.textStyle,
-          mouseCursor: item.mouseCursor,
-          onTap: item.onTap,
-          borderRadius: item.borderRadius,
-          outerPadding: item.outerPadding,
-          stateLayerColor: item.stateLayerColor,
-          child: item.child,
+        couiItems.add(
+          CouiMenuItem<T>(
+            label: extractLabel(item.child),
+            value: item.value,
+            selected: item.represents(value),
+            enabled: item.enabled,
+            onTap: item.onTap,
+          ),
         );
-      }
-      if (item is material.PopupMenuItem<T>) {
-        return CustomPopupMenuItem<T>(
-          value: item.value,
-          height: item.height,
-          selected: item.represents(value),
-          enabled: item.enabled,
-          padding: item.padding,
-          labelTextStyle: item.labelTextStyle,
-          textStyle: item.textStyle,
-          mouseCursor: item.mouseCursor,
-          onTap: item.onTap,
-          child: item.child,
+      } else if (item is material.PopupMenuItem<T>) {
+        couiItems.add(
+          CouiMenuItem<T>(
+            label: extractLabel(item.child),
+            value: item.value,
+            selected: item.represents(value),
+            enabled: item.enabled,
+            onTap: item.onTap,
+          ),
         );
+      } else if (item is PopupMenuDivider || item is CustomPopupMenuDivider) {
+        couiItems.add(CouiMenuDivider<T>());
       }
-      return item;
-    }).toList();
-    showMenu<T?>(
+    }
+    showCouiMenu<T>(
       context: menuContext,
-      position: RelativeRect.fromLTRB(dx, thisOffset.dy + 5, dx, 0),
-      items: items,
-      initialValue: value,
-      requestFocus: false,
+      offset: Offset(dx, thisOffset.dy + 5),
+      items: couiItems,
     ).then<void>((newValue) {
       if (!mounted) return;
       if (newValue == null || newValue == value) return;

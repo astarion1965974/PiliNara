@@ -195,6 +195,7 @@ class _HistoryPageState extends State<HistoryPage>
               ),
               CouiMenuItem(
                 label: '清空观看记录',
+                isDestructive: true,
                 onTap: () => _historyController.baseCtr.onClearHistory(
                   context,
                   () {
@@ -215,6 +216,7 @@ class _HistoryPageState extends State<HistoryPage>
               ),
               CouiMenuItem(
                 label: '删除已看记录',
+                isDestructive: true,
                 onTap: currCtr().onDelViewedHistory,
               ),
             ],

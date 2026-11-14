@@ -1,12 +1,11 @@
-import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/num_utils.dart';
-import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
 
-class YoutubeCommentSort extends StatefulWidget {
+class YoutubeCommentSort extends StatelessWidget {
   const YoutubeCommentSort({
     super.key,
     required this.selected,
@@ -19,55 +18,12 @@ class YoutubeCommentSort extends StatefulWidget {
   final int? totalCount;
 
   @override
-  State<YoutubeCommentSort> createState() => _YoutubeCommentSortState();
-}
-
-class _YoutubeCommentSortState extends State<YoutubeCommentSort>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _slideController;
-
-  double _targetFor(ReplySortType type) =>
-      type == ReplySortType.time ? 1.0 : 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _slideController = AnimationController.unbounded(
-      vsync: this,
-      value: _targetFor(widget.selected),
-    );
-  }
-
-  @override
-  void didUpdateWidget(covariant YoutubeCommentSort oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.selected != widget.selected &&
-        widget.selected != ReplySortType.select) {
-      _slideController.animateWith(
-        SpringSimulation(
-          CouiMotion.switchToggleSpring,
-          _slideController.value,
-          _targetFor(widget.selected),
-          0.0,
-          tolerance: CouiMotion.springTolerance,
-        ),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _slideController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    final count = widget.totalCount;
+    final count = totalCount;
 
     Widget rightControl;
-    if (widget.selected == ReplySortType.select) {
+    if (selected == ReplySortType.select) {
       rightControl = Container(
         height: 28,
         padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -89,88 +45,54 @@ class _YoutubeCommentSortState extends State<YoutubeCommentSort>
         ),
       );
     } else {
-      Widget segment(ReplySortType type, String label) {
-        final active = widget.selected == type;
-        return Expanded(
-          child: Semantics(
-            selected: active,
-            button: true,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => widget.onSelect(type),
-              child: Container(
-                height: 25,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                alignment: Alignment.center,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-                    color: active
-                        ? VideoDetailChrome.accent(scheme)
-                        : scheme.onSurfaceVariant,
+      final currentLabel = selected == ReplySortType.time ? '最新' : '最热门';
+      rightControl = Builder(
+        builder: (menuContext) => Semantics(
+          button: true,
+          child: InkWell(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            onTap: () async {
+              final next = await showCouiMenu<ReplySortType>(
+                context: menuContext,
+                items: [
+                  CouiMenuItem<ReplySortType>(
+                    label: '最热门',
+                    value: ReplySortType.hot,
+                    selected: selected == ReplySortType.hot,
                   ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
-
-      rightControl = Container(
-        height: 30,
-        padding: const EdgeInsets.all(2.5),
-        decoration: BoxDecoration(
-          color: VideoDetailChrome.inactivePill(scheme),
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          border: Border.all(
-            color: VideoDetailChrome.pillBorder(scheme, active: false),
-          ),
-        ),
-        child: IntrinsicWidth(
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: AnimatedBuilder(
-                  animation: _slideController,
-                  builder: (context, child) {
-                    final t = _slideController.value.clamp(0.0, 1.0);
-                    return Align(
-                      alignment: Alignment(t * 2.0 - 1.0, 0.0),
-                      child: child,
-                    );
-                  },
-                  child: FractionallySizedBox(
-                    widthFactor: 0.5,
-                    heightFactor: 1.0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: VideoDetailChrome.pill(scheme),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(12.5),
-                        ),
-                        border: Border.all(
-                          color: VideoDetailChrome.pillBorder(
-                            scheme,
-                            active: true,
-                          ),
-                        ),
-                      ),
-                    ),
+                  CouiMenuItem<ReplySortType>(
+                    label: '最新',
+                    value: ReplySortType.time,
+                    selected: selected == ReplySortType.time,
                   ),
-                ),
-              ),
-              Row(
+                ],
+              );
+              if (next != null) {
+                onSelect(next);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  segment(ReplySortType.hot, '最热门'),
-                  segment(ReplySortType.time, '最新'),
+                  Text(
+                    currentLabel,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: scheme.onSurfaceVariant,
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       );
@@ -262,32 +184,4 @@ class YoutubeCommentComposer extends StatelessWidget {
       ),
     );
   }
-}
-
-class YoutubeReplyThreadPainter extends CustomPainter {
-  const YoutubeReplyThreadPainter(this.color);
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.height <= 55) return;
-    final end = size.height - 21;
-    final path = Path()
-      ..moveTo(17, 38)
-      ..lineTo(17, end - 9)
-      ..quadraticBezierTo(17, end, 27, end)
-      ..lineTo(34, end);
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2
-        ..strokeCap = StrokeCap.round,
-    );
-  }
-
-  @override
-  bool shouldRepaint(YoutubeReplyThreadPainter oldDelegate) =>
-      color != oldDelegate.color;
 }
