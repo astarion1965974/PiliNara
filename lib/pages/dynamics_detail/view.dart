@@ -649,8 +649,10 @@ class _DynamicDetailPageState extends CommonDynPageMultiState<DynamicDetailPage>
       child: Obx(
         () {
           final sortType = controller.sortType.value;
+          final count = controller.count.value;
           return YoutubeCommentSort(
             selected: sortType,
+            totalCount: count,
             onSelect: (type) {
               if (sortType != type && sortType != ReplySortType.select) {
                 controller.queryBySort();

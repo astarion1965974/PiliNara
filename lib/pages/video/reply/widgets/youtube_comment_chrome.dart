@@ -216,7 +216,7 @@ class YoutubeCommentComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    const capsuleRadius = BorderRadius.all(Radius.circular(22));
+    const capsuleRadius = BorderRadius.all(Radius.circular(28));
     return Padding(
       padding: EdgeInsets.fromLTRB(
         VideoDetailChrome.horizontalInset,
@@ -234,7 +234,7 @@ class YoutubeCommentComposer extends StatelessWidget {
             onTap: onTap,
             borderRadius: capsuleRadius,
             child: SizedBox(
-              height: 44,
+              height: 56,
               width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

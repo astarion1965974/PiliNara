@@ -56,7 +56,7 @@ void main() {
     expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     await tester.tap(find.text('写评论…'));
     expect(taps, 1);
-    // 8 (top) + 44 (capsule) + 8 (bottom) + 24 (bottomPadding) = 84
-    expect(tester.getSize(find.byType(YoutubeCommentComposer)).height, 84);
+    // 8 (top) + 56 (capsule) + 8 (bottom) + 24 (bottomPadding) = 96
+    expect(tester.getSize(find.byType(YoutubeCommentComposer)).height, 96);
   });
 }

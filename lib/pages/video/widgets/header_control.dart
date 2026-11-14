@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'dart:async' show StreamSubscription, Timer;
 import 'dart:convert' show jsonDecode, utf8;
 import 'dart:io' show Platform, File;
@@ -1327,22 +1328,26 @@ class HeaderControlState extends State<HeaderControl>
               const Expanded(child: Text('保存字幕')),
               const Text('格式: ', style: TextStyle(fontSize: 14)),
               Builder(
-                builder: (context) => PopupMenuButton<SubtitleFormat>(
-                  tooltip: '',
-                  initialValue: format,
-                  onSelected: (value) {
-                    format = value;
-                    (context as Element).markNeedsBuild();
+                builder: (context) => GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () async {
+                    final value = await showCouiMenu<SubtitleFormat>(
+                      context: context,
+                      items: SubtitleFormat.values
+                          .map(
+                            (e) => CouiMenuItem<SubtitleFormat>(
+                              label: e.label,
+                              value: e,
+                              selected: e == format,
+                            ),
+                          )
+                          .toList(),
+                    );
+                    if (value != null && context.mounted) {
+                      format = value;
+                      (context as Element).markNeedsBuild();
+                    }
                   },
-                  itemBuilder: (_) => SubtitleFormat.values
-                      .map(
-                        (e) => PopupMenuItem(
-                          value: e,
-                          height: 35,
-                          child: Text(e.label),
-                        ),
-                      )
-                      .toList(),
                   child: Padding(
                     padding: const .symmetric(horizontal: 2, vertical: 5),
                     child: Text.rich(

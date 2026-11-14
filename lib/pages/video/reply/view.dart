@@ -160,7 +160,7 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
               Obx(() => _buildBody(controller.loadingState.value)),
               if (widget.isNested)
                 SliverToBoxAdapter(
-                  child: SizedBox(height: 68 + padding.bottom),
+                  child: SizedBox(height: 80 + padding.bottom),
                 ),
             ],
           ),

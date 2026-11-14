@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -212,101 +212,112 @@ class _FavDetailPageState extends State<FavDetailPage>
       pageOrderBtn,
       Obx(
         () {
-          return StaticPopupMenuButton<FavOrderType>(
-            icon: const Icon(Icons.sort),
-            initialValue: controller.order.value,
-            tooltip: '排序方式',
-            onSelected: (value) => controller
-              ..order.value = value
-              ..onReload(),
-            itemBuilder: (context) => FavOrderType.values
-                .map(
-                  (e) => PopupMenuItem(
-                    value: e,
-                    child: Text(e.label),
-                  ),
-                )
-                .toList(),
+          final currentOrder = controller.order.value;
+          return Builder(
+            builder: (menuContext) => IconButton(
+              icon: const Icon(Icons.sort),
+              tooltip: '排序方式',
+              onPressed: () async {
+                final value = await showCouiMenu<FavOrderType>(
+                  context: menuContext,
+                  items: FavOrderType.values
+                      .map(
+                        (e) => CouiMenuItem<FavOrderType>(
+                          label: e.label,
+                          value: e,
+                          selected: e == currentOrder,
+                        ),
+                      )
+                      .toList(),
+                );
+                if (value != null) {
+                  controller
+                    ..order.value = value
+                    ..onReload();
+                }
+              },
+            ),
           );
         },
       ),
       if (controller.account.isLogin)
-        StaticPopupMenuButton(
-          icon: const Icon(Icons.more_vert),
-          itemBuilder: (context) {
-            final isOwner = controller.isOwner;
-            final folderInfo = controller.folderInfo.value;
-            return [
-              if (isOwner) ...[
-                PopupMenuItem(
-                  onTap: controller.onSort,
-                  child: const Text('排序'),
-                ),
-                PopupMenuItem(
-                  onTap: () =>
-                      Get.toNamed(
-                        '/createFav',
-                        parameters: {'mediaId': mediaId},
-                      )?.then((res) {
-                        if (res is FavFolderInfo) {
-                          controller.folderInfo.value = res;
-                        }
-                      }),
-                  child: const Text('编辑信息'),
-                ),
-              ] else
-                PopupMenuItem(
-                  onTap: () => controller.onFav(folderInfo.favState == 1),
-                  child: Text('${folderInfo.favState == 1 ? '取消' : ''}收藏'),
-                ),
-              if (BiliUtils.isPublicFav(folderInfo.attr))
-                PopupMenuItem(
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    useSafeArea: true,
-                    builder: (context) => RepostPanel(
-                      rid: controller.mediaId,
-                      dynType: 4300,
-                      pic: folderInfo.cover,
-                      title: folderInfo.title,
-                      uname: folderInfo.upper?.name,
+        Builder(
+          builder: (menuContext) => IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {
+              final isOwner = controller.isOwner;
+              final folderInfo = controller.folderInfo.value;
+              showCouiMenu(
+                context: menuContext,
+                items: [
+                  if (isOwner) ...[
+                    CouiMenuItem(
+                      label: '排序',
+                      onTap: controller.onSort,
                     ),
-                  ),
-                  child: const Text('分享至动态'),
-                ),
-              if (isOwner) ...<PopupMenuEntry>[
-                PopupMenuItem(
-                  onTap: controller.cleanFav,
-                  child: const Text('清除失效内容'),
-                ),
-                if (!BiliUtils.isDefaultFav(folderInfo.attr)) ...[
-                  const PopupMenuDivider(height: 12),
-                  PopupMenuItem(
-                    onTap: () => showConfirmDialog(
-                      context: context,
-                      title: const Text('确定删除该收藏夹?'),
-                      onConfirm: () =>
-                          FavHttp.deleteFolder(mediaIds: mediaId).then((res) {
-                            if (res.isSuccess) {
-                              SmartDialog.showToast('删除成功');
-                              Get.back(result: true);
-                            } else {
-                              res.toast();
+                    CouiMenuItem(
+                      label: '编辑信息',
+                      onTap: () =>
+                          Get.toNamed(
+                            '/createFav',
+                            parameters: {'mediaId': mediaId},
+                          )?.then((res) {
+                            if (res is FavFolderInfo) {
+                              controller.folderInfo.value = res;
                             }
                           }),
                     ),
-                    child: Text(
-                      '删除',
-                      style: TextStyle(
-                        color: theme.colorScheme.error,
+                  ] else
+                    CouiMenuItem(
+                      label: '${folderInfo.favState == 1 ? '取消' : ''}收藏',
+                      onTap: () => controller.onFav(folderInfo.favState == 1),
+                    ),
+                  if (BiliUtils.isPublicFav(folderInfo.attr))
+                    CouiMenuItem(
+                      label: '分享至动态',
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        useSafeArea: true,
+                        builder: (context) => RepostPanel(
+                          rid: controller.mediaId,
+                          dynType: 4300,
+                          pic: folderInfo.cover,
+                          title: folderInfo.title,
+                          uname: folderInfo.upper?.name,
+                        ),
                       ),
                     ),
-                  ),
+                  if (isOwner) ...[
+                    CouiMenuItem(
+                      label: '清除失效内容',
+                      onTap: controller.cleanFav,
+                    ),
+                    if (!BiliUtils.isDefaultFav(folderInfo.attr)) ...[
+                      const CouiMenuDivider(),
+                      CouiMenuItem(
+                        label: '删除',
+                        isDestructive: true,
+                        onTap: () => showConfirmDialog(
+                          context: context,
+                          title: const Text('确定删除该收藏夹?'),
+                          onConfirm: () =>
+                              FavHttp.deleteFolder(mediaIds: mediaId).then((res) {
+                                if (res.isSuccess) {
+                                  SmartDialog.showToast('删除成功');
+                                  Get.back(result: true);
+                                } else {
+                                  res.toast();
+                                }
+                              }),
+                        ),
+                      ),
+                    ],
+                  ],
                 ],
-              ],
-            ];
-          },
+              );
+            },
+          ),
         ),
       const SizedBox(width: 10),
     ];

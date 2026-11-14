@@ -220,43 +220,57 @@ class ReplyItemGrpc extends StatelessWidget {
         Expanded(
           child: GestureDetector(
             onTap: openMember,
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  child: Text(
-                    remarkedName(member.mid.toInt(), member.name),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w600,
-                      color: member.vipStatus > 0 && member.vipType == 2
-                          ? scheme.vipColor
-                          : scheme.onSurface,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        remarkedName(member.mid.toInt(), member.name),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: member.vipStatus > 0 && member.vipType == 2
+                              ? scheme.vipColor
+                              : scheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                BiliUtils.levelPicture(
-                  member.level.toInt(),
-                  isSeniorMember: member.isSeniorMember == 1,
-                  height: 11,
-                ),
-                if (replyItem.mid == upMid) ...[
-                  const SizedBox(width: 4),
-                  const PBadge(text: 'UP', size: .small, isStack: false, fontSize: 9),
-                ] else if (GlobalData().showMedal && member.hasFansMedalLevel()) ...[
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: MedalWidget(
-                      medalName: member.fansMedalName,
-                      level: member.fansMedalLevel.toInt(),
-                      backgroundColor: DmUtils.decimalToColor(member.fansMedalColor.toInt()),
-                      nameColor: DmUtils.decimalToColor(member.fansMedalColorName.toInt()),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    const SizedBox(width: 5),
+                    BiliUtils.levelPicture(
+                      member.level.toInt(),
+                      isSeniorMember: member.isSeniorMember == 1,
+                      height: 11,
                     ),
-                  ),
-                ],
+                    if (replyItem.mid == upMid) ...[
+                      const SizedBox(width: 4),
+                      const PBadge(text: 'UP', size: .small, isStack: false, fontSize: 9),
+                    ] else if (GlobalData().showMedal && member.hasFansMedalLevel()) ...[
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: MedalWidget(
+                          medalName: member.fansMedalName,
+                          level: member.fansMedalLevel.toInt(),
+                          backgroundColor: DmUtils.decimalToColor(member.fansMedalColor.toInt()),
+                          nameColor: DmUtils.decimalToColor(member.fansMedalColorName.toInt()),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
+                  '${_locationSuffix(replyItem.replyControl)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10.5, color: scheme.outline),
+                ),
               ],
             ),
           ),
@@ -598,56 +612,36 @@ class ReplyItemGrpc extends StatelessWidget {
 
   Widget _youtubeBottomRow(ColorScheme scheme) {
     final hasReplies = replyLevel == 1 && replyItem.count > Int64.ZERO;
-    final timeLocation =
-        '${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
-        '${_locationSuffix(replyItem.replyControl)}';
+    if (!hasReplies) {
+      return const SizedBox.shrink();
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 45, right: 6, top: 2, bottom: 4),
-      child: Row(
-        children: [
-          if (hasReplies) _youtubeReplyLink(scheme),
-          const Spacer(),
-          Text(
-            timeLocation,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 11.5, color: scheme.outline),
-          ),
-        ],
-      ),
+      child: _youtubeReplyLink(scheme),
     );
   }
 
   Widget _youtubeReplyLink(ColorScheme scheme) {
     final accent = VideoDetailChrome.accent(scheme);
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: () => replyReply?.call(replyItem, null),
-        borderRadius: const BorderRadius.all(Radius.circular(14)),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: VideoDetailChrome.pill(scheme),
-            borderRadius: const BorderRadius.all(Radius.circular(14)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '共 ${replyItem.count} 条回复',
-                  style: TextStyle(
-                    color: accent,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12.5,
-                  ),
-                ),
-                const SizedBox(width: 2),
-                Icon(Icons.chevron_right, size: 15, color: accent),
-              ],
+    return InkWell(
+      onTap: () => replyReply?.call(replyItem, null),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '共 ${replyItem.count} 条回复',
+              style: TextStyle(
+                color: accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
+              ),
             ),
-          ),
+            const SizedBox(width: 2),
+            Icon(Icons.chevron_right, size: 15, color: accent),
+          ],
         ),
       ),
     );

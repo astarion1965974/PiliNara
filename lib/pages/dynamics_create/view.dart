@@ -6,7 +6,7 @@ import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/button/toolbar_icon_button.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/draggable_sheet/dyn.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/text_field/controller.dart';
 import 'package:PiliPlus/common/widgets/flutter/text_field/text_field.dart';
 import 'package:PiliPlus/common/widgets/pair.dart';
@@ -380,29 +380,32 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
     final color = _isPrivate.value
         ? theme.colorScheme.error
         : theme.colorScheme.secondary;
-    return StaticPopupMenuButton<bool>(
-      requestFocus: false,
-      initialValue: _isPrivate.value,
-      onSelected: _isPrivate.call,
-      itemBuilder: (context) => List.generate(
-        2,
-        (index) => PopupMenuItem<bool>(
-          enabled: _publishTime.value != null && index == 1 ? false : true,
-          value: index == 0 ? false : true,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                size: 19,
-                index == 0 ? Icons.visibility : Icons.visibility_off,
-              ),
-              const SizedBox(width: 4),
-              Text(index == 0 ? '所有人可见' : '仅自己可见'),
-            ],
-          ),
-        ),
-      ),
-      child: Padding(
+    return Builder(
+      builder: (menuContext) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () async {
+          final current = _isPrivate.value;
+          final selected = await showCouiMenu<bool>(
+            context: menuContext,
+            items: List.generate(
+              2,
+              (index) {
+                final val = index == 1;
+                return CouiMenuItem<bool>(
+                  label: index == 0 ? '所有人可见' : '仅自己可见',
+                  icon: index == 0 ? Icons.visibility : Icons.visibility_off,
+                  value: val,
+                  enabled: _publishTime.value != null && index == 1 ? false : true,
+                  selected: val == current,
+                );
+              },
+            ),
+          );
+          if (selected != null) {
+            _isPrivate.call(selected);
+          }
+        },
+        child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -429,6 +432,7 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -436,29 +440,29 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
     final color = _replyOption.value == ReplyOptionType.close
         ? theme.colorScheme.error
         : theme.colorScheme.secondary;
-    return StaticPopupMenuButton<ReplyOptionType>(
-      requestFocus: false,
-      initialValue: _replyOption.value,
-      onSelected: (item) => _replyOption.value = item,
-      itemBuilder: (context) => ReplyOptionType.values
-          .map(
-            (item) => PopupMenuItem<ReplyOptionType>(
-              value: item,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    size: 19,
-                    item.iconData,
+    return Builder(
+      builder: (menuContext) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () async {
+          final current = _replyOption.value;
+          final selected = await showCouiMenu<ReplyOptionType>(
+            context: menuContext,
+            items: ReplyOptionType.values
+                .map(
+                  (item) => CouiMenuItem<ReplyOptionType>(
+                    label: item.title,
+                    icon: item.iconData,
+                    value: item,
+                    selected: item == current,
                   ),
-                  const SizedBox(width: 4),
-                  Text(item.title),
-                ],
-              ),
-            ),
-          )
-          .toList(),
-      child: Padding(
+                )
+                .toList(),
+          );
+          if (selected != null) {
+            _replyOption.value = selected;
+          }
+        },
+        child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -485,6 +489,7 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -726,7 +731,7 @@ class _CreateDynPanelState extends CommonRichTextPubPageState<CreateDynPanel> {
   @override
   Future<void> onCustomPublish({List? pictures}) async {
     SmartDialog.showLoading(msg: '正在发布');
-    List<Map<String, dynamic>>? extraContent = getRichContent();
+    final extraContent = getRichContent();
     final hasRichText = extraContent != null;
 
     if (_isEdit) {

@@ -3,7 +3,7 @@ import 'dart:math' show min;
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -140,17 +140,27 @@ class _AudioPageState extends State<AudioPage> {
             }),
           Builder(
             builder: (context) {
-              return StaticPopupMenuButton<ListOrder>(
+              return IconButton(
                 tooltip: '排序',
                 icon: const Icon(Icons.sort, size: 22),
-                initialValue: _controller.order,
-                onSelected: (value) {
-                  _controller.onChangeOrder(value);
-                  (context as Element).markNeedsBuild();
+                onPressed: () async {
+                  final value = await showCouiMenu<ListOrder>(
+                    context: context,
+                    items: ListOrder.values
+                        .map(
+                          (e) => CouiMenuItem<ListOrder>(
+                            label: e.title,
+                            value: e,
+                            selected: e == _controller.order,
+                          ),
+                        )
+                        .toList(),
+                  );
+                  if (value != null && context.mounted) {
+                    _controller.onChangeOrder(value);
+                    (context as Element).markNeedsBuild();
+                  }
                 },
-                itemBuilder: (context) => ListOrder.values
-                    .map((e) => PopupMenuItem(value: e, child: Text(e.title)))
-                    .toList(),
               );
             },
           ),

@@ -36,6 +36,29 @@ InputDecoration _filledDecoration(
 class AiSettingPage extends StatelessWidget {
   const AiSettingPage({super.key});
 
+
+  Widget _couiCard(
+    BuildContext context, {
+    Color? color,
+    required Widget child,
+  }) {
+    final coui = CouiThemeData.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color ?? coui.cardColor,
+        borderRadius: Coui.cardRadius,
+        border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+      ),
+      child: ClipRRect(
+        borderRadius: Coui.cardRadius,
+        child: Material(
+          type: MaterialType.transparency,
+          child: child,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(AiSettingController());
@@ -48,26 +71,30 @@ class AiSettingPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           // 总开关
-          Obx(() => ListTile(
-                title: const Text('启用 AI 视频助手'),
-                subtitle: const Text('关闭后视频详情页不再显示 AI 按钮'),
-                trailing: CouiSwitch(
-                  value: controller.enableAiChat.value,
-                  onChanged: (value) {
+          _couiCard(
+            context,
+            child: Obx(() => ListTile(
+                  title: const Text('启用 AI 视频助手'),
+                  subtitle: const Text('关闭后视频详情页不再显示 AI 按钮'),
+                  trailing: CouiSwitch(
+                    value: controller.enableAiChat.value,
+                    onChanged: (value) {
+                      controller.enableAiChat.value = value;
+                      Pref.enableAiChat = value;
+                    },
+                  ),
+                  onTap: () {
+                    final value = !controller.enableAiChat.value;
                     controller.enableAiChat.value = value;
                     Pref.enableAiChat = value;
                   },
-                ),
-                onTap: () {
-                  final value = !controller.enableAiChat.value;
-                  controller.enableAiChat.value = value;
-                  Pref.enableAiChat = value;
-                },
-              )),
+                )),
+          ),
           const SizedBox(height: 16),
 
           // API 配置
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -98,7 +125,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 模型配置
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -161,7 +189,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 模板管理
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -308,7 +337,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 交互与显示
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -336,7 +366,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Info card
-          Card(
+          _couiCard(
+            context,
             color: colorScheme.surfaceContainerHighest,
             child: Padding(
               padding: const EdgeInsets.all(16),

@@ -1,6 +1,5 @@
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
-import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/mini_scaffold.dart';
@@ -11,17 +10,18 @@ import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
     show ReplyInfo, MainListReply;
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/enum_with_label.dart';
+import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/article/widgets/sliver_list.dart';
 import 'package:PiliPlus/pages/common/dyn/common_dyn_controller.dart';
 import 'package:PiliPlus/pages/common/fab_mixin.dart';
 import 'package:PiliPlus/pages/common/reply/reply_footer_mixin.dart';
 import 'package:PiliPlus/pages/common/reply/vote/reply_vote_item.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/reply_item_grpc.dart';
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:PiliPlus/pages/video/reply_reply/view.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/extension/size_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
-import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:PiliPlus/utils/storage.dart';
 import 'package:PiliPlus/utils/storage_key.dart';
 import 'package:easy_debounce/easy_throttle.dart';
@@ -146,35 +146,23 @@ mixin CommonDynPageMixin<T extends StatefulWidget>
   }
 
   Widget buildReplyHeader() {
-    final secondary = theme.colorScheme.secondary;
     return SliverPinnedHeader(
       backgroundColor: theme.colorScheme.surface,
       child: Padding(
-        padding: const .fromLTRB(12, 2.5, 6, 2.5),
-        child: Row(
-          mainAxisAlignment: .spaceBetween,
-          children: [
-            Obx(
-              () {
-                final count = controller.count.value;
-                return Text(
-                  '${count == -1 ? 0 : NumUtils.numFormat(count)}条回复',
-                );
-              },
-            ),
-            TextButton.icon(
-              style: Style.buttonStyle,
-              onPressed: controller.queryBySort,
-              icon: Icon(Icons.sort, size: 16, color: secondary),
-              label: Obx(
-                () => Text(
-                  controller.sortType.value.descShort,
-                  style: TextStyle(fontSize: 13, color: secondary),
-                ),
-              ),
-            ),
-          ],
-        ),
+        padding: const .fromLTRB(12, 6, 12, 6),
+        child: Obx(() {
+          final sortType = controller.sortType.value;
+          final count = controller.count.value;
+          return YoutubeCommentSort(
+            selected: sortType,
+            totalCount: count,
+            onSelect: (type) {
+              if (sortType != type && sortType != ReplySortType.select) {
+                controller.queryBySort();
+              }
+            },
+          );
+        }),
       ),
     );
   }
@@ -256,6 +244,7 @@ mixin CommonDynPageMixin<T extends StatefulWidget>
         controller.oid,
         controller.replyType,
       ),
+      youtubeStyle: true,
     );
   }
 

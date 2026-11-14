@@ -1,4 +1,4 @@
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
@@ -150,21 +150,30 @@ class _MusicRecommendPageState extends State<MusicRecommendPage>
               onPressed: () => _controller.isSearchMode.value = true,
               icon: const Icon(Icons.search_outlined),
             ),
-            StaticPopupMenuButton<MusicRecommendOrderType>(
-              icon: const Icon(Icons.sort),
-              initialValue: _controller.order.value,
-              tooltip: '排序方式',
-              onSelected: (value) => _controller
-                ..order.value = value
-                ..applySortAndFilter(),
-              itemBuilder: (context) => MusicRecommendOrderType.values
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.label),
-                    ),
-                  )
-                  .toList(),
+            Builder(
+              builder: (menuContext) => IconButton(
+                tooltip: '排序方式',
+                icon: const Icon(Icons.sort),
+                onPressed: () async {
+                  final value = await showCouiMenu<MusicRecommendOrderType>(
+                    context: menuContext,
+                    items: MusicRecommendOrderType.values
+                        .map(
+                          (e) => CouiMenuItem<MusicRecommendOrderType>(
+                            label: e.label,
+                            value: e,
+                            selected: e == _controller.order.value,
+                          ),
+                        )
+                        .toList(),
+                  );
+                  if (value != null) {
+                    _controller
+                      ..order.value = value
+                      ..applySortAndFilter();
+                  }
+                },
+              ),
             ),
             const SizedBox(width: 10),
           ]
