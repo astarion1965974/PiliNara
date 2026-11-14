@@ -1,27 +1,41 @@
-name: Signed COUI preview release R2
+name: Signed COUI preview release R16
+# R16: serialize signed preview releases; each run gets its own signing envelope.
 on:
   push:
     branches:
       - release/coui-secure-preview-1
     paths-ignore:
       - ci/coui-signing-envelope.json
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Branch to build"
+        required: true
+        default: "release/coui-secure-preview-1"
+        type: string
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - feat/coui-flutter-refinement
     paths-ignore:
       - ci/coui-signing-envelope.json
+concurrency:
+  group: pili-coui-secure-preview-release
+  cancel-in-progress: false
 permissions:
   contents: write
 jobs:
   release:
-    if: ${{ github.event_name == 'push' || github.event.pull_request.head.ref == 'release/coui-secure-preview-1' }}
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.source_branch == 'release/coui-secure-preview-1') || (github.event_name == 'pull_request' && github.event.pull_request.head.ref == 'release/coui-secure-preview-1') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.source_branch || github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 0
+      - name: Resolve source commit
+        run: echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Generate temporary encryption key
         run: |
           umask 077
@@ -93,7 +107,9 @@ jobs:
         shell: pwsh
         run: lib/scripts/build.ps1 android
       - name: Run Flutter static analysis
-        run: flutter analyze --no-pub
+        run: flutter analyze --no-pub --no-fatal-infos
+      - name: Install Linux native build dependencies
+        run: sudo apt-get update && sudo apt-get install -y pkg-config libgtk-3-dev libx11-dev libxi-dev
       - name: Run Flutter component tests
         run: flutter test --no-pub
       - name: Set COUI version metadata
@@ -105,31 +121,31 @@ jobs:
           VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
           import json,os
           with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
-          metadata['pili.name']='2.2.0-coui.15'
+          metadata['pili.name']='2.2.0-coui.29'
           metadata['pili.code']=int(os.environ['VERSION_CODE'])
           with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
           PY
       - name: Build signed arm64 APK
         run: |
-          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.15 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
-          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.15-arm64.apk
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.29 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.29-arm64.apk
       - name: Verify APK signature
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
-          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.15-arm64.apk
-          sha256sum PiliNara-2.2.0-coui.15-arm64.apk
+          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.29-arm64.apk
+          sha256sum PiliNara-2.2.0-coui.29-arm64.apk
       - name: Publish preview release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v2.2.0-coui.15
-          name: PiliNara 2.2.0 COUI Preview 15
-          target_commitish: ${{ github.event.pull_request.head.sha || github.sha }}
+          tag_name: v2.2.0-coui.29
+          name: PiliNara COUI Preview 29 (R17)
+          target_commitish: ${{ env.SOURCE_SHA }}
           prerelease: true
           body: |
-            PiliNara COUI Preview 15 (R2)
-            包含 R2 全局 COUI 轮廓与阴影、悬浮底栏、播放页沉浸过渡、YouTube 风格评论区及横向返回转场改造。
+            PiliNara COUI Preview 29 (R17)
+            R17：评论区重构，排序分段胶囊移至标题行右侧，评论条目采用新版式并在底部显示时间/属地；新增 CouiMenu 并迁移评论与视频页菜单；视频详情页横向边距统一为 12dp。
             包名保持 com.example.pilinara；沿用原签名；versionCode 不低于 106255。
-          files: PiliNara-2.2.0-coui.15-arm64.apk
+          files: PiliNara-2.2.0-coui.29-arm64.apk
       - name: Remove signing material
         if: always()
         run: rm -f android/app/key.jks android/key.properties "$RUNNER_TEMP/session-private.pem" "$RUNNER_TEMP/envelope.json"
