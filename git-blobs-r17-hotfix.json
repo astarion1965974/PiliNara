@@ -1,0 +1,12 @@
+{
+  "repo": "astarion1965974/PiliNara",
+  "target_branch": "feat/coui-flutter-refinement",
+  "base_commit_sha": "be869ea748bdbf7e402cc6fdc212b0ed078d5247",
+  "commit_message": "test(reply): R17 hotfix - curated-only sort test taps the select capsule",
+  "files": [
+    {
+      "path": "test/youtube_comment_chrome_test.dart",
+      "content": "import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';\nimport 'package:PiliPlus/models/common/reply/reply_sort_type.dart';\nimport 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';\nimport 'package:flutter_test/flutter_test.dart';\nimport 'package:material_ui/material_ui.dart';\n\nvoid main() {\n  testWidgets('sort buttons send the requested sort', (tester) async {\n    ReplySortType? selected;\n    await tester.pumpWidget(MaterialApp(\n      home: Scaffold(\n        body: YoutubeCommentSort(\n          selected: ReplySortType.hot,\n          totalCount: 128,\n          onSelect: (value) => selected = value,\n        ),\n      ),\n    ));\n    expect(find.text('全部评论'), findsOneWidget);\n    expect(find.text('128'), findsOneWidget);\n    await tester.tap(find.text('最新'));\n    expect(selected, ReplySortType.time);\n  });\n\n  testWidgets('curated-only sorting is not falsely switchable', (tester) async {\n    var calls = 0;\n    await tester.pumpWidget(MaterialApp(\n      home: Scaffold(\n        body: YoutubeCommentSort(\n          selected: ReplySortType.select,\n          onSelect: (_) => calls++,\n        ),\n      ),\n    ));\n    expect(find.text('精选评论'), findsOneWidget);\n    expect(find.text('最热门'), findsNothing);\n    expect(find.text('最新'), findsNothing);\n    await tester.tap(find.text('精选评论'), warnIfMissed: false);\n    expect(calls, 0);\n  });\n\n  testWidgets('composer opens reply flow with safe area reserved', (tester) async {\n    var taps = 0;\n    await tester.pumpWidget(MaterialApp(\n      home: Scaffold(\n        body: Align(\n          alignment: Alignment.topCenter,\n          child: YoutubeCommentComposer(\n            bottomPadding: 24,\n            onTap: () => taps++,\n          ),\n        ),\n      ),\n    ));\n    expect(find.byType(CouiGlassSurface), findsOneWidget);\n    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);\n    await tester.tap(find.text('写评论…'));\n    expect(taps, 1);\n    // 8 (top) + 44 (capsule) + 8 (bottom) + 24 (bottomPadding) = 84\n    expect(tester.getSize(find.byType(YoutubeCommentComposer)).height, 84);\n  });\n}\n"
+    }
+  ]
+}
