@@ -55,7 +55,7 @@ class _WhisperSecPageState extends State<WhisperSecPage> {
                     items: threeDotItems
                         .map(
                           (e) => CouiMenuItem(
-                            label: e.title ?? '',
+                            label: e.title,
                             leading: e.type.icon,
                             onTap: () => e.type.action(
                               context: context,
