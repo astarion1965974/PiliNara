@@ -1,5 +1,5 @@
 import 'package:PiliPlus/common/coui.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/m3e_loading_indicator.dart';
 import 'package:PiliPlus/models/video/play/url.dart';
 import 'package:PiliPlus/pages/setting/widgets/cdn_select_dialog.dart';
@@ -26,7 +26,7 @@ class CdnNodeDialog extends StatefulWidget {
 }
 
 class _CdnNodeDialogState extends State<CdnNodeDialog> {
-  late final Future<Map<String, List<String>>> _future = CdnNodeStore.load();
+  late final _future = CdnNodeStore.load();
   String? _region;
   CdnSpeedTester? _tester;
   final Map<String, ValueNotifier<String?>> _speedResults = {};
@@ -210,24 +210,35 @@ class _CdnNodeDialogState extends State<CdnNodeDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   children: [
-                    StaticPopupMenuButton<String>(
-                      initialValue: region,
-                      onSelected: _selectRegion,
-                      borderRadius: Coui.controlRadius,
-                      padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
-                      itemBuilder: (context) => [
-                        for (final item in regions)
-                          PopupMenuItem(
-                            value: item,
-                            child: Text(item),
+                    Builder(
+                      builder: (menuContext) => InkWell(
+                        borderRadius: Coui.controlRadius,
+                        onTap: () async {
+                          final selected = await showCouiMenu<String>(
+                            context: menuContext,
+                            items: [
+                              for (final item in regions)
+                                CouiMenuItem<String>(
+                                  label: item,
+                                  value: item,
+                                  selected: item == region,
+                                ),
+                            ],
+                          );
+                          if (selected != null) {
+                            _selectRegion(selected);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 6, 4, 6),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(region, style: textTheme.labelLarge),
+                              const Icon(Icons.arrow_drop_down, size: 20),
+                            ],
                           ),
-                      ],
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(region, style: textTheme.labelLarge),
-                          const Icon(Icons.arrow_drop_down, size: 20),
-                        ],
+                        ),
                       ),
                     ),
                     const Spacer(),

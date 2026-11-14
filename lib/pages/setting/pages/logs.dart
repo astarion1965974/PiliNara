@@ -4,7 +4,7 @@ import 'dart:convert' show jsonDecode;
 
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/common/widgets/selection_text.dart';
 import 'package:PiliPlus/services/logger.dart';
@@ -112,49 +112,56 @@ class _LogsPageState extends State<LogsPage> {
       appBar: AppBar(
         title: const Text('日志'),
         actions: [
-          StaticPopupMenuButton(
-            itemBuilder: (_) => [
-              if (kDebugMode)
-                PopupMenuItem(
-                  onTap: () => Timer.periodic(
-                    const Duration(milliseconds: 3500),
-                    (timer) {
-                      Utils.reportError('Manual', StackTrace.current);
-                      if (timer.tick > 3) {
-                        timer.cancel();
-                        if (mounted) getLog();
-                      }
+          Builder(
+            builder: (menuContext) => IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () => showCouiMenu<void>(
+                context: menuContext,
+                items: [
+                  if (kDebugMode)
+                    CouiMenuItem<void>(
+                      label: '引发错误',
+                      onTap: () => Timer.periodic(
+                        const Duration(milliseconds: 3500),
+                        (timer) {
+                          Utils.reportError('Manual', StackTrace.current);
+                          if (timer.tick > 3) {
+                            timer.cancel();
+                            if (mounted) getLog();
+                          }
+                        },
+                      ),
+                    ),
+                  CouiMenuItem<void>(
+                    label: '${enableLog ? '关闭' : '开启'}日志',
+                    onTap: () {
+                      enableLog = !enableLog;
+                      GStorage.setting.put(SettingBoxKey.enableLog, enableLog);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('已${enableLog ? '开启' : '关闭'}，重启生效'),
+                          duration: _snackBarDisplayDuration,
+                        ),
+                      );
                     },
                   ),
-                  child: const Text('引发错误'),
-                ),
-              PopupMenuItem(
-                onTap: () {
-                  enableLog = !enableLog;
-                  GStorage.setting.put(SettingBoxKey.enableLog, enableLog);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('已${enableLog ? '开启' : '关闭'}，重启生效'),
-                      duration: _snackBarDisplayDuration,
-                    ),
-                  );
-                },
-                child: Text('${enableLog ? '关闭' : '开启'}日志'),
+                  CouiMenuItem<void>(
+                    label: '复制日志',
+                    onTap: copyLogs,
+                  ),
+                  CouiMenuItem<void>(
+                    label: '错误反馈',
+                    onTap: () =>
+                        PageUtils.launchURL('${Constants.sourceCodeUrl}/issues'),
+                  ),
+                  CouiMenuItem<void>(
+                    label: '清空日志',
+                    isDestructive: true,
+                    onTap: clearLogs,
+                  ),
+                ],
               ),
-              PopupMenuItem(
-                onTap: copyLogs,
-                child: const Text('复制日志'),
-              ),
-              PopupMenuItem(
-                onTap: () =>
-                    PageUtils.launchURL('${Constants.sourceCodeUrl}/issues'),
-                child: const Text('错误反馈'),
-              ),
-              PopupMenuItem(
-                onTap: clearLogs,
-                child: const Text('清空日志'),
-              ),
-            ],
+            ),
           ),
           const SizedBox(width: 6),
         ],

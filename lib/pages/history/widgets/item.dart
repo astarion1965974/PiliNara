@@ -132,6 +132,7 @@ class HistoryItem extends StatelessWidget {
                         ),
                       CouiMenuItem(
                         label: '删除记录',
+                        isDestructive: true,
                         icon: Icons.close_outlined,
                         onTap: () => onDelete(item.kid!, business!),
                       ),

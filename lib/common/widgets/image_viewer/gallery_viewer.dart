@@ -20,7 +20,7 @@ import 'dart:io' show File, Platform;
 
 import 'package:PiliPlus/common/widgets/colored_box_transition.dart';
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/gesture/image_double_tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/gesture/image_horizontal_drag_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/gesture/image_tap_gesture_recognizer.dart';
@@ -621,49 +621,42 @@ class _GalleryViewerState extends State<GalleryViewer>
   void _showDesktopMenu(TapUpDetails details) {
     final item = widget.sources[_currIndex.value];
     if (item.sourceType == .fileImage) return;
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: PageUtils.menuPosition(details.globalPosition),
-      clipBehavior: Clip.antiAlias,
+      offset: details.globalPosition,
       items: [
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '保存图片',
           onTap: () => ImageUtils.downloadImg([item.url]),
-          child: const Text('保存图片', style: TextStyle(fontSize: 14)),
         ),
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '复制图片',
           onTap: () => ImageUtils.copyImg(item.url),
-          child: const Text('复制图片', style: TextStyle(fontSize: 14)),
         ),
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '复制链接',
           onTap: () => Utils.copyText(item.url),
-          child: const Text('复制链接', style: TextStyle(fontSize: 14)),
         ),
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '网页打开',
           onTap: () => PageUtils.launchURL(item.url),
-          child: const Text('网页打开', style: TextStyle(fontSize: 14)),
         ),
         if (widget.sources.length > 1)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '保存全部图片',
             onTap: () => ImageUtils.downloadImg(
               widget.sources.map((item) => item.url).toList(),
             ),
-            child: const Text('保存全部图片', style: TextStyle(fontSize: 14)),
           ),
         if (item.sourceType == SourceType.livePhoto)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '保存视频',
             onTap: () => ImageUtils.downloadLivePhoto(
               url: item.url,
               liveUrl: item.liveUrl!,
               width: item.width!,
               height: item.height!,
             ),
-            child: const Text('保存视频', style: TextStyle(fontSize: 14)),
           ),
       ],
     );

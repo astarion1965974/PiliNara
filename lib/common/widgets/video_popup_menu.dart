@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/http/user.dart';
 import 'package:PiliPlus/http/video.dart';
 import 'package:PiliPlus/models/home/rcmd/result.dart';
@@ -522,20 +522,14 @@ class VideoPopupMenu extends StatelessWidget {
 
   void _showPopupMenu(BuildContext context) {
     final actions = _buildActions(context);
-    showStaticPositionMenu<int>(
+    showCouiMenu<int>(
       context: context,
       items: [
         for (int i = 0; i < actions.length; i++)
-          CustomPopupMenuItem<int>(
+          CouiMenuItem<int>(
+            label: actions[i].title,
+            leading: actions[i].icon,
             value: i,
-            height: menuItemHeight,
-            child: Row(
-              children: [
-                actions[i].icon,
-                const SizedBox(width: 8),
-                Text(actions[i].title, style: const TextStyle(fontSize: 13)),
-              ],
-            ),
           ),
       ],
     ).then((index) {

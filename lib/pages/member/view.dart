@@ -427,6 +427,7 @@ class _MemberPageState extends State<MemberPage> {
                   _userController.isFollowed == 1)
                 CouiMenuItem(
                   label: '移除粉丝',
+                  isDestructive: true,
                   icon: Icons.remove_circle_outline_outlined,
                   onTap: _userController.onRemoveFan,
                 ),

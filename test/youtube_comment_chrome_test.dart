@@ -18,7 +18,12 @@ void main() {
     ));
     expect(find.text('全部评论'), findsOneWidget);
     expect(find.text('128'), findsOneWidget);
+    await tester.tap(find.text('最热门'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.text('最新'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
     expect(selected, ReplySortType.time);
   });
 

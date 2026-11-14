@@ -30,7 +30,6 @@ import 'package:PiliPlus/pages/save_panel/view.dart';
 import 'package:PiliPlus/pages/audio/controller.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/zan_grpc.dart';
-import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
@@ -155,7 +154,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 Positioned.fill(
                   child: IgnorePointer(
                     child: CustomPaint(
-                      painter: YoutubeReplyThreadPainter(
+                      painter: _YoutubeReplyThreadPainter(
                         CouiThemeData.of(context).dividerColor,
                       ),
                     ),
@@ -487,7 +486,7 @@ class ReplyItemGrpc extends StatelessWidget {
       crossAxisAlignment: .start,
       children: [
         youtubeHeader ?? _buildHeader(context, colorScheme),
-        SizedBox(height: useYoutube ? 4 : 10),
+        SizedBox(height: useYoutube ? 6 : 10),
         if (replyControl.hasVoteOption())
           Padding(
             padding: padding,
@@ -498,7 +497,7 @@ class ReplyItemGrpc extends StatelessWidget {
           child: TextMore.rich(
             primary: colorScheme.primary,
             style: useYoutube
-                ? const TextStyle(height: 1.48, fontSize: 14.5)
+                ? const TextStyle(height: 1.65, fontSize: 14.5)
                 : const TextStyle(height: 1.75, fontSize: 14),
             maxLines: replyLevel == 1 ? replyLengthLimit : null,
             TextSpan(
@@ -1679,4 +1678,33 @@ class ReplyItemGrpc extends StatelessWidget {
       ),
     );
   }
+}
+
+class _YoutubeReplyThreadPainter extends CustomPainter {
+  const _YoutubeReplyThreadPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.height <= 55) return;
+    // _youtubeBottomRow(bottom: 4) + _youtubeReplyLink(vertical: 4) + ~8.75dp half text height
+    final end = size.height - 17;
+    final path = Path()
+      ..moveTo(17, 38)
+      ..lineTo(17, end - 9)
+      ..quadraticBezierTo(17, end, 27, end)
+      ..lineTo(36, end);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_YoutubeReplyThreadPainter oldDelegate) =>
+      color != oldDelegate.color;
 }

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/dial_prefix.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -425,40 +425,42 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(width: 12),
                 Builder(
                   builder: (context) {
-                    return StaticPopupMenuButton(
-                      padding: EdgeInsets.zero,
-                      tooltip:
+                    final current = _loginPageCtr.selectedCountryCodeId;
+                    return Tooltip(
+                      message:
                           '选择国际冠码，'
-                          '当前为${_loginPageCtr.selectedCountryCodeId.cname}，'
-                          '+${_loginPageCtr.selectedCountryCodeId.countryId}',
-                      onSelected: (item) {
-                        _loginPageCtr.selectedCountryCodeId = item;
-                        (context as Element).markNeedsBuild();
-                      },
-                      initialValue: _loginPageCtr.selectedCountryCodeId,
-                      itemBuilder: (_) => Login.dialPrefix.map((item) {
-                        return PopupMenuItem(
-                          value: item,
-                          child: Row(
-                            children: [
-                              Text(item.cname),
-                              const Spacer(),
-                              Text("+${item.countryId}"),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.phone,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            "+${_loginPageCtr.selectedCountryCodeId.countryId}",
-                          ),
-                        ],
+                          '当前为${current.cname}，'
+                          '+${current.countryId}',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () async {
+                          final selected = await showCouiMenu(
+                            context: context,
+                            items: Login.dialPrefix.map((item) {
+                              return CouiMenuItem(
+                                label: '${item.cname}  +${item.countryId}',
+                                value: item,
+                                selected: item == current,
+                              );
+                            }).toList(),
+                          );
+                          if (selected != null && context.mounted) {
+                            _loginPageCtr.selectedCountryCodeId = selected;
+                            (context as Element).markNeedsBuild();
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.phone,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "+${current.countryId}",
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

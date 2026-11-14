@@ -3,7 +3,7 @@ import 'package:PiliPlus/models_new/download/download_info.dart';
 import 'package:PiliPlus/pages/common/multi_select/base.dart';
 import 'package:PiliPlus/services/download/download_service.dart';
 import 'package:PiliPlus/utils/extension/iterable_ext.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -135,20 +135,16 @@ mixin BaseDownloadActionMixin<
   }
 
   void _showUpdateMenu(BuildContext context) {
-    final renderBox = context.findRenderObject() as RenderBox;
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: PageUtils.menuPosition(
-        renderBox.localToGlobal(renderBox.size.bottomLeft(.zero)),
-      ),
       items: [
-        PopupMenuItem(
+        CouiMenuItem<void>(
+          label: '更新弹幕',
           onTap: _onUpdateDm,
-          child: const Text('更新弹幕'),
         ),
-        PopupMenuItem(
+        CouiMenuItem<void>(
+          label: '更新片段',
           onTap: _onUpdateSeg,
-          child: const Text('更新片段'),
         ),
       ],
     );

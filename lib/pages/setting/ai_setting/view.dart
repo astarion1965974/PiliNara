@@ -2,7 +2,7 @@ import 'package:PiliPlus/common/widgets/coui_button.dart';
 import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/coui_switch.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/pages/setting/ai_setting/controller.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:material_ui/material_ui.dart';
@@ -420,48 +420,52 @@ class AiSettingPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final model = controller.model.value;
     const radius = BorderRadius.vertical(top: Radius.circular(4));
-    return StaticPopupMenuButton<String>(
-      initialValue: model.isEmpty ? null : model,
-      borderRadius: radius,
-      itemBuilder: (context) => [
-        for (final item in controller.modelList)
-          CustomPopupMenuItem<String>(
-            value: item,
-            height: 40,
-            child: Text(
-              item,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Builder(
+      builder: (menuContext) => InkWell(
+        borderRadius: radius,
+        onTap: () async {
+          final selected = await showCouiMenu<String>(
+            context: menuContext,
+            items: [
+              for (final item in controller.modelList)
+                CouiMenuItem<String>(
+                  label: item,
+                  value: item,
+                  selected: item == model,
+                ),
+            ],
+          );
+          if (selected != null) {
+            controller.saveModel(selected);
+          }
+        },
+        // 用 Ink 而非 Container：Container 的填充色会盖住水波纹
+        child: Ink(
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: radius,
           ),
-      ],
-      onSelected: controller.saveModel,
-      // 用 Ink 而非 Container：Container 的填充色会盖住水波纹
-      child: Ink(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: radius,
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.smart_toy, color: colorScheme.onSurfaceVariant),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                model.isEmpty ? '请选择模型' : model,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: model.isEmpty
-                      ? colorScheme.onSurfaceVariant
-                      : colorScheme.onSurface,
+          child: Row(
+            children: [
+              Icon(Icons.smart_toy, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  model.isEmpty ? '请选择模型' : model,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: model.isEmpty
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onSurface,
+                  ),
                 ),
               ),
-            ),
-            Icon(Icons.arrow_drop_down, color: colorScheme.onSurfaceVariant),
-          ],
+              Icon(Icons.arrow_drop_down, color: colorScheme.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );

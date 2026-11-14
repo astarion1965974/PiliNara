@@ -297,14 +297,17 @@ class _LaterPageState extends State<LaterPage>
                   items: [
                     CouiMenuItem(
                       label: '清空失效',
+                      isDestructive: true,
                       onTap: () => currCtr().toViewClear(context, 1),
                     ),
                     CouiMenuItem(
                       label: '清空看完',
+                      isDestructive: true,
                       onTap: () => currCtr().toViewClear(context, 2),
                     ),
                     CouiMenuItem(
                       label: '清空全部',
+                      isDestructive: true,
                       onTap: () => currCtr().toViewClear(context),
                     ),
                   ],
