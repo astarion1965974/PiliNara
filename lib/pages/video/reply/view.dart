@@ -97,14 +97,20 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                     ? VideoDetailChrome.background(colorScheme)
                     : colorScheme.surface,
                 child: Padding(
-                  padding: const .fromLTRB(12, 6, 12, 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: VideoDetailChrome.horizontalInset,
+                    vertical: 6,
+                  ),
                   child: Obx(() {
                     final sortType = controller.sortType.value;
+                    final count = controller.count.value;
                     if (widget.isNested) {
                       return YoutubeCommentSort(
                         selected: sortType,
+                        totalCount: count,
                         onSelect: (type) {
-                          if (sortType != type && sortType != ReplySortType.select) {
+                          if (sortType != type &&
+                              sortType != ReplySortType.select) {
                             controller.queryBySort();
                           }
                         },
@@ -167,20 +173,20 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                   ),
                 )
               : SlideTransition(
-            position: fabAnimation,
-            child: Padding(
-              padding: .only(
-                right: kFloatingActionButtonMargin,
-                bottom: kFloatingActionButtonMargin + padding.bottom,
-              ),
-              child: FloatingActionButton(
-                heroTag: null,
-                onPressed: _writeComment,
-                tooltip: '发表评论',
-                child: const Icon(Icons.reply),
-              ),
-            ),
-          ),
+                  position: fabAnimation,
+                  child: Padding(
+                    padding: .only(
+                      right: kFloatingActionButtonMargin,
+                      bottom: kFloatingActionButtonMargin + padding.bottom,
+                    ),
+                    child: FloatingActionButton(
+                      heroTag: null,
+                      onPressed: _writeComment,
+                      tooltip: '发表评论',
+                      child: const Icon(Icons.reply),
+                    ),
+                  ),
+                ),
         ),
       ),
     );
