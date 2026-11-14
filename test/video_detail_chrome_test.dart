@@ -3,6 +3,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('unified horizontal inset is 12dp', () {
+    expect(VideoDetailChrome.horizontalInset, 12.0);
+  });
+
   testWidgets('video tabs keep selection and tap callbacks', (tester) async {
     var tapped = -1;
     final controller = TabController(length: 2, vsync: tester);

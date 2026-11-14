@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
 import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,10 +11,13 @@ void main() {
       home: Scaffold(
         body: YoutubeCommentSort(
           selected: ReplySortType.hot,
+          totalCount: 128,
           onSelect: (value) => selected = value,
         ),
       ),
     ));
+    expect(find.text('全部评论'), findsOneWidget);
+    expect(find.text('128'), findsOneWidget);
     await tester.tap(find.text('最新'));
     expect(selected, ReplySortType.time);
   });
@@ -46,8 +50,11 @@ void main() {
         ),
       ),
     ));
+    expect(find.byType(CouiGlassSurface), findsOneWidget);
+    expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
     await tester.tap(find.text('写评论…'));
     expect(taps, 1);
+    // 8 (top) + 44 (capsule) + 8 (bottom) + 24 (bottomPadding) = 84
     expect(tester.getSize(find.byType(YoutubeCommentComposer)).height, 84);
   });
 }

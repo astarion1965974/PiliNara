@@ -4,9 +4,9 @@ import 'dart:math';
 
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/keep_alive_wrapper.dart';
 import 'package:PiliPlus/common/widgets/pip_mini_video_content.dart';
@@ -1935,51 +1935,67 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     return const SizedBox.shrink();
   });
 
-  Widget _moreBtn(Color color, {List<Shadow>? shadows}) =>
-      StaticPopupMenuButton(
-    icon: Icon(
-      size: 22,
-      Icons.more_vert,
-      color: color,
-      shadows: shadows,
+  Widget _moreBtn(Color color, {List<Shadow>? shadows}) => Builder(
+    builder: (anchorContext) => IconButton(
+      tooltip: '更多',
+      onPressed: () {
+        showCouiMenu<void>(
+          context: anchorContext,
+          anchorContext: anchorContext,
+          items: <CouiMenuEntry<void>>[
+            CouiMenuItem<void>(
+              icon: Icons.watch_later_outlined,
+              label: '稍后再看',
+              onTap: introController.viewLater,
+            ),
+            if (videoDetailController.epId == null)
+              CouiMenuItem<void>(
+                icon: Icons.edit_note_outlined,
+                label: '查看笔记',
+                onTap: () => videoDetailController.showNoteList(context),
+              ),
+            if (!videoDetailController.isFileSource)
+              CouiMenuItem<void>(
+                icon: CustomIcons.download,
+                label: '缓存视频',
+                onTap: () => videoDetailController.onDownload(this.context),
+              ),
+            if (videoDetailController.cover.value.isNotEmpty)
+              CouiMenuItem<void>(
+                icon: Icons.image_outlined,
+                label: '保存封面',
+                onTap: () =>
+                    ImageUtils.downloadImg([videoDetailController.cover.value]),
+              ),
+            if (!videoDetailController.isFileSource && videoDetailController.isUgc)
+              CouiMenuItem<void>(
+                icon: Icons.headphones_outlined,
+                label: '听音频',
+                onTap: videoDetailController.toAudioPage,
+              ),
+            const CouiMenuDivider<void>(),
+            CouiMenuItem<void>(
+              icon: Icons.error_outline,
+              label: '举报',
+              isDestructive: true,
+              onTap: () {
+                if (!Accounts.main.isLogin) {
+                  SmartDialog.showToast('账号未登录');
+                } else {
+                  PageUtils.reportVideo(videoDetailController.aid);
+                }
+              },
+            ),
+          ],
+        );
+      },
+      icon: Icon(
+        size: 22,
+        Icons.more_vert,
+        color: color,
+        shadows: shadows,
+      ),
     ),
-    itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-      PopupMenuItem(
-        onTap: introController.viewLater,
-        child: const Text('稍后再看'),
-      ),
-      if (videoDetailController.epId == null)
-        PopupMenuItem(
-          onTap: () => videoDetailController.showNoteList(context),
-          child: const Text('查看笔记'),
-        ),
-      if (!videoDetailController.isFileSource)
-        PopupMenuItem(
-          onTap: () => videoDetailController.onDownload(this.context),
-          child: const Text('缓存视频'),
-        ),
-      if (videoDetailController.cover.value.isNotEmpty)
-        PopupMenuItem(
-          onTap: () =>
-              ImageUtils.downloadImg([videoDetailController.cover.value]),
-          child: const Text('保存封面'),
-        ),
-      if (!videoDetailController.isFileSource && videoDetailController.isUgc)
-        PopupMenuItem(
-          onTap: videoDetailController.toAudioPage,
-          child: const Text('听音频'),
-        ),
-      PopupMenuItem(
-        onTap: () {
-          if (!Accounts.main.isLogin) {
-            SmartDialog.showToast('账号未登录');
-          } else {
-            PageUtils.reportVideo(videoDetailController.aid);
-          }
-        },
-        child: const Text('举报'),
-      ),
-    ],
   );
 
   Widget plPlayer({
@@ -2215,7 +2231,11 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
     }
 
     return Padding(
-      padding: const EdgeInsets.only(left: 12, right: 8, top: 4),
+      padding: const EdgeInsets.only(
+        left: VideoDetailChrome.horizontalInset,
+        right: VideoDetailChrome.horizontalInset,
+        top: 4,
+      ),
       child: SizedBox(
         height: 48,
         child: Row(
@@ -2284,7 +2304,6 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 },
               ),
             ),
-            const SizedBox(width: 4),
           ],
         ),
       ),
@@ -2513,8 +2532,8 @@ class _VideoDetailPageVState extends State<VideoDetailPageV>
                 ),
                 child: Divider(
                   height: 1,
-                  indent: 12,
-                  endIndent: 12,
+                  indent: VideoDetailChrome.horizontalInset,
+                  endIndent: VideoDetailChrome.horizontalInset,
                   color: colorScheme.outline.withValues(alpha: .08),
                 ),
               ),

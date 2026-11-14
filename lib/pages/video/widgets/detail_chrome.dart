@@ -1,8 +1,11 @@
 import 'package:PiliPlus/common/coui.dart';
 import 'package:material_ui/material_ui.dart';
 
-/// Shared dynamic colors and pill styles for the portrait detail page and its floating bars.
+/// Shared dynamic colors, horizontal inset, and pill styles for the portrait detail page and its floating bars.
 class VideoDetailChrome {
+  /// Unified horizontal inset for portrait detail page sections (tab bar, intro card, related videos, reply panel).
+  static const double horizontalInset = 12.0;
+
   static Color background(ColorScheme scheme) =>
       CouiThemeData.fromScheme(scheme).surfaceBackground;
 
