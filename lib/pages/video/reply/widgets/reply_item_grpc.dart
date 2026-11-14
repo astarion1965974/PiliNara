@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/constants.dart';
 import 'package:PiliPlus/common/style.dart';
@@ -27,7 +30,6 @@ import 'package:PiliPlus/pages/save_panel/view.dart';
 import 'package:PiliPlus/pages/audio/controller.dart';
 import 'package:PiliPlus/pages/video/controller.dart';
 import 'package:PiliPlus/pages/video/reply/widgets/zan_grpc.dart';
-import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/app_scheme.dart';
@@ -113,7 +115,7 @@ class ReplyItemGrpc extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = ColorScheme.of(context);
 
-    void showMore() => showModalBottomSheet(
+    void showMore() => showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -130,23 +132,30 @@ class ReplyItemGrpc extends StatelessWidget {
       },
     );
 
-    final useYoutube = youtubeStyle && replyLevel == 1;
+    final useYoutube = youtubeStyle;
     final content = _buildContent(
       context,
       colorScheme,
-      youtubeHeader: useYoutube ? _buildYoutubeHeader(context, colorScheme, showMore) : null,
+      youtubeHeader: useYoutube
+          ? _buildYoutubeHeader(context, colorScheme)
+          : null,
       useYoutube: useYoutube,
     );
     Widget child = Padding(
-      padding: const .fromLTRB(12, 14, 8, 5),
-      child: useYoutube && replyItem.count > Int64.ZERO
+      padding: EdgeInsets.fromLTRB(
+        useYoutube ? VideoDetailChrome.horizontalInset : 12,
+        10,
+        useYoutube ? VideoDetailChrome.horizontalInset : 8,
+        3,
+      ),
+      child: useYoutube && replyLevel == 1 && replyItem.count > Int64.ZERO
           ? Stack(
               children: [
                 Positioned.fill(
                   child: IgnorePointer(
                     child: CustomPaint(
-                      painter: YoutubeReplyThreadPainter(
-                        colorScheme.outline.withValues(alpha: 0.22),
+                      painter: _YoutubeReplyThreadPainter(
+                        CouiThemeData.of(context).dividerColor,
                       ),
                     ),
                   ),
@@ -184,7 +193,6 @@ class ReplyItemGrpc extends StatelessWidget {
   Widget _buildYoutubeHeader(
     BuildContext context,
     ColorScheme scheme,
-    VoidCallback showMore,
   ) {
     final member = replyItem.member;
     void openMember() {
@@ -211,63 +219,81 @@ class ReplyItemGrpc extends StatelessWidget {
         Expanded(
           child: GestureDetector(
             onTap: openMember,
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(
-                  child: Text(
-                    remarkedName(member.mid.toInt(), member.name),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: member.vipStatus > 0 && member.vipType == 2
-                          ? scheme.vipColor
-                          : scheme.onSurfaceVariant,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        remarkedName(member.mid.toInt(), member.name),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: member.vipStatus > 0 && member.vipType == 2
+                              ? scheme.vipColor
+                              : scheme.onSurface,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 5),
-                BiliUtils.levelPicture(
-                  member.level.toInt(),
-                  isSeniorMember: member.isSeniorMember == 1,
-                  height: 11,
-                ),
-                if (replyItem.mid == upMid) ...[
-                  const SizedBox(width: 4),
-                  const PBadge(text: 'UP', size: .small, isStack: false, fontSize: 9),
-                ] else if (GlobalData().showMedal && member.hasFansMedalLevel()) ...[
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: MedalWidget(
-                      medalName: member.fansMedalName,
-                      level: member.fansMedalLevel.toInt(),
-                      backgroundColor: DmUtils.decimalToColor(member.fansMedalColor.toInt()),
-                      nameColor: DmUtils.decimalToColor(member.fansMedalColorName.toInt()),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    const SizedBox(width: 5),
+                    BiliUtils.levelPicture(
+                      member.level.toInt(),
+                      isSeniorMember: member.isSeniorMember == 1,
+                      height: 11,
                     ),
-                  ),
-                ],
-                Flexible(
-                  child: Text(
-                    ' · ${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
-                    '${_locationSuffix(replyItem.replyControl)}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, color: scheme.outline),
-                  ),
+                    if (replyItem.mid == upMid) ...[
+                      const SizedBox(width: 4),
+                      const PBadge(text: 'UP', size: .small, isStack: false, fontSize: 9),
+                    ] else if (GlobalData().showMedal && member.hasFansMedalLevel()) ...[
+                      const SizedBox(width: 4),
+                      Flexible(
+                        child: MedalWidget(
+                          medalName: member.fansMedalName,
+                          level: member.fansMedalLevel.toInt(),
+                          backgroundColor: DmUtils.decimalToColor(member.fansMedalColor.toInt()),
+                          nameColor: DmUtils.decimalToColor(member.fansMedalColorName.toInt()),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${DateFormatUtils.dateFormat(replyItem.ctime.toInt())}'
+                  '${_locationSuffix(replyItem.replyControl)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10.5, color: scheme.outline),
                 ),
               ],
             ),
           ),
         ),
         SizedBox(
-          width: 36,
-          height: 36,
-          child: IconButton(
-            tooltip: '更多评论操作',
-            onPressed: showMore,
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.more_horiz, color: scheme.onSurface, size: 20),
+          width: 32,
+          height: 32,
+          child: Builder(
+            builder: (anchorContext) => IconButton(
+              tooltip: '更多评论操作',
+              onPressed: () => _showYoutubeMenu(
+                anchorContext,
+                colorScheme: scheme,
+                item: replyItem,
+                onDelete: () => onDelete?.call(replyItem, null),
+                isSubReply: false,
+              ),
+              padding: EdgeInsets.zero,
+              icon: Icon(
+                Icons.more_vert,
+                color: scheme.onSurfaceVariant,
+                size: 18,
+              ),
+            ),
           ),
         ),
       ],
@@ -460,7 +486,7 @@ class ReplyItemGrpc extends StatelessWidget {
       crossAxisAlignment: .start,
       children: [
         youtubeHeader ?? _buildHeader(context, colorScheme),
-        SizedBox(height: useYoutube ? 4 : 10),
+        SizedBox(height: useYoutube ? 6 : 10),
         if (replyControl.hasVoteOption())
           Padding(
             padding: padding,
@@ -470,7 +496,9 @@ class ReplyItemGrpc extends StatelessWidget {
           padding: padding,
           child: TextMore.rich(
             primary: colorScheme.primary,
-            style: const TextStyle(height: 1.75, fontSize: 14),
+            style: useYoutube
+                ? const TextStyle(height: 1.65, fontSize: 14.5)
+                : const TextStyle(height: 1.75, fontSize: 14),
             maxLines: replyLevel == 1 ? replyLengthLimit : null,
             TextSpan(
               children: [
@@ -524,14 +552,13 @@ class ReplyItemGrpc extends StatelessWidget {
               ? _youtubeActions(context, colorScheme, replyControl)
               : buttonAction(context, colorScheme, replyControl),
         ],
-        if (replyLevel == 1 && replyItem.count > Int64.ZERO) ...[
+        if (useYoutube)
+          _youtubeBottomRow(colorScheme)
+        else if (replyLevel == 1 && replyItem.count > Int64.ZERO)
           Padding(
-            padding: const EdgeInsets.only(top: 5, bottom: 12),
-            child: useYoutube
-                ? _youtubeReplyLink(colorScheme)
-                : replyItemRow(context, colorScheme, replyItem.replies),
+            padding: const EdgeInsets.only(top: 4, bottom: 6),
+            child: replyItemRow(context, colorScheme, replyItem.replies),
           ),
-        ],
       ],
     );
   }
@@ -548,13 +575,13 @@ class ReplyItemGrpc extends StatelessWidget {
     );
     final textStyle = TextStyle(fontSize: 12, color: scheme.outline);
     return Padding(
-      padding: const EdgeInsets.only(left: 36),
+      padding: const EdgeInsets.only(left: 45),
       child: Row(
         children: [
           ZanButtonGrpc(replyItem: replyItem, youtubeStyle: true),
           SizedBox(
-            width: 44,
-            height: 36,
+            width: 40,
+            height: 32,
             child: IconButton(
               tooltip: '回复',
               padding: EdgeInsets.zero,
@@ -562,7 +589,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 feedBack();
                 onReply?.call(replyItem);
               },
-              icon: Icon(Icons.chat_bubble_outline, size: 18, color: scheme.outline),
+              icon: Icon(Icons.chat_bubble_outline, size: 17, color: scheme.outline),
             ),
           ),
           if (control.translationSwitch ==
@@ -582,27 +609,38 @@ class ReplyItemGrpc extends StatelessWidget {
     );
   }
 
-  Widget _youtubeReplyLink(ColorScheme scheme) {
+  Widget _youtubeBottomRow(ColorScheme scheme) {
+    final hasReplies = replyLevel == 1 && replyItem.count > Int64.ZERO;
+    if (!hasReplies) {
+      return const SizedBox.shrink();
+    }
     return Padding(
-      padding: const EdgeInsets.only(left: 45),
-      child: InkWell(
-        onTap: () => replyReply?.call(replyItem, null),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${replyItem.count} 条回复',
-                style: TextStyle(
-                  color: VideoDetailChrome.accent(scheme),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+      padding: const EdgeInsets.only(left: 45, right: 6, top: 2, bottom: 4),
+      child: _youtubeReplyLink(scheme),
+    );
+  }
+
+  Widget _youtubeReplyLink(ColorScheme scheme) {
+    final accent = VideoDetailChrome.accent(scheme);
+    return InkWell(
+      onTap: () => replyReply?.call(replyItem, null),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '共 ${replyItem.count} 条回复',
+              style: TextStyle(
+                color: accent,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
               ),
-              Icon(Icons.chevron_right, size: 18, color: VideoDetailChrome.accent(scheme)),
-            ],
-          ),
+            ),
+            const SizedBox(width: 2),
+            Icon(Icons.chevron_right, size: 15, color: accent),
+          ],
         ),
       ),
     );
@@ -798,7 +836,7 @@ class ReplyItemGrpc extends StatelessWidget {
                     padding = const .fromLTRB(8, 4, 8, 4);
                   }
                 }
-                void showMore() => showModalBottomSheet(
+                void showMore() => showCouiBottomSheet(
                   context: context,
                   useSafeArea: true,
                   isScrollControlled: true,
@@ -876,6 +914,7 @@ class ReplyItemGrpc extends StatelessWidget {
                   ),
                 );
               }),
+
             if (extraRow)
               InkWell(
                 onTap: () => replyReply?.call(replyItem, null),
@@ -1180,17 +1219,6 @@ class ReplyItemGrpc extends StatelessWidget {
       },
     );
 
-    // if (urlKeys.isNotEmpty) {
-    //   List<String> unmatchedItems = urlKeys
-    //       .where((url) => !matchedUrls.contains(url))
-    //       .toList();
-    //   if (unmatchedItems.isNotEmpty) {
-    //     for (final patternStr in unmatchedItems) {
-    //       addUrl(patternStr, content.urls[patternStr]!);
-    //     }
-    //   }
-    // }
-
     if (!hasNote && replyControl.isNote && replyControl.isNoteV2) {
       final Color color;
       NoDeadlineTapGestureRecognizer? recognizer;
@@ -1222,6 +1250,243 @@ class ReplyItemGrpc extends StatelessWidget {
     }
 
     return TextSpan(children: spanChildren);
+  }
+
+  Future<void> _confirmAndDeleteReply(
+    BuildContext context,
+    ReplyInfo item,
+    Int64 ownerMid,
+    VoidCallback onDelete,
+  ) async {
+    final message = item.content.message;
+    final bool? isDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final colorScheme = ColorScheme.of(context);
+        return AlertDialog(
+          title: const Text('删除评论'),
+          content: Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(text: '确定删除这条评论吗？\n\n'),
+                if (ownerMid != item.member.mid.toInt()) ...[
+                  TextSpan(
+                    text: '@${item.member.name}',
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                    ),
+                  ),
+                  const TextSpan(text: ':\n'),
+                ],
+                TextSpan(text: message),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: Text(
+                '取消',
+                style: TextStyle(
+                  color: colorScheme.outline,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text('确定'),
+            ),
+          ],
+        );
+      },
+    );
+    if (isDelete == null || !isDelete) {
+      return;
+    }
+    SmartDialog.showLoading(msg: '删除中...');
+    final res = await VideoHttp.replyDel(
+      type: item.type.toInt(),
+      oid: item.oid.toInt(),
+      rpid: item.id.toInt(),
+    );
+    SmartDialog.dismiss();
+    if (res.isSuccess) {
+      SmartDialog.showToast('删除成功');
+      onDelete();
+    } else {
+      SmartDialog.showToast('删除失败, $res');
+    }
+  }
+
+  void _reportReply(
+    BuildContext context,
+    ColorScheme colorScheme,
+    ReplyInfo item,
+    VoidCallback onDelete,
+  ) {
+    final oid = item.oid;
+    final rpid = item.id;
+    autoWrapReportDialog(
+      context,
+      onRemove: onDelete,
+      mid: () => item.mid.toInt(),
+      ReportOptions.commentReport,
+      withContent: ReportOptions.withContentReply,
+      contentRequired: ReportOptions.contentRequiredReply,
+      reportUrl:
+          'https://www.bilibili.com/h5/comment/report?oid=$oid&pageType=${item.type}&rpid=$rpid&platform=android&build=8430300&${ThemeUtils.themeUrl(colorScheme.isDark)}',
+      (reasonType, reasonDesc, banUid) async {
+        final res = await ReplyHttp.report(
+          rpid: rpid,
+          oid: oid,
+          reasonType: reasonType,
+          reasonDesc: reasonDesc,
+          banUid: banUid,
+        );
+        if (res.isSuccess) {
+          onDelete();
+        }
+        return res;
+      },
+    );
+  }
+
+  void _blockReplyUser(ReplyInfo item) {
+    final mid = item.member.mid.toInt();
+    final rawName = item.member.name.trim();
+    final name = rawName.isEmpty ? 'UID:$mid' : rawName;
+    final mids = Map<int, String>.from(Pref.replyBlockedMids);
+    mids[mid] = name;
+    Pref.replyBlockedMids = mids;
+    ReplyGrpc.replyBlockedMids = mids;
+    SmartDialog.showToast('已屏蔽 $name');
+  }
+
+  void _showYoutubeMenu(
+    BuildContext anchorContext, {
+    required ColorScheme colorScheme,
+    required ReplyInfo item,
+    required VoidCallback onDelete,
+    required bool isSubReply,
+  }) {
+    final message = item.content.message;
+    final ownerMid = Int64(Accounts.main.mid);
+    final items = <CouiMenuEntry<void>>[
+      if (kDebugMode && GStorage.reply != null) ...[
+        CouiMenuItem<void>(
+          icon: Icons.save_outlined,
+          label: 'save to local',
+          onTap: () {
+            GStorage.reply!.put(
+              item.id.toString(),
+              (item.deepCopy()
+                    ..unknownFields.clear()
+                    ..replies.clear()
+                    ..clearTrackInfo())
+                  .writeToBuffer(),
+            );
+          },
+        ),
+        CouiMenuItem<void>(
+          icon: Icons.delete_sweep_outlined,
+          label: 'remove from local',
+          onTap: () {
+            onDelete();
+            GStorage.reply!.delete(item.id.toString());
+          },
+        ),
+        CouiMenuItem<void>(
+          icon: Icons.save_as_outlined,
+          label: 'save to local (x1000)',
+          onTap: () {
+            final oid = item.oid.toInt();
+            final data = (item.deepCopy()
+                  ..unknownFields.clear()
+                  ..replies.clear()
+                  ..clearTrackInfo())
+                .writeToBuffer();
+            GStorage.reply!.putAll({
+              for (var i = oid; i < oid + 1000; i++) i.toString(): data,
+            });
+          },
+        ),
+        const CouiMenuDivider<void>(),
+      ],
+      if (ownerMid == upMid || ownerMid == item.member.mid)
+        CouiMenuItem<void>(
+          icon: Icons.delete_outlined,
+          label: '删除',
+          isDestructive: true,
+          onTap: () => _confirmAndDeleteReply(
+            anchorContext,
+            item,
+            ownerMid,
+            onDelete,
+          ),
+        ),
+      if (ownerMid == Int64.ZERO)
+        CouiMenuItem<void>(
+          icon: Icons.error_outline,
+          label: '屏蔽',
+          isDestructive: true,
+          onTap: () {
+            Pref.setBlackMid(item.mid.toInt());
+            onDelete();
+            SmartDialog.showToast('屏蔽成功');
+          },
+        )
+      else
+        CouiMenuItem<void>(
+          icon: Icons.error_outline,
+          label: '举报',
+          isDestructive: true,
+          onTap: () => _reportReply(anchorContext, colorScheme, item, onDelete),
+        ),
+      if (item.member.mid != Int64.ZERO)
+        CouiMenuItem<void>(
+          icon: Icons.person_off_outlined,
+          label: '屏蔽用户',
+          onTap: () => _blockReplyUser(item),
+        ),
+      const CouiMenuDivider<void>(),
+      if (replyLevel == 1 && !isSubReply && ownerMid == upMid)
+        CouiMenuItem<void>(
+          icon: Icons.vertical_align_top,
+          label: '${replyItem.replyControl.isUpTop ? '取消' : ''}置顶',
+          onTap: () => onToggleTop?.call(item),
+        ),
+      CouiMenuItem<void>(
+        icon: Icons.copy_all_outlined,
+        label: '复制全部',
+        onTap: () => Utils.copyText(message),
+      ),
+      CouiMenuItem<void>(
+        icon: Icons.copy_outlined,
+        label: '自由复制',
+        onTap: () => showReplyCopyDialog(
+          anchorContext,
+          message,
+          item.content.emotes,
+        ),
+      ),
+      CouiMenuItem<void>(
+        icon: Icons.save_alt,
+        label: '保存评论',
+        onTap: () => SavePanel.toSavePanel(upMid: upMid, item: item),
+      ),
+      if (kDebugMode || item.mid == ownerMid)
+        CouiMenuItem<void>(
+          icon: CustomIcons.shield_reply,
+          label: '检查评论',
+          onTap: () => onCheckReply?.call(item),
+        ),
+    ];
+
+    showCouiMenu<void>(
+      context: anchorContext,
+      anchorContext: anchorContext,
+      items: items,
+    );
   }
 
   Widget morePanel({
@@ -1310,72 +1575,18 @@ class ReplyItemGrpc extends StatelessWidget {
               ),
             ),
           ],
+
           if (ownerMid == upMid || ownerMid == item.member.mid)
             ListTile(
-              onTap: () async {
+              onTap: () {
                 Get.back();
-                bool? isDelete = await showDialog<bool>(
-                  context: context,
-                  builder: (context) {
-                    final colorScheme = ColorScheme.of(context);
-                    return AlertDialog(
-                      title: const Text('删除评论'),
-                      content: Text.rich(
-                        TextSpan(
-                          children: [
-                            const TextSpan(text: '确定删除这条评论吗？\n\n'),
-                            if (ownerMid != item.member.mid.toInt()) ...[
-                              TextSpan(
-                                text: '@${item.member.name}',
-                                style: TextStyle(
-                                  color: colorScheme.primary,
-                                ),
-                              ),
-                              const TextSpan(text: ':\n'),
-                            ],
-                            TextSpan(text: message),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(result: false),
-                          child: Text(
-                            '取消',
-                            style: TextStyle(
-                              color: colorScheme.outline,
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => Get.back(result: true),
-                          child: const Text('确定'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-                if (isDelete == null || !isDelete) {
-                  return;
-                }
-                SmartDialog.showLoading(msg: '删除中...');
-                final res = await VideoHttp.replyDel(
-                  type: item.type.toInt(),
-                  oid: item.oid.toInt(),
-                  rpid: item.id.toInt(),
-                );
-                SmartDialog.dismiss();
-                if (res.isSuccess) {
-                  SmartDialog.showToast('删除成功');
-                  onDelete();
-                } else {
-                  SmartDialog.showToast('删除失败, $res');
-                }
+                _confirmAndDeleteReply(context, item, ownerMid, onDelete);
               },
               minLeadingWidth: 0,
               leading: Icon(Icons.delete_outlined, color: errorColor, size: 19),
               title: Text('删除', style: style.copyWith(color: errorColor)),
             ),
+
           if (ownerMid == Int64.ZERO)
             ListTile(
               onTap: () {
@@ -1396,33 +1607,7 @@ class ReplyItemGrpc extends StatelessWidget {
             ListTile(
               onTap: () {
                 Get.back();
-
-                final oid = item.oid;
-                final rpid = item.id;
-
-                autoWrapReportDialog(
-                  context,
-                  onRemove: onDelete,
-                  mid: () => item.mid.toInt(),
-                  ReportOptions.commentReport,
-                  withContent: ReportOptions.withContentReply,
-                  contentRequired: ReportOptions.contentRequiredReply,
-                  reportUrl:
-                      'https://www.bilibili.com/h5/comment/report?oid=$oid&pageType=${item.type}&rpid=$rpid&platform=android&build=8430300&${ThemeUtils.themeUrl(colorScheme.isDark)}',
-                  (reasonType, reasonDesc, banUid) async {
-                    final res = await ReplyHttp.report(
-                      rpid: rpid,
-                      oid: oid,
-                      reasonType: reasonType,
-                      reasonDesc: reasonDesc,
-                      banUid: banUid,
-                    );
-                    if (res.isSuccess) {
-                      onDelete();
-                    }
-                    return res;
-                  },
-                );
+                _reportReply(context, colorScheme, item, onDelete);
               },
               minLeadingWidth: 0,
               leading: Icon(Icons.error_outline, color: errorColor, size: 19),
@@ -1431,15 +1616,8 @@ class ReplyItemGrpc extends StatelessWidget {
           if (item.member.mid != Int64.ZERO)
             ListTile(
               onTap: () {
-                final mid = item.member.mid.toInt();
-                final rawName = item.member.name.trim();
-                final name = rawName.isEmpty ? 'UID:$mid' : rawName;
-                final mids = Map<int, String>.from(Pref.replyBlockedMids);
-                mids[mid] = name;
-                Pref.replyBlockedMids = mids;
-                ReplyGrpc.replyBlockedMids = mids;
+                _blockReplyUser(item);
                 Get.back();
-                SmartDialog.showToast('已屏蔽 $name');
               },
               minLeadingWidth: 0,
               leading: const Icon(Icons.person_off_outlined, size: 19),
@@ -1458,6 +1636,7 @@ class ReplyItemGrpc extends StatelessWidget {
                 style: style,
               ),
             ),
+
           ListTile(
             onTap: () {
               Get.back();
@@ -1499,4 +1678,33 @@ class ReplyItemGrpc extends StatelessWidget {
       ),
     );
   }
+}
+
+class _YoutubeReplyThreadPainter extends CustomPainter {
+  const _YoutubeReplyThreadPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.height <= 55) return;
+    // _youtubeBottomRow(bottom: 4) + _youtubeReplyLink(vertical: 4) + ~8.75dp half text height
+    final end = size.height - 17;
+    final path = Path()
+      ..moveTo(17, 38)
+      ..lineTo(17, end - 9)
+      ..quadraticBezierTo(17, end, 27, end)
+      ..lineTo(36, end);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..strokeCap = StrokeCap.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_YoutubeReplyThreadPainter oldDelegate) =>
+      color != oldDelegate.color;
 }

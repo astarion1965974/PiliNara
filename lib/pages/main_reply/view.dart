@@ -1,6 +1,7 @@
+import 'package:PiliPlus/pages/video/reply/widgets/youtube_comment_chrome.dart';
+import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/common/skeleton/video_reply.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
-import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -140,6 +141,7 @@ class _MainReplyPageState extends State<MainReplyPage>
                     onDelete: (item, subIndex) =>
                         controller.onRemove(index, item, subIndex),
                     upMid: controller.upMid,
+                    youtubeStyle: true,
                     onCheckReply: controller.onCheckReply,
                     onToggleTop: (item) => controller.onToggleTop(
                       item,
@@ -159,11 +161,10 @@ class _MainReplyPageState extends State<MainReplyPage>
   }
 
   Widget buildReplyHeader() {
-    final secondary = colorScheme.secondary;
     return SliverFloatingHeaderWidget(
       backgroundColor: colorScheme.surface,
       child: Padding(
-        padding: const .fromLTRB(12, 2.5, 6, 2.5),
+        padding: const .fromLTRB(12, 6, 12, 6),
         child: Row(
           mainAxisAlignment: .spaceBetween,
           children: [
@@ -172,20 +173,21 @@ class _MainReplyPageState extends State<MainReplyPage>
                 final count = controller.count.value;
                 return Text(
                   '${count == -1 ? 0 : NumUtils.numFormat(count)}条回复',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 );
               },
             ),
-            TextButton.icon(
-              style: Style.buttonStyle,
-              onPressed: controller.queryBySort,
-              icon: Icon(Icons.sort, size: 16, color: secondary),
-              label: Obx(
-                () => Text(
-                  controller.sortType.value.descShort,
-                  style: TextStyle(fontSize: 13, color: secondary),
-                ),
-              ),
-            ),
+            Obx(() {
+              final sortType = controller.sortType.value;
+              return YoutubeCommentSort(
+                selected: sortType,
+                onSelect: (type) {
+                  if (sortType != type && sortType != ReplySortType.select) {
+                    controller.queryBySort();
+                  }
+                },
+              );
+            }),
           ],
         ),
       ),

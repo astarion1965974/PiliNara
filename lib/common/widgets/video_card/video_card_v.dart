@@ -95,16 +95,21 @@ class VideoCardV extends StatelessWidget {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Card(
-          elevation: couiHome ? 0 : null,
-          color: couiHome ? Coui.cardColor(colorScheme) : null,
-          shape: couiHome ? Coui.cardShape : null,
-          child: InkWell(
-            onTap: onPushDetail,
-            onLongPress: onLongPress,
-            onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
-            borderRadius: couiHome ? Coui.cardRadius : Style.mdRadius,
-            child: Column(
+        DecoratedBox(
+          decoration: Coui.cardDecoration(
+            colorScheme,
+            coui: CouiThemeData.of(context),
+          ),
+          child: ClipRRect(
+            borderRadius: Coui.cardRadius,
+            child: Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: onPushDetail,
+                onLongPress: onLongPress,
+                onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
+                borderRadius: Coui.cardRadius,
+                child: Column(
               crossAxisAlignment: .start,
               children: [
                 AspectRatio(
@@ -153,12 +158,14 @@ class VideoCardV extends StatelessWidget {
                 content(context),
               ],
             ),
+              ),
+            ),
           ),
         ),
         if (videoItem.goto == 'av')
           Positioned(
-            right: -5,
-            bottom: -2,
+            right: 3,
+            bottom: 3,
             width: 29,
             height: 29,
             child: VideoPopupMenu(
@@ -246,7 +253,7 @@ class VideoCardV extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (videoItem.goto == 'av') const SizedBox(width: 10),
+                if (videoItem.goto == 'av') const SizedBox(width: 24),
               ],
             ),
           ],

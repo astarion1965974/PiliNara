@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 import 'dart:math' as math;
 
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/extra_hittest_stack.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -105,13 +106,9 @@ class _FullScreenScState extends State<FullScreenSc> {
         title: Row(
           children: [
             const Text('全屏 SuperChat 设置'),
-            Transform.scale(
-              scale: 0.8,
-              alignment: .centerRight,
-              child: Switch(
-                value: _enable,
-                onChanged: _onEnableChanged,
-              ),
+            CouiSwitch(
+              value: _enable,
+              onChanged: _onEnableChanged,
             ),
           ],
         ),

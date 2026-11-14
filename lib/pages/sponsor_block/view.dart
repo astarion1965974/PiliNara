@@ -1,4 +1,4 @@
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/pair.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/http/constants.dart';
@@ -612,9 +612,22 @@ class _SponsorBlockPageState extends State<SponsorBlockPage> {
               ),
               Builder(
                 builder: (btnContext) {
-                  return StaticPopupMenuButton<SkipType>(
-                    initialValue: item.second,
-                    onSelected: (e) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () async {
+                      final e = await showCouiMenu<SkipType>(
+                        context: btnContext,
+                        items: SkipType.values
+                            .map(
+                              (opt) => CouiMenuItem<SkipType>(
+                                label: opt.label,
+                                value: opt,
+                                selected: opt == item.second,
+                              ),
+                            )
+                            .toList(),
+                      );
+                      if (e == null) return;
                       final updateItem = isDisable || e == SkipType.disable;
                       item.second = e;
                       setting.put(
@@ -622,19 +635,13 @@ class _SponsorBlockPageState extends State<SponsorBlockPage> {
                         _blockSettings.map((e) => e.second.index).toList(),
                       );
                       if (updateItem) {
-                        (context as Element).markNeedsBuild();
-                      } else {
+                        if (context.mounted) {
+                          (context as Element).markNeedsBuild();
+                        }
+                      } else if (btnContext.mounted) {
                         (btnContext as Element).markNeedsBuild();
                       }
                     },
-                    itemBuilder: (context) => SkipType.values
-                        .map(
-                          (item) => PopupMenuItem<SkipType>(
-                            value: item,
-                            child: Text(item.label),
-                          ),
-                        )
-                        .toList(),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text.rich(

@@ -1,6 +1,8 @@
 import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    as custom_refresh;
 import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
@@ -145,5 +147,44 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
     expect(tester.getSize(find.byType(HomeHeaderClip)).height, homeHeaderHeight);
+  });
+
+  test('HeaderRevealGate gates collapse at 12dp and reveal at 24dp/48dp without overscroll', () {
+    final gate = HeaderRevealGate();
+
+    // 12dp collapse threshold
+    expect(gate.applyScrollDelta(6, pixels: 100), 0.0);
+    expect(gate.applyScrollDelta(5, pixels: 105), 0.0);
+    expect(gate.applyScrollDelta(2, pixels: 107), 2.0);
+
+    // Sub-threshold jitter does not flip
+    gate.reset();
+    expect(gate.applyScrollDelta(8, pixels: 200), 0.0);
+    expect(gate.applyScrollDelta(-10, pixels: 190), 0.0);
+    expect(gate.applyScrollDelta(8, pixels: 198), 0.0);
+    expect(gate.applyScrollDelta(-10, pixels: 188), 0.0);
+
+    // 24dp + top (pixels <= 0) allows reveal
+    gate.reset();
+    expect(gate.applyScrollDelta(-15, pixels: 10), 0.0);
+    expect(gate.applyScrollDelta(-10, pixels: 0), -10.0);
+
+    // Deep in feed requires 48dp to reveal
+    gate.reset();
+    expect(gate.applyScrollDelta(-24, pixels: 300), 0.0);
+    expect(gate.applyScrollDelta(-20, pixels: 280), 0.0);
+    expect(gate.applyScrollDelta(-5, pixels: 275), -5.0);
+
+    // Overscroll never triggers reveal
+    gate.reset();
+    expect(gate.applyScrollDelta(-60, pixels: 0, isOverscroll: true), 0.0);
+  });
+
+  test('custom RefreshIndicator defaults edgeOffset to 0.0', () {
+    final indicator = custom_refresh.RefreshIndicator(
+      onRefresh: () async {},
+      child: const SizedBox.shrink(),
+    );
+    expect(indicator.edgeOffset, 0.0);
   });
 }

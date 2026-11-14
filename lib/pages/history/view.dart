@@ -1,5 +1,7 @@
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/appbar/appbar.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/gesture/horizontal_drag_gesture_recognizer.dart';
@@ -113,6 +115,19 @@ class _HistoryPageState extends State<HistoryPage>
                     ?_buildPauseTip,
                     TabBar(
                       controller: _historyController.tabController,
+                      dividerHeight: 0,
+                      dividerColor: Colors.transparent,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      indicatorPadding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 5,
+                      ),
+                      indicator: VideoDetailChrome.pillDecoration(
+                        Theme.of(context).colorScheme,
+                        coui: CouiThemeData.of(context),
+                      ),
+                      labelColor: CouiThemeData.of(context).accent,
+                      unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
                       onTap: (index) {
                         if (!_historyController
                             .tabController!
@@ -165,41 +180,48 @@ class _HistoryPageState extends State<HistoryPage>
         onPressed: () => Get.toNamed('/historySearch'),
         icon: const Icon(Icons.search_outlined),
       ),
-      StaticPopupMenuButton(
-        itemBuilder: (_) => [
-          PopupMenuItem(
-            onTap: () => _historyController.baseCtr.onPauseHistory(context),
-            child: Text(
-              !_historyController.baseCtr.pauseStatus.value
-                  ? '暂停观看记录'
-                  : '恢复观看记录',
-            ),
+      Builder(
+        builder: (menuContext) => IconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed: () => showCouiMenu(
+            context: menuContext,
+            items: [
+              CouiMenuItem(
+                label: !_historyController.baseCtr.pauseStatus.value
+                    ? '暂停观看记录'
+                    : '恢复观看记录',
+                onTap: () =>
+                    _historyController.baseCtr.onPauseHistory(context),
+              ),
+              CouiMenuItem(
+                label: '清空观看记录',
+                isDestructive: true,
+                onTap: () => _historyController.baseCtr.onClearHistory(
+                  context,
+                  () {
+                    _historyController.loadingState.value = const Success(null);
+                    if (_historyController.tabController != null) {
+                      for (final item in _historyController.tabs) {
+                        try {
+                          Get.find<HistoryController>(
+                            tag: item.type,
+                          ).loadingState.value = const Success(
+                            null,
+                          );
+                        } catch (_) {}
+                      }
+                    }
+                  },
+                ),
+              ),
+              CouiMenuItem(
+                label: '删除已看记录',
+                isDestructive: true,
+                onTap: currCtr().onDelViewedHistory,
+              ),
+            ],
           ),
-          PopupMenuItem(
-            onTap: () => _historyController.baseCtr.onClearHistory(
-              context,
-              () {
-                _historyController.loadingState.value = const Success(null);
-                if (_historyController.tabController != null) {
-                  for (final item in _historyController.tabs) {
-                    try {
-                      Get.find<HistoryController>(
-                        tag: item.type,
-                      ).loadingState.value = const Success(
-                        null,
-                      );
-                    } catch (_) {}
-                  }
-                }
-              },
-            ),
-            child: const Text('清空观看记录'),
-          ),
-          PopupMenuItem(
-            onTap: currCtr().onDelViewedHistory,
-            child: const Text('删除已看记录'),
-          ),
-        ],
+        ),
       ),
       const SizedBox(width: 6),
     ],

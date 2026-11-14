@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -49,14 +49,28 @@ abstract class BaseVideoWebState<
           Obx(
             () {
               final order = controller.order.value;
-              return StaticPopupMenuButton<V>(
-                tooltip: '排序',
-                icon: const Icon(Icons.sort),
-                initialValue: order,
-                onSelected: controller.queryBySort,
-                itemBuilder: (_) => values
-                    .map((e) => PopupMenuItem(value: e, child: Text(e.label)))
-                    .toList(),
+              return Builder(
+                builder: (menuContext) => IconButton(
+                  tooltip: '排序',
+                  icon: const Icon(Icons.sort),
+                  onPressed: () async {
+                    final selected = await showCouiMenu<V>(
+                      context: menuContext,
+                      items: values
+                          .map(
+                            (e) => CouiMenuItem<V>(
+                              label: e.label,
+                              value: e,
+                              selected: e == order,
+                            ),
+                          )
+                          .toList(),
+                    );
+                    if (selected != null) {
+                      controller.queryBySort(selected);
+                    }
+                  },
+                ),
               );
             },
           ),

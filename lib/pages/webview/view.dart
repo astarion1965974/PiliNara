@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/route_aware_mixin.dart'
     show routeObserver;
 import 'package:PiliPlus/common/widgets/selection_text.dart';
@@ -98,28 +98,34 @@ class _WebviewPageState extends State<WebviewPage> with RouteAware {
 
   List<Widget> get _actions {
     return [
-      StaticPopupMenuButton<WebviewMenuItem>(
-        onSelected: _handleMenuItem,
-        itemBuilder: (context) => <PopupMenuEntry<WebviewMenuItem>>[
-          ...WebviewMenuItem.values
-              .take(WebviewMenuItem.values.length - 1)
-              .map(
-                (item) => PopupMenuItem(
-                  value: item,
-                  child: Text(item.title),
+      Builder(
+        builder: (menuContext) => IconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed: () async {
+            final selected = await showCouiMenu<WebviewMenuItem>(
+              context: menuContext,
+              items: [
+                ...WebviewMenuItem.values
+                    .take(WebviewMenuItem.values.length - 1)
+                    .map(
+                      (item) => CouiMenuItem<WebviewMenuItem>(
+                        label: item.title,
+                        value: item,
+                      ),
+                    ),
+                const CouiMenuDivider<WebviewMenuItem>(),
+                CouiMenuItem<WebviewMenuItem>(
+                  label: WebviewMenuItem.goBack.title,
+                  value: WebviewMenuItem.goBack,
+                  isDestructive: true,
                 ),
-              ),
-          const PopupMenuDivider(),
-          PopupMenuItem(
-            value: WebviewMenuItem.goBack,
-            child: Text(
-              WebviewMenuItem.goBack.title,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ),
-        ],
+              ],
+            );
+            if (selected != null) {
+              _handleMenuItem(selected);
+            }
+          },
+        ),
       ),
     ];
   }

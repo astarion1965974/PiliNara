@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/gesture/horizontal_drag_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -345,88 +345,65 @@ class _ArticlePageState extends CommonDynPageState<ArticlePage>
         onPressed: () => PageUtils.inAppWebview(controller.url),
         icon: const Icon(Icons.open_in_browser_outlined, size: 19),
       ),
-      StaticPopupMenuButton(
-        icon: const Icon(Icons.more_vert, size: 19),
-        itemBuilder: (BuildContext context) => <PopupMenuEntry>[
-          if (controller.commentType == 12)
-            PopupMenuItem(
-              onTap: controller.actionCoin,
-              child: Obx(() {
-                final color = controller.hasCoin
-                    ? theme.colorScheme.primary
-                    : null;
-                return Row(
-                  spacing: 10,
-                  mainAxisSize: .min,
-                  children: [
-                    Icon(FontAwesomeIcons.b, size: 19, color: color),
-                    Text('投币', style: TextStyle(color: color)),
-                  ],
-                );
-              }),
-            ),
-          PopupMenuItem(
-            onTap: () => ShareUtils.shareText(controller.url),
-            child: const Row(
-              spacing: 10,
-              mainAxisSize: .min,
-              children: [
-                Icon(Icons.share_outlined, size: 19),
-                Text('分享'),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            onTap: () => Utils.copyText(controller.url),
-            child: const Row(
-              spacing: 10,
-              mainAxisSize: .min,
-              children: [
-                Icon(Icons.copy_rounded, size: 19),
-                Text('复制链接'),
-              ],
-            ),
-          ),
-          if (controller.commentType == 12 &&
-              controller.stats.value != null &&
-              controller.opusData?.modules.moduleBlocked == null)
-            PopupMenuItem(
-              onTap: () async {
-                final summary = controller.summary;
-                try {
-                  if (summary.cover == null) {
-                    if (!await controller.getArticleInfo(true)) {
-                      return;
-                    }
-                  }
-                  if (mounted) {
-                    PageUtils.pmShare(
-                      this.context,
-                      content: {
-                        "id": controller.commentId,
-                        "title": "- 哔哩哔哩专栏",
-                        "headline": summary.title!, // throw
-                        "source": 6,
-                        "thumb": summary.cover!,
-                        "author": summary.author!.name,
-                        "author_id": summary.author!.mid.toString(),
-                      },
-                    );
-                  }
-                } catch (e) {
-                  SmartDialog.showToast(e.toString());
-                }
-              },
-              child: const Row(
-                spacing: 10,
-                mainAxisSize: .min,
-                children: [
-                  Icon(Icons.forward_to_inbox, size: 19),
-                  Text('分享至消息'),
-                ],
+      Builder(
+        builder: (menuContext) => IconButton(
+          icon: const Icon(Icons.more_vert, size: 19),
+          onPressed: () => showCouiMenu(
+            context: menuContext,
+            items: [
+              if (controller.commentType == 12)
+                CouiMenuItem(
+                  label: '投币',
+                  icon: FontAwesomeIcons.b,
+                  selected: controller.hasCoin,
+                  onTap: controller.actionCoin,
+                ),
+              CouiMenuItem(
+                label: '分享',
+                icon: Icons.share_outlined,
+                onTap: () => ShareUtils.shareText(controller.url),
               ),
-            ),
-        ],
+              CouiMenuItem(
+                label: '复制链接',
+                icon: Icons.copy_rounded,
+                onTap: () => Utils.copyText(controller.url),
+              ),
+              if (controller.commentType == 12 &&
+                  controller.stats.value != null &&
+                  controller.opusData?.modules.moduleBlocked == null)
+                CouiMenuItem(
+                  label: '分享至消息',
+                  icon: Icons.forward_to_inbox,
+                  onTap: () async {
+                    final summary = controller.summary;
+                    try {
+                      if (summary.cover == null) {
+                        if (!await controller.getArticleInfo(true)) {
+                          return;
+                        }
+                      }
+                      if (mounted) {
+                        PageUtils.pmShare(
+                          this.context,
+                          content: {
+                            "id": controller.commentId,
+                            "title": "- 哔哩哔哩专栏",
+                            "headline": summary.title!, // throw
+                            "source": 6,
+                            "thumb": summary.cover!,
+                            "author": summary.author!.name,
+                            "author_id": summary.author!.mid.toString(),
+                          },
+                        );
+                      }
+                    } catch (e) {
+                      SmartDialog.showToast(e.toString());
+                    }
+                  },
+                ),
+            ],
+          ),
+        ),
       ),
       const SizedBox(width: 6),
     ],

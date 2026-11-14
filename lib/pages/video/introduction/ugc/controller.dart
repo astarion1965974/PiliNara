@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show ReloadMixin;
 import 'package:PiliPlus/http/api.dart';
@@ -402,7 +403,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
               ),
               onTap: () {
                 Get.back();
-                showModalBottomSheet(
+                showCouiBottomSheet(
                   context: context,
                   isScrollControlled: true,
                   useSafeArea: true,

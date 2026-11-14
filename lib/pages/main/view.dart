@@ -1,8 +1,9 @@
 import 'package:PiliPlus/common/coui.dart';
-import 'dart:io';
-import 'dart:ui' show ImageFilter;
 
-import 'package:PiliPlus/common/style.dart';
+import 'dart:io';
+
+import 'package:PiliPlus/common/widgets/coui_floating_navigation.dart';
+
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/main_layout.dart';
@@ -163,78 +164,23 @@ class _MainAppState extends PopScopeState<MainApp>
   }
 
   Widget _homeNavigation(int selectedIndex) {
-    final dark = _colorScheme.brightness == Brightness.dark;
-    final foreground = dark ? Colors.white : Colors.black;
     final items = _mainController.navigationBars;
     return Padding(
-      padding: EdgeInsets.only(bottom: _padding.bottom + 8, left: 16, right: 16),
-      child: SizedBox(
-        width: items.length < 4 ? 260 : items.length * 68.0,
-        height: 56,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: (dark ? const Color(0xff262626) : Colors.white)
-                    .withValues(alpha: dark ? 0.78 : 0.82),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: foreground.withValues(alpha: 0.08)),
-              ),
-              child: Row(
-                children: [
-                  for (var i = 0; i < items.length; i++)
-                    Expanded(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(28),
-                          onTap: () => _mainController.setIndex(i),
-                          child: Semantics(
-                            selected: i == selectedIndex,
-                            label: items[i].label,
-                            button: true,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconTheme.merge(
-                                  data: IconThemeData(
-                                    size: 24,
-                                    color: foreground.withValues(
-                                      alpha: i == selectedIndex ? 0.90 : 0.65,
-                                    ),
-                                  ),
-                                  child: _buildIcon(
-                                    type: items[i],
-                                    selected: i == selectedIndex,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  items[i].label,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: foreground.withValues(
-                                      alpha: i == selectedIndex ? 0.90 : 0.65,
-                                    ),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+      padding: EdgeInsets.only(
+        bottom: _padding.bottom + 8,
+        left: 16,
+        right: 16,
+      ),
+      child: CouiFloatingNavigation(
+        selectedIndex: selectedIndex,
+        onSelection: _mainController.setIndex,
+        items: [
+          for (var i = 0; i < items.length; i++)
+            CouiNavigationDestination(
+              label: items[i].label,
+              icon: _buildIcon(type: items[i], selected: i == selectedIndex),
             ),
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -279,10 +225,7 @@ class _MainAppState extends PopScopeState<MainApp>
                                 )
                               : Text(e.label),
                           icon: _buildIcon(type: e),
-                          selectedIcon: _buildIcon(
-                            type: e,
-                            selected: true,
-                          ),
+                          selectedIcon: _buildIcon(type: e, selected: true),
                         ),
                       )
                       .toList(),
@@ -321,19 +264,29 @@ class _MainAppState extends PopScopeState<MainApp>
 
   @override
   Widget build(BuildContext context) {
+    Widget wrapNavPage(NavigationBarType type) {
+      if (_mainController.useBottomNav && type != NavigationBarType.home) {
+        return Padding(
+          padding: EdgeInsets.only(top: _padding.top),
+          child: type.page,
+        );
+      }
+      return type.page;
+    }
+
     Widget child;
     if (_mainController.mainTabBarView) {
       child = TabBarView(
         controller: _mainController.controller,
         physics: const NeverScrollableScrollPhysics(),
         scrollDirection: _mainController.useBottomNav ? .horizontal : .vertical,
-        children: _mainController.navigationBars.map((i) => i.page).toList(),
+        children: _mainController.navigationBars.map(wrapNavPage).toList(),
       );
     } else {
       child = PageView(
         controller: _mainController.controller,
         physics: const NeverScrollableScrollPhysics(),
-        children: _mainController.navigationBars.map((i) => i.page).toList(),
+        children: _mainController.navigationBars.map(wrapNavPage).toList(),
       );
     }
 
@@ -349,7 +302,7 @@ class _MainAppState extends PopScopeState<MainApp>
           child: bottomNav,
         );
       }
-      padding = _padding.copyWith(bottom: 0);
+      padding = _padding.copyWith(top: 0, bottom: 0);
     } else {
       sideBar = DecoratedBox(
         decoration: BoxDecoration(
@@ -396,6 +349,7 @@ class _MainAppState extends PopScopeState<MainApp>
   }
 
   Widget _homeGradientBg() {
+    final coui = CouiThemeData.of(context);
     final dark = _colorScheme.brightness == Brightness.dark;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -403,9 +357,13 @@ class _MainAppState extends PopScopeState<MainApp>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: dark
-              ? const [Color(0xff2b2025), Color(0xff201c20), Color(0xff141416)]
-              : const [Color(0xffffedf3), Color(0xfffff5f7), Color(0xfffdfbfc), Color(0xfff8f9fa)],
-          stops: dark ? const [0, 0.45, 1] : const [0, 0.22, 0.55, 1],
+              ? [coui.surfaceBackground, coui.surfaceGradientMid, coui.surfaceGradientEnd]
+              : [
+                  coui.surfaceBackground,
+                  coui.surfaceGradientMid,
+                  coui.surfaceGradientEnd,
+                ],
+          stops: const [0, 0.45, 1],
         ),
       ),
     );
@@ -414,19 +372,17 @@ class _MainAppState extends PopScopeState<MainApp>
   Widget _buildIcon({required NavigationBarType type, bool selected = false}) {
     final icon = selected ? type.selectIcon : type.icon;
     return type == .dynamics
-        ? Obx(
-            () {
-              final dynCount = _mainController.dynCount.value;
-              return Badge(
-                isLabelVisible: dynCount > 0,
-                label: _mainController.dynamicBadgeMode == .number
-                    ? Text(dynCount.toString())
-                    : null,
-                padding: const .symmetric(horizontal: 6),
-                child: icon,
-              );
-            },
-          )
+        ? Obx(() {
+            final dynCount = _mainController.dynCount.value;
+            return Badge(
+              isLabelVisible: dynCount > 0,
+              label: _mainController.dynamicBadgeMode == .number
+                  ? Text(dynCount.toString())
+                  : null,
+              padding: const .symmetric(horizontal: 6),
+              child: icon,
+            );
+          })
         : icon;
   }
 
@@ -438,10 +394,7 @@ class _MainAppState extends PopScopeState<MainApp>
         msgBadge(_mainController),
         IconButton(
           tooltip: '搜索',
-          icon: const Icon(
-            Icons.search_outlined,
-            semanticLabel: '搜索',
-          ),
+          icon: const Icon(Icons.search_outlined, semanticLabel: '搜索'),
           onPressed: () => Get.toNamed('/search'),
         ),
       ],

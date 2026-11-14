@@ -1,5 +1,5 @@
 import 'package:PiliPlus/common/style.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/select_mask.dart';
 import 'package:PiliPlus/http/search.dart';
@@ -99,63 +99,46 @@ class HistoryItem extends StatelessWidget {
               bottom: 0,
               width: 29,
               height: 29,
-              child: StaticPopupMenuButton(
-                padding: EdgeInsets.zero,
-                tooltip: '功能菜单',
-                icon: Icon(
-                  Icons.more_vert_outlined,
-                  color: theme.colorScheme.outline,
-                  size: 18,
-                ),
-                itemBuilder: (_) => [
-                  if (item.authorMid != null &&
-                      item.authorName?.isNotEmpty == true)
-                    PopupMenuItem(
-                      onTap: () => Get.toNamed('/member?mid=${item.authorMid}'),
-                      height: 38,
-                      child: Row(
-                        children: [
-                          const Icon(
-                            MdiIcons.accountCircleOutline,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '访问：${item.authorName}',
-                            style: const TextStyle(fontSize: 13),
-                          ),
-                        ],
-                      ),
-                    ),
-                  if (business != 'pgc' &&
-                      item.badge != '番剧' &&
-                      item.tagName?.contains('动画') != true &&
-                      business != 'live' &&
-                      business?.contains('article') != true)
-                    PopupMenuItem(
-                      onTap: () =>
-                          UserHttp.toViewLater(bvid: item.history.bvid),
-                      height: 38,
-                      child: const Row(
-                        children: [
-                          Icon(Icons.watch_later_outlined, size: 16),
-                          SizedBox(width: 6),
-                          Text('稍后再看', style: TextStyle(fontSize: 13)),
-                        ],
-                      ),
-                    ),
-                  PopupMenuItem(
-                    onTap: () => onDelete(item.kid!, business!),
-                    height: 38,
-                    child: const Row(
-                      children: [
-                        Icon(Icons.close_outlined, size: 16),
-                        SizedBox(width: 6),
-                        Text('删除记录', style: TextStyle(fontSize: 13)),
-                      ],
-                    ),
+              child: Builder(
+                builder: (menuContext) => IconButton(
+                  padding: EdgeInsets.zero,
+                  tooltip: '功能菜单',
+                  icon: Icon(
+                    Icons.more_vert_outlined,
+                    color: theme.colorScheme.outline,
+                    size: 18,
                   ),
-                ],
+                  onPressed: () => showCouiMenu(
+                    context: menuContext,
+                    items: [
+                      if (item.authorMid != null &&
+                          item.authorName?.isNotEmpty == true)
+                        CouiMenuItem(
+                          label: '访问：${item.authorName}',
+                          icon: MdiIcons.accountCircleOutline,
+                          onTap: () =>
+                              Get.toNamed('/member?mid=${item.authorMid}'),
+                        ),
+                      if (business != 'pgc' &&
+                          item.badge != '番剧' &&
+                          item.tagName?.contains('动画') != true &&
+                          business != 'live' &&
+                          business?.contains('article') != true)
+                        CouiMenuItem(
+                          label: '稍后再看',
+                          icon: Icons.watch_later_outlined,
+                          onTap: () =>
+                              UserHttp.toViewLater(bvid: item.history.bvid),
+                        ),
+                      CouiMenuItem(
+                        label: '删除记录',
+                        isDestructive: true,
+                        icon: Icons.close_outlined,
+                        onTap: () => onDelete(item.kid!, business!),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],

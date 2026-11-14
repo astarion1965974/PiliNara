@@ -20,7 +20,7 @@ import 'dart:io' show Platform;
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/image_grid/image_grid_builder.dart';
 import 'package:PiliPlus/common/widgets/image_viewer/gallery_viewer.dart';
@@ -147,51 +147,42 @@ class ImageGridView extends StatelessWidget {
   void _showMenu(BuildContext context, int index, Offset offset) {
     HapticFeedback.mediumImpact();
     final item = picArr[index];
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: PageUtils.menuPosition(offset),
-      clipBehavior: Clip.antiAlias,
+      offset: offset,
       items: [
         if (PlatformUtils.isMobile)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '分享',
             onTap: () => ImageUtils.onShareImg(item.url),
-            child: const Text('分享', style: TextStyle(fontSize: 14)),
           ),
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '复制图片',
           onTap: () => ImageUtils.copyImg(item.url),
-          child: const Text('复制图片', style: TextStyle(fontSize: 14)),
         ),
-        CustomPopupMenuItem<void>(
-          height: 42,
+        CouiMenuItem<void>(
+          label: '保存图片',
           onTap: () => ImageUtils.downloadImg([item.url]),
-          child: const Text('保存图片', style: TextStyle(fontSize: 14)),
         ),
         if (PlatformUtils.isDesktop)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '网页打开',
             onTap: () => PageUtils.launchURL(item.url),
-            child: const Text('网页打开', style: TextStyle(fontSize: 14)),
           ),
         if (picArr.length > 1)
-          CustomPopupMenuItem<void>(
+          CouiMenuItem<void>(
+            label: '保存全部',
             onTap: () =>
                 ImageUtils.downloadImg(picArr.map((item) => item.url).toList()),
-            child: const Text('保存全部', style: TextStyle(fontSize: 14)),
           ),
         if (item.isLivePhoto)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '保存${Platform.isIOS ? '实况' : '视频'}',
             onTap: () => ImageUtils.downloadLivePhoto(
               url: item.url,
               liveUrl: item.liveUrl!,
               width: item.width.toInt(),
               height: item.height.toInt(),
-            ),
-            child: Text(
-              '保存${Platform.isIOS ? '实况' : '视频'}',
-              style: const TextStyle(fontSize: 14),
             ),
           ),
       ],

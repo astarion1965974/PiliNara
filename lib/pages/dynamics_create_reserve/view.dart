@@ -1,4 +1,4 @@
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/common/widgets/time_picker.dart';
 import 'package:PiliPlus/pages/dynamics_create_reserve/controller.dart';
@@ -66,26 +66,37 @@ class _CreateReservePageState extends State<CreateReservePage> {
                 child: Text('类型', style: _leadingStyle),
               ),
               Obx(
-                () => StaticPopupMenuButton(
-                  requestFocus: false,
-                  initialValue: _controller.subType.value,
-                  onSelected: _controller.subType.call,
-                  itemBuilder: (context) {
-                    return const [
-                      PopupMenuItem(
-                        value: 0,
-                        child: Text('公开直播'),
+                () {
+                  final subType = _controller.subType.value;
+                  return Builder(
+                    builder: (menuContext) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () async {
+                        final selected = await showCouiMenu<int>(
+                          context: menuContext,
+                          items: [
+                            CouiMenuItem<int>(
+                              label: '公开直播',
+                              value: 0,
+                              selected: subType == 0,
+                            ),
+                            CouiMenuItem<int>(
+                              label: '大航海直播',
+                              value: 1,
+                              selected: subType == 1,
+                            ),
+                          ],
+                        );
+                        if (selected != null) {
+                          _controller.subType.call(selected);
+                        }
+                      },
+                      child: Text(
+                        subType == 0 ? '公开直播' : '大航海直播',
                       ),
-                      PopupMenuItem(
-                        value: 1,
-                        child: Text('大航海直播'),
-                      ),
-                    ];
-                  },
-                  child: Text(
-                    _controller.subType.value == 0 ? '公开直播' : '大航海直播',
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

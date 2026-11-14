@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/widgets/animated_height.dart';
 import 'package:PiliPlus/common/widgets/color_palette.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -69,6 +70,43 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
     theme = Theme.of(context);
   }
 
+
+  Widget _couiCardGroup(BuildContext context, List<Widget> children) {
+    final coui = CouiThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: coui.cardColor,
+          borderRadius: Coui.cardRadius,
+          border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+        ),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 72,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final titleStyle = theme.textTheme.titleMedium!;
@@ -86,69 +124,77 @@ class _ColorSelectPageState extends State<ColorSelectPage> {
           bottom: MediaQuery.viewPaddingOf(context).bottom + 100,
         ),
         children: [
-          ListTile(
-            onTap: () async {
-              final result = await showDialog<ThemeType>(
-                context: context,
-                builder: (context) => SelectDialog<ThemeType>(
-                  title: '主题模式',
-                  value: ctr.themeType.value,
-                  values: ThemeType.values.map((e) => (e, e.label)).toList(),
-                ),
-              );
-              if (result != null) {
-                try {
-                  Get.find<MineController>().themeType.value = result;
-                } catch (_) {}
-                ctr.themeType.value = result;
-                GStorage.setting.put(SettingBoxKey.themeMode, result.index);
-                Get.changeThemeMode(ThemeUtils.themeMode = result.toThemeMode);
-              }
-            },
-            leading: const Icon(Icons.flashlight_on_outlined),
-            title: Text('主题模式', style: titleStyle),
-            subtitle: Obx(
-              () => Text(
-                '当前模式：${ctr.themeType.value.label}',
-                style: subTitleStyle,
-              ),
-            ),
-          ),
-          Obx(
-            () => PopupListTile<FlexSchemeVariant>(
-              enabled: !ctr.dynamicColor.value,
-              leading: const Icon(Icons.palette_outlined),
-              title: const Text('调色板风格'),
-              value: () =>
-                  (_dynamicSchemeVariant, _dynamicSchemeVariant.variantName),
-              itemBuilder: (_) => FlexSchemeVariant.values
-                  .map(
-                    (e) => PopupMenuItem(value: e, child: Text(e.variantName)),
-                  )
-                  .toList(),
-              onSelected: (value, setState) {
-                _dynamicSchemeVariant = value;
-                GStorage.setting
-                    .put(SettingBoxKey.schemeVariant, value.index)
-                    .whenComplete(Get.updateMyAppTheme);
-              },
-            ),
-          ),
-          if (!Platform.isIOS)
-            Obx(
-              () => ListTile(
-                title: const Text('动态取色'),
-                leading: ExcludeFocus(
-                  child: Checkbox(
-                    value: ctr.dynamicColor.value,
-                    onChanged: _onChanged,
-                    materialTapTargetSize: .shrinkWrap,
-                    visualDensity: const .new(horizontal: -4, vertical: -4),
+          _couiCardGroup(
+            context,
+            [
+              ListTile(
+                onTap: () async {
+                  final result = await showDialog<ThemeType>(
+                    context: context,
+                    builder: (context) => SelectDialog<ThemeType>(
+                      title: '主题模式',
+                      value: ctr.themeType.value,
+                      values: ThemeType.values.map((e) => (e, e.label)).toList(),
+                    ),
+                  );
+                  if (result != null) {
+                    try {
+                      Get.find<MineController>().themeType.value = result;
+                    } catch (_) {}
+                    ctr.themeType.value = result;
+                    GStorage.setting.put(SettingBoxKey.themeMode, result.index);
+                    Get.changeThemeMode(
+                      ThemeUtils.themeMode = result.toThemeMode,
+                    );
+                  }
+                },
+                leading: const Icon(Icons.flashlight_on_outlined),
+                title: Text('主题模式', style: titleStyle),
+                subtitle: Obx(
+                  () => Text(
+                    '当前模式：${ctr.themeType.value.label}',
+                    style: subTitleStyle,
                   ),
                 ),
-                onTap: _onChanged,
               ),
-            ),
+              Obx(
+                () => PopupListTile<FlexSchemeVariant>(
+                  enabled: !ctr.dynamicColor.value,
+                  leading: const Icon(Icons.palette_outlined),
+                  title: const Text('调色板风格'),
+                  value: () =>
+                      (_dynamicSchemeVariant, _dynamicSchemeVariant.variantName),
+                  itemBuilder: (_) => FlexSchemeVariant.values
+                      .map(
+                        (e) =>
+                            PopupMenuItem(value: e, child: Text(e.variantName)),
+                      )
+                      .toList(),
+                  onSelected: (value, setState) {
+                    _dynamicSchemeVariant = value;
+                    GStorage.setting
+                        .put(SettingBoxKey.schemeVariant, value.index)
+                        .whenComplete(Get.updateMyAppTheme);
+                  },
+                ),
+              ),
+              if (!Platform.isIOS)
+                Obx(
+                  () => ListTile(
+                    title: const Text('动态取色'),
+                    leading: ExcludeFocus(
+                      child: Checkbox(
+                        value: ctr.dynamicColor.value,
+                        onChanged: _onChanged,
+                        materialTapTargetSize: .shrinkWrap,
+                        visualDensity: const .new(horizontal: -4, vertical: -4),
+                      ),
+                    ),
+                    onTap: _onChanged,
+                  ),
+                ),
+            ],
+          ),
           Padding(
             padding: padding + const .all(12),
             child: Obx(_buildColorPanel),

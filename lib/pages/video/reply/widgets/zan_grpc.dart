@@ -102,11 +102,18 @@ class ZanButtonGrpc extends StatelessWidget {
     final isDislike = action == $fixnum.Int64.TWO;
     final outline = theme.colorScheme.outline;
     final primary = theme.colorScheme.primary;
-    final ButtonStyle style = TextButton.styleFrom(
-      padding: EdgeInsets.zero,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      visualDensity: VisualDensity.compact,
-    );
+    final ButtonStyle style = youtubeStyle
+        ? TextButton.styleFrom(
+            padding: const EdgeInsets.only(right: 6),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
+          )
+        : TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
+          );
     Future<void> wrapProcessing(
       Future<void> Function(
         BuildContext context, {
@@ -138,7 +145,7 @@ class ZanButtonGrpc extends StatelessWidget {
           isDislike
               ? FontAwesomeIcons.solidThumbsDown
               : FontAwesomeIcons.thumbsDown,
-          size: 16,
+          size: youtubeStyle ? 17 : 16,
           color: isDislike ? primary : outline,
           semanticLabel: isDislike ? '已踩' : '点踩',
         ),
@@ -156,7 +163,7 @@ class ZanButtonGrpc extends StatelessWidget {
               isLike
                   ? FontAwesomeIcons.solidThumbsUp
                   : FontAwesomeIcons.thumbsUp,
-              size: 16,
+              size: youtubeStyle ? 17 : 16,
               color: isLike ? primary : outline,
               semanticLabel: isLike ? '已赞' : '点赞',
             ),
@@ -164,7 +171,9 @@ class ZanButtonGrpc extends StatelessWidget {
               NumUtils.numFormat(replyItem.like.toInt()),
               style: TextStyle(
                 color: isLike ? primary : outline,
-                fontSize: theme.textTheme.labelSmall!.fontSize,
+                fontSize: youtubeStyle
+                    ? 12
+                    : theme.textTheme.labelSmall!.fontSize,
               ),
             ),
           ],

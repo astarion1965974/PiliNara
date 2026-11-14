@@ -1,9 +1,11 @@
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_h.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/model_hot_video_item.dart';
 import 'package:PiliPlus/pages/rank/zone/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/rank/zone/widget/pgc_rank_item.dart';
 import 'package:PiliPlus/utils/grid.dart';
@@ -41,13 +43,20 @@ class _ZonePageState extends State<ZonePage>
     super.build(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+      edgeOffset: homeRefreshEdgeOffset(
+        HomeHeaderInsetScope.of(context),
+        displacement,
+      ),
       onRefresh: controller.onRefresh,
       child: CustomScrollView(
         controller: controller.scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverPadding(
-            padding: const EdgeInsets.only(top: 7, bottom: 100),
+            padding: EdgeInsets.only(
+              top: HomeHeaderInsetScope.of(context) + 7,
+              bottom: 100,
+            ),
             sliver: Obx(() => _buildBody(controller.loadingState.value)),
           ),
         ],

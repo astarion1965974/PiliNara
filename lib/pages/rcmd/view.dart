@@ -1,11 +1,14 @@
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/skeleton/video_card_v.dart';
 import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
 import 'package:PiliPlus/common/style.dart';
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/video_card/video_card_v.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/pages/rcmd/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/utils/grid.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -36,13 +39,20 @@ class _RcmdPageState extends State<RcmdPage>
       decoration: const BoxDecoration(borderRadius: Style.mdRadius),
       child: refreshIndicator(
         key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+        edgeOffset: homeRefreshEdgeOffset(
+          HomeHeaderInsetScope.of(context),
+          displacement,
+        ),
         onRefresh: controller.onRefresh,
         child: CustomScrollView(
           controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverPadding(
-              padding: const .only(top: Style.cardSpace, bottom: 100),
+              padding: EdgeInsets.only(
+                top: HomeHeaderInsetScope.of(context) + Style.cardSpace,
+                bottom: 100,
+              ),
               sliver: Obx(
                 () => _buildBody(colorScheme, controller.loadingState.value),
               ),
@@ -81,7 +91,11 @@ class _RcmdPageState extends State<RcmdPage>
                         onTap: () => controller
                           ..animateToTop()
                           ..onRefresh(),
-                        child: Card(
+                        child: DecoratedBox(
+                          decoration: Coui.cardDecoration(
+                            colorScheme,
+                            coui: CouiThemeData.of(context),
+                          ),
                           child: Container(
                             alignment: Alignment.center,
                             padding: const .symmetric(horizontal: 10),

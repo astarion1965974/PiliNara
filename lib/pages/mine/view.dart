@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
-import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
 import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/player_bar.dart';
@@ -19,7 +18,6 @@ import 'package:PiliPlus/pages/mine/widgets/fav_item.dart';
 import 'package:PiliPlus/pages/mine/widgets/history_item.dart';
 import 'package:PiliPlus/pages/mine/widgets/later_item.dart';
 import 'package:PiliPlus/pages/mine/widgets/sub_item.dart';
-import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/utils/bili_utils.dart';
 import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
@@ -98,14 +96,11 @@ class _MediaPageState extends CommonPageState<MinePage>
                   physics: const AlwaysScrollableScrollPhysics(),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                       child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: theme.brightness == Brightness.dark
-                              ? theme.colorScheme.surfaceContainerHigh
-                                  .withValues(alpha: 0.92)
-                              : Colors.white.withValues(alpha: 0.94),
-                          borderRadius: Coui.cardRadius,
+                        decoration: Coui.cardDecoration(
+                          theme.colorScheme,
+                          coui: CouiThemeData.of(context),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -113,7 +108,7 @@ class _MediaPageState extends CommonPageState<MinePage>
                             children: [
                               _buildUserInfo(theme, secondary),
                               _buildActions(
-                                VideoDetailChrome.accent(theme.colorScheme),
+                                CouiThemeData.of(context).accent,
                               ),
                             ],
                           ),
@@ -292,7 +287,7 @@ class _MediaPageState extends CommonPageState<MinePage>
             child: Row(
               mainAxisSize: .min,
               children: [
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 userInfo.face != null
                     ? Stack(
                         clipBehavior: .none,
@@ -399,7 +394,7 @@ class _MediaPageState extends CommonPageState<MinePage>
                     ],
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
               ],
             ),
           ),
@@ -552,7 +547,7 @@ class _MediaPageState extends CommonPageState<MinePage>
             itemCount: response.length,
             controller: tabCtr.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const .only(left: 20, top: 10, right: 20),
+            padding: const .only(left: 16, top: 10, right: 16),
             itemBuilder: (context, index) {
               if (index == response.length - 1) {
                 tabCtr.onLoadMore();
@@ -570,47 +565,76 @@ class _MediaPageState extends CommonPageState<MinePage>
           child: Center(child: Text(errMsg, textAlign: .center)),
         );
     }
-    final secondary = theme.colorScheme.secondary;
+    final coui = CouiThemeData.of(context);
+    final accent = coui.accent;
     return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Column(
-        children: [
-          ListTile(
-            dense: true,
-            onTap: onPushDetail,
-            title: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${tab.label}  ',
-                      style: const TextStyle(fontSize: 16, fontWeight: .bold),
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: DecoratedBox(
+        decoration: Coui.cardDecoration(theme.colorScheme, coui: coui),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Column(
+            children: [
+              Material(
+                type: MaterialType.transparency,
+                child: InkWell(
+                  onTap: onPushDetail,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${tab.label}  ',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: .bold,
+                                  ),
+                                ),
+                                if (tabCtr.count != null)
+                                  TextSpan(
+                                    text: '${tabCtr.count}  ',
+                                    style: TextStyle(color: accent),
+                                  ),
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                    color: accent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: '刷新',
+                          onPressed: tabCtr.onRefresh,
+                          icon: const Icon(Icons.refresh, size: 20),
+                        ),
+                      ],
                     ),
-                    if (tabCtr.count != null)
-                      TextSpan(
-                        text: '${tabCtr.count}  ',
-                        style: TextStyle(color: secondary),
-                      ),
-                    WidgetSpan(
-                      child: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 18,
-                        color: secondary,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            trailing: IconButton(
-              tooltip: '刷新',
-              onPressed: tabCtr.onRefresh,
-              icon: const Icon(Icons.refresh, size: 20),
-            ),
+              Divider(
+                height: 0.5,
+                thickness: 0.5,
+                indent: 16,
+                endIndent: 16,
+                color: coui.dividerColor,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: child,
+              ),
+            ],
           ),
-          child,
-        ],
+        ),
       ),
     );
   }

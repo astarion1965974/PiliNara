@@ -3,7 +3,8 @@ import 'dart:math';
 
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/more_btn.dart';
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -16,6 +17,7 @@ import 'package:PiliPlus/models_new/fav/fav_pgc/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_index_result/list.dart';
 import 'package:PiliPlus/models_new/pgc/pgc_timeline/result.dart';
 import 'package:PiliPlus/pages/pgc/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v.dart';
 import 'package:PiliPlus/pages/pgc/widgets/pgc_card_v_timeline.dart';
@@ -57,13 +59,17 @@ class _PgcPageState extends State<PgcPage> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     final ThemeData theme = Theme.of(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+      edgeOffset: homeRefreshEdgeOffset(topInset, displacement),
       onRefresh: controller.onRefresh,
       child: CustomScrollView(
         controller: controller.scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          if (topInset > 0)
+            SliverToBoxAdapter(child: SizedBox(height: topInset)),
           _buildFollow(theme),
           if (controller.showPgcTimeline)
             SliverToBoxAdapter(

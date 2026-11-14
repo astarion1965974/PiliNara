@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:io';
 
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/models/common/danmaku/danmaku_font_sync_mode.dart';
@@ -189,6 +190,43 @@ class _FontSettingPageState extends State<FontSettingPage> {
     });
   }
 
+
+  Widget _couiCardGroup(BuildContext context, List<Widget> children) {
+    final coui = CouiThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: coui.cardColor,
+          borderRadius: Coui.cardRadius,
+          border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+        ),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final customFonts = FontUtils.customFonts.keys.toList();
@@ -248,6 +286,9 @@ class _FontSettingPageState extends State<FontSettingPage> {
                 ),
               ),
             ),
+            _couiCardGroup(
+              context,
+              [
             _buildItem(
               Row(
                 children: [
@@ -401,37 +442,42 @@ class _FontSettingPageState extends State<FontSettingPage> {
                   const Text('弹幕：', style: TextStyle(fontWeight: .bold)),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: StaticPopupMenuButton<Object>(
-                      initialValue: _selectedDanmaku,
-                      borderRadius: Coui.controlRadius,
-                      itemBuilder: (context) => [
-                        if (customFonts.isNotEmpty) ...[
-                          for (final font in customFonts)
-                            CustomPopupMenuItem<Object>(
-                              value: font,
-                              height: 40,
-                              child: Text(
-                                FontUtils.displayName(font),
-                                style: TextStyle(fontFamily: font),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                    child: Builder(
+                      builder: (menuContext) => InkWell(
+                        borderRadius: Coui.controlRadius,
+                        onTap: () async {
+                          final selected = await showCouiMenu<Object>(
+                            context: menuContext,
+                            items: [
+                              if (customFonts.isNotEmpty) ...[
+                                for (final font in customFonts)
+                                  CouiMenuItem<Object>(
+                                    label: FontUtils.displayName(font),
+                                    value: font,
+                                    selected: font == _selectedDanmaku,
+                                  ),
+                                const CouiMenuDivider<Object>(),
+                              ],
+                              CouiMenuItem<Object>(
+                                label: '跟随应用字体',
+                                value: DanmakuFontSource.global,
+                                selected:
+                                    _selectedDanmaku == DanmakuFontSource.global,
                               ),
-                            ),
-                          const CustomPopupMenuDivider(height: 8),
-                        ],
-                        const CustomPopupMenuItem<Object>(
-                          value: DanmakuFontSource.global,
-                          height: 40,
-                          child: Text('跟随应用字体'),
-                        ),
-                        const CustomPopupMenuItem<Object>(
-                          value: DanmakuFontSource.system,
-                          height: 40,
-                          child: Text('系统默认弹幕字体'),
-                        ),
-                      ],
-                      onSelected: _onDanmakuSelected,
-                      child: _selectorLabel(text: _danmakuLabel),
+                              CouiMenuItem<Object>(
+                                label: '系统默认弹幕字体',
+                                value: DanmakuFontSource.system,
+                                selected:
+                                    _selectedDanmaku == DanmakuFontSource.system,
+                              ),
+                            ],
+                          );
+                          if (selected != null) {
+                            _onDanmakuSelected(selected);
+                          }
+                        },
+                        child: _selectorLabel(text: _danmakuLabel),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -442,6 +488,8 @@ class _FontSettingPageState extends State<FontSettingPage> {
                   ),
                 ],
               ),
+            ),
+              ],
             ),
           ],
         ),
@@ -522,13 +570,8 @@ class _FontSettingPageState extends State<FontSettingPage> {
   }
 
   Widget _buildItem(Widget child) {
-    return Container(
+    return Padding(
       padding: const .symmetric(horizontal: 20, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: colorScheme.primary.withValues(alpha: 0.3)),
-        ),
-      ),
       child: child,
     );
   }

@@ -5,7 +5,7 @@ import 'dart:io' show File;
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/widgets/dialog/report.dart';
 import 'package:PiliPlus/common/widgets/flutter/chat_list_view.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/text_field/text_field.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
@@ -24,7 +24,6 @@ import 'package:PiliPlus/pages/whisper_link_setting/view.dart';
 import 'package:PiliPlus/utils/extension/file_ext.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/feed_back.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -195,27 +194,25 @@ class _WhisperDetailPageState
   }
 
   void _showMenu(Offset offset, int index, Msg item, bool isOwner) {
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: PageUtils.menuPosition(offset),
-      clipBehavior: Clip.antiAlias,
+      offset: offset,
       items: [
         if (isOwner)
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '撤回',
             onTap: () => _whisperDetailController.sendMsg(
               message: '${item.msgKey}',
               onClearText: editController.clear,
               msgType: .EN_MSG_TYPE_DRAW_BACK,
               index: index,
             ),
-            child: const Text('撤回', style: TextStyle(fontSize: 14)),
           )
         else
-          CustomPopupMenuItem<void>(
-            height: 42,
+          CouiMenuItem<void>(
+            label: '举报',
+            isDestructive: true,
             onTap: () => onReport(item),
-            child: const Text('举报', style: TextStyle(fontSize: 14)),
           ),
       ],
     );
@@ -295,9 +292,20 @@ class _WhisperDetailPageState
               decoration: InputDecoration(
                 filled: true,
                 hintText: '发个消息聊聊呗~',
-                fillColor: theme.colorScheme.surface,
-                border: const OutlineInputBorder(
-                  borderSide: BorderSide.none,
+                fillColor: CouiThemeData.of(context).inputFillColor,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: CouiThemeData.of(context).inputBorderColor,
+                    width: 0.75,
+                  ),
+                  borderRadius: Coui.imageRadius,
+                  gapPadding: 0,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: CouiThemeData.of(context).inputBorderColor,
+                    width: 0.75,
+                  ),
                   borderRadius: Coui.imageRadius,
                   gapPadding: 0,
                 ),

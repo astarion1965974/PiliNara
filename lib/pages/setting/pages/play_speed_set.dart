@@ -1,3 +1,5 @@
+import 'package:PiliPlus/common/widgets/coui_button.dart';
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:math';
 
@@ -115,11 +117,10 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
 
   // 设定倍速弹窗
   void showBottomSheet(ThemeData theme, int index) {
-    showModalBottomSheet(
+    showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
-      clipBehavior: Clip.hardEdge,
       constraints: BoxConstraints(
         maxWidth: min(640, context.mediaQueryShortestSide),
       ),
@@ -180,6 +181,43 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
     setState(() {});
   }
 
+
+  Widget _couiCardGroup(BuildContext context, List<Widget> children) {
+    final coui = CouiThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: coui.cardColor,
+          borderRadius: Coui.cardRadius,
+          border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+        ),
+        child: ClipRRect(
+          borderRadius: Coui.cardRadius,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0)
+                    Divider(
+                      height: 0.5,
+                      thickness: 0.5,
+                      indent: 16,
+                      endIndent: 16,
+                      color: coui.dividerColor,
+                    ),
+                  children[i],
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -216,23 +254,28 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
                 style: TextStyle(color: theme.colorScheme.outline),
               ),
             ),
-            ListTile(
-              title: const Text('默认倍速'),
-              subtitle: Text(playSpeedDefault.toString()),
+            _couiCardGroup(
+              context,
+              [
+                ListTile(
+                  title: const Text('默认倍速'),
+                  subtitle: Text(playSpeedDefault.toString()),
+                ),
+                SetSwitchItem(
+                  title: '动态长按倍速',
+                  subtitle: '根据默认倍速长按时自动双倍',
+                  setKey: SettingBoxKey.enableAutoLongPressSpeed,
+                  defaultVal: enableAutoLongPressSpeed,
+                  onChanged: (val) =>
+                      setState(() => enableAutoLongPressSpeed = val),
+                ),
+                if (!enableAutoLongPressSpeed)
+                  ListTile(
+                    title: const Text('默认长按倍速'),
+                    subtitle: Text(longPressSpeedDefault.toString()),
+                  ),
+              ],
             ),
-            SetSwitchItem(
-              title: '动态长按倍速',
-              subtitle: '根据默认倍速长按时自动双倍',
-              setKey: SettingBoxKey.enableAutoLongPressSpeed,
-              defaultVal: enableAutoLongPressSpeed,
-              onChanged: (val) =>
-                  setState(() => enableAutoLongPressSpeed = val),
-            ),
-            if (!enableAutoLongPressSpeed)
-              ListTile(
-                title: const Text('默认长按倍速'),
-                subtitle: Text(longPressSpeedDefault.toString()),
-              ),
             Padding(
               padding: const EdgeInsets.only(
                 left: 14,
@@ -266,10 +309,12 @@ class _PlaySpeedPageState extends State<PlaySpeedPage> {
                 runSpacing: 2,
                 children: List.generate(
                   speedList.length,
-                  (index) => FilledButton.tonal(
-                    style: FilledButton.styleFrom(tapTargetSize: .padded),
+                  (index) => CouiButton(
+                    variant: CouiButtonVariant.tonal,
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    label: speedList[index].toString(),
                     onPressed: () => showBottomSheet(theme, index),
-                    child: Text(speedList[index].toString()),
                   ),
                 ),
               ),

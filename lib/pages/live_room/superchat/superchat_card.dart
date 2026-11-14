@@ -1,6 +1,6 @@
 import 'dart:async' show Timer;
 
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/selection_text.dart';
 import 'package:PiliPlus/models/common/super_chat_time_type.dart';
@@ -11,7 +11,6 @@ import 'package:PiliPlus/utils/color_utils.dart';
 import 'package:PiliPlus/utils/extension/iterable_ext.dart';
 import 'package:PiliPlus/utils/extension/selectable_region_ext.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/screenshot.dart';
 import 'package:PiliPlus/utils/utils.dart';
@@ -107,45 +106,29 @@ class _SuperChatCardState extends State<SuperChatCard> {
     if (flag) {
       _cancelTimer();
     }
-    showMenu(
+    showCouiMenu<void>(
       context: context,
-      position: PageUtils.menuPosition(offset),
-      clipBehavior: Clip.antiAlias,
+      offset: offset,
       items: [
-        CustomPopupMenuItem<void>(
-          height: 38,
+        CouiMenuItem<void>(
+          label: '访问: ${item.userInfo.uname}',
           onTap: () => Get.toNamed('/member?mid=${item.uid}'),
-          child: Text(
-            '访问: ${item.userInfo.uname}',
-            style: const TextStyle(fontSize: 13),
-          ),
         ),
-        CustomPopupMenuItem<void>(
-          height: 38,
+        CouiMenuItem<void>(
+          label: '复制 SC 信息',
           onTap: () => Utils.copyText(Utils.jsonEncoder.convert(item.toJson())),
-          child: const Text(
-            '复制 SC 信息',
-            style: TextStyle(fontSize: 13),
-          ),
         ),
-        CustomPopupMenuItem<void>(
-          height: 38,
+        CouiMenuItem<void>(
+          label: '保存为图片',
           onTap: () {
             if (!mounted) return;
             _screenShot(context, item, showTime: _showTime);
           },
-          child: const Text(
-            '保存为图片',
-            style: TextStyle(fontSize: 13),
-          ),
         ),
-        CustomPopupMenuItem<void>(
-          height: 38,
+        CouiMenuItem<void>(
+          label: '举报',
+          isDestructive: true,
           onTap: widget.onReport,
-          child: const Text(
-            '举报',
-            style: TextStyle(fontSize: 13),
-          ),
         ),
       ],
     ).whenComplete(() {

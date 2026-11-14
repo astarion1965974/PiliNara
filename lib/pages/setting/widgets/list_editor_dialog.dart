@@ -1,3 +1,4 @@
+import 'package:PiliPlus/common/widgets/coui_button.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -285,14 +286,16 @@ class _ListEditorDialogState extends State<ListEditorDialog> {
       ),
       actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       actions: [
-        TextButton(
+        CouiButton(
+          variant: CouiButtonVariant.ghost,
+          height: 38,
+          label: '取消',
           onPressed: Get.back,
-          child: Text(
-            '取消',
-            style: TextStyle(color: theme.colorScheme.outline),
-          ),
         ),
-        FilledButton(
+        CouiButton(
+          variant: CouiButtonVariant.primary,
+          height: 38,
+          label: '保存',
           onPressed: () {
             // A focus-loss validation may run before this button callback.
             if (_invalidEditIndexes.isNotEmpty) {
@@ -307,7 +310,6 @@ class _ListEditorDialogState extends State<ListEditorDialog> {
             if (!_addItem()) return;
             Get.back(result: _items);
           },
-          child: const Text('保存'),
         ),
       ],
     );

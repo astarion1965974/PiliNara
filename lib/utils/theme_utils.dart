@@ -2,8 +2,10 @@ import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
+import 'package:PiliPlus/common/widgets/coui_page_transition.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoThemeData;
 import 'package:flutter/foundation.dart' show PlatformDispatcher;
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:material_ui/material_ui.dart';
 
 abstract final class ThemeUtils {
@@ -57,7 +59,8 @@ abstract final class ThemeUtils {
       );
     }
 
-    final buttonShape = const WidgetStatePropertyAll<OutlinedBorder>(
+    final coui = CouiThemeData.fromScheme(colorScheme);
+    const buttonShape = WidgetStatePropertyAll<OutlinedBorder>(
       Coui.controlShape,
     );
     final theme = ThemeData(
@@ -65,16 +68,25 @@ abstract final class ThemeUtils {
       colorScheme: colorScheme,
       fontFamily: fontFamily,
       textTheme: textTheme,
-      scaffoldBackgroundColor: Colors.transparent,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 52,
         elevation: 0,
         titleSpacing: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: colorScheme.brightness,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemStatusBarContrastEnforced: false,
+        ),
         titleTextStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: fontWeight,
+          fontSize: 18,
+          fontWeight: fontWeight == FontWeight.normal
+              ? FontWeight.w600
+              : fontWeight,
           fontFamily: fontFamily,
           color: colorScheme.onSurface,
         ),
@@ -93,9 +105,7 @@ abstract final class ThemeUtils {
         shape: StadiumBorder(),
       ),
       iconButtonTheme: const IconButtonThemeData(
-        style: ButtonStyle(
-          shape: WidgetStatePropertyAll(CircleBorder()),
-        ),
+        style: ButtonStyle(shape: WidgetStatePropertyAll(CircleBorder())),
       ),
       snackBarTheme: SnackBarThemeData(
         elevation: 0,
@@ -128,9 +138,7 @@ abstract final class ThemeUtils {
         ),
       ),
       listTileTheme: const ListTileThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: Coui.controlRadius,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: Coui.controlRadius),
         controlAffinity: .leading,
       ),
       cardTheme: CardThemeData(
@@ -186,12 +194,7 @@ abstract final class ThemeUtils {
       switchTheme: const SwitchThemeData(
         padding: .zero,
         materialTapTargetSize: .shrinkWrap,
-        thumbIcon: WidgetStateProperty<Icon?>.fromMap(
-          <WidgetStatesConstraint, Icon?>{
-            WidgetState.selected: Icon(Icons.done),
-            WidgetState.any: null,
-          },
-        ),
+        thumbIcon: WidgetStatePropertyAll<Icon?>(null),
       ),
       dividerTheme: DividerThemeData(
         color: colorScheme.outline.withValues(alpha: 0.08),
@@ -202,47 +205,61 @@ abstract final class ThemeUtils {
         shape: Border(),
         collapsedShape: Border(),
       ),
-      filledButtonTheme: FilledButtonThemeData(
+      filledButtonTheme: const FilledButtonThemeData(
         style: ButtonStyle(
-          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          shadowColor: WidgetStatePropertyAll(Colors.transparent),
           shape: buttonShape,
         ),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
+      elevatedButtonTheme: const ElevatedButtonThemeData(
         style: ButtonStyle(
-          elevation: const WidgetStatePropertyAll(0),
-          shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+          elevation: WidgetStatePropertyAll(0),
+          shadowColor: WidgetStatePropertyAll(Colors.transparent),
           shape: buttonShape,
         ),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
+      outlinedButtonTheme: const OutlinedButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
-      textButtonTheme: TextButtonThemeData(
+      textButtonTheme: const TextButtonThemeData(
         style: ButtonStyle(shape: buttonShape),
       ),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: Coui.controlRadius),
-        enabledBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
-        focusedBorder: OutlineInputBorder(borderRadius: Coui.controlRadius),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: coui.inputFillColor,
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        border: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: coui.inputBorderColor, width: 0.75),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: coui.accent, width: 1.2),
+        ),
       ),
       chipTheme: const ChipThemeData(shape: Coui.controlShape),
       menuTheme: const MenuThemeData(
-        style: MenuStyle(
-          shape: WidgetStatePropertyAll(Coui.cardShape),
-        ),
+        style: MenuStyle(shape: WidgetStatePropertyAll(Coui.cardShape)),
       ),
       tabBarTheme: const TabBarThemeData(
         dividerHeight: 0,
+        dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
+        splashFactory: NoSplash.splashFactory,
+        overlayColor: WidgetStatePropertyAll<Color?>(Colors.transparent),
       ),
-      pageTransitionsTheme: PageTransitionsTheme(
+      pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: Pref.enablePredictiveBack
-              ? const PredictiveBackPageTransitionsBuilder()
-              : const ZoomPageTransitionsBuilder(),
+          TargetPlatform.android: CouiPageTransitionsBuilder(),
         },
       ),
+      extensions: <ThemeExtension<dynamic>>[
+        coui,
+      ],
     );
     if (isDark && Pref.isPureBlackTheme) {
       return darkenTheme(theme);
@@ -253,19 +270,61 @@ abstract final class ThemeUtils {
   static ThemeData darkenTheme(ThemeData theme) {
     final colorScheme = theme.colorScheme;
     final color = colorScheme.surfaceContainerHighest.darken(0.7);
+    final darkScheme = colorScheme.copyWith(
+      primary: colorScheme.primary.darken(0.1),
+      onPrimary: colorScheme.onPrimary.darken(0.1),
+      primaryContainer: colorScheme.primaryContainer.darken(0.1),
+      onPrimaryContainer: colorScheme.onPrimaryContainer.darken(0.1),
+      inversePrimary: colorScheme.inversePrimary.darken(0.1),
+      secondary: colorScheme.secondary.darken(0.05),
+      onSecondary: colorScheme.onSecondary.darken(0.05),
+      secondaryContainer: colorScheme.secondaryContainer.darken(0.05),
+      onSecondaryContainer: colorScheme.onSecondaryContainer.darken(0.05),
+      error: colorScheme.error.darken(0.05),
+      surface: Colors.black,
+      onSurface: colorScheme.onSurface.darken(0.15),
+      surfaceTint: colorScheme.surfaceTint.darken(),
+      inverseSurface: colorScheme.inverseSurface.darken(),
+      onInverseSurface: colorScheme.onInverseSurface.darken(),
+      surfaceContainer: colorScheme.surfaceContainer.darken(),
+      surfaceContainerHigh: colorScheme.surfaceContainerHigh.darken(),
+      surfaceContainerHighest: colorScheme.surfaceContainerHighest.darken(0.4),
+    );
+    final darkCoui = CouiThemeData.fromScheme(darkScheme, isPureBlack: true);
     return theme.copyWith(
       canvasColor: Colors.black,
       scaffoldBackgroundColor: Colors.black,
       appBarTheme: theme.appBarTheme.copyWith(
         backgroundColor: Colors.black,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.light,
+          systemStatusBarContrastEnforced: false,
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: darkCoui.inputFillColor,
+        hintStyle: TextStyle(color: darkScheme.onSurfaceVariant),
+        border: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: darkCoui.inputBorderColor, width: 0.75),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: Coui.inputRadius,
+          borderSide: BorderSide(color: darkCoui.accent, width: 1.2),
+        ),
       ),
       cardTheme: theme.cardTheme.copyWith(
         color: colorScheme.surfaceContainer.darken(0.75),
       ),
       dialogTheme: theme.dialogTheme.copyWith(backgroundColor: color),
-      bottomSheetTheme: theme.bottomSheetTheme.copyWith(
-        backgroundColor: color,
-      ),
+      bottomSheetTheme: theme.bottomSheetTheme.copyWith(backgroundColor: color),
       bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
         backgroundColor: color,
       ),
@@ -276,28 +335,14 @@ abstract final class ThemeUtils {
         backgroundColor: Colors.black,
       ),
       popupMenuTheme: theme.popupMenuTheme.copyWith(color: color),
-      colorScheme: colorScheme.copyWith(
-        primary: colorScheme.primary.darken(0.1),
-        onPrimary: colorScheme.onPrimary.darken(0.1),
-        primaryContainer: colorScheme.primaryContainer.darken(0.1),
-        onPrimaryContainer: colorScheme.onPrimaryContainer.darken(0.1),
-        inversePrimary: colorScheme.inversePrimary.darken(0.1),
-        secondary: colorScheme.secondary.darken(0.05),
-        onSecondary: colorScheme.onSecondary.darken(0.05),
-        secondaryContainer: colorScheme.secondaryContainer.darken(0.05),
-        onSecondaryContainer: colorScheme.onSecondaryContainer.darken(0.05),
-        error: colorScheme.error.darken(0.05),
-        surface: Colors.black,
-        onSurface: colorScheme.onSurface.darken(0.15),
-        surfaceTint: colorScheme.surfaceTint.darken(),
-        inverseSurface: colorScheme.inverseSurface.darken(),
-        onInverseSurface: colorScheme.onInverseSurface.darken(),
-        surfaceContainer: colorScheme.surfaceContainer.darken(),
-        surfaceContainerHigh: colorScheme.surfaceContainerHigh.darken(),
-        surfaceContainerHighest: colorScheme.surfaceContainerHighest.darken(
-          0.4,
-        ),
-      ),
+      colorScheme: darkScheme,
+      extensions: [
+        for (final e in theme.extensions.values)
+          if (e is! CouiThemeData &&
+              e is ThemeExtension<ThemeExtension<dynamic>>)
+            e,
+        darkCoui,
+      ],
     );
   }
 }

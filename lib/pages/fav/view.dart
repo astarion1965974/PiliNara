@@ -1,3 +1,5 @@
+import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
 import 'package:PiliPlus/common/widgets/view_safe_area.dart';
@@ -134,6 +136,20 @@ class _FavPageState extends State<FavPage> with SingleTickerProviderStateMixin {
               controller: _tabController,
               isScrollable: true,
               tabAlignment: TabAlignment.start,
+              dividerHeight: 0,
+              dividerColor: Colors.transparent,
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorPadding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 5,
+              ),
+              indicator: VideoDetailChrome.pillDecoration(
+                Theme.of(context).colorScheme,
+                coui: CouiThemeData.of(context),
+              ),
+              labelColor: CouiThemeData.of(context).accent,
+              unselectedLabelColor:
+                  Theme.of(context).colorScheme.onSurfaceVariant,
               tabs: FavTabType.values
                   .map((item) => Tab(text: item.title))
                   .toList(),

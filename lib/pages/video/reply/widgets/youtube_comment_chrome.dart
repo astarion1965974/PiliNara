@@ -1,5 +1,8 @@
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
+import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:material_ui/material_ui.dart';
 
 class YoutubeCommentSort extends StatelessWidget {
@@ -7,51 +10,118 @@ class YoutubeCommentSort extends StatelessWidget {
     super.key,
     required this.selected,
     required this.onSelect,
+    this.totalCount,
   });
 
   final ReplySortType selected;
   final ValueChanged<ReplySortType> onSelect;
+  final int? totalCount;
 
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    Widget button(ReplySortType type, String label) {
-      final active = selected == type;
-      return Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Semantics(
-          selected: active,
+    final count = totalCount;
+
+    Widget rightControl;
+    if (selected == ReplySortType.select) {
+      rightControl = Container(
+        height: 28,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: VideoDetailChrome.inactivePill(scheme),
+          borderRadius: const BorderRadius.all(Radius.circular(14)),
+          border: Border.all(
+            color: VideoDetailChrome.pillBorder(scheme, active: false),
+          ),
+        ),
+        child: Text(
+          '精选评论',
+          style: TextStyle(
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+            color: scheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    } else {
+      final currentLabel = selected == ReplySortType.time ? '最新' : '最热门';
+      rightControl = Builder(
+        builder: (menuContext) => Semantics(
           button: true,
-          child: TextButton(
-            onPressed: selected == ReplySortType.select
-                ? null
-                : () => onSelect(type),
-            style: TextButton.styleFrom(
-              backgroundColor: active
-                  ? VideoDetailChrome.pill(scheme)
-                  : scheme.onSurface.withValues(alpha: 0.06),
-              foregroundColor: active
-                  ? VideoDetailChrome.accent(scheme)
-                  : scheme.onSurface,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            onTap: () async {
+              final next = await showCouiMenu<ReplySortType>(
+                context: menuContext,
+                items: [
+                  CouiMenuItem<ReplySortType>(
+                    label: '最热门',
+                    value: ReplySortType.hot,
+                    selected: selected == ReplySortType.hot,
+                  ),
+                  CouiMenuItem<ReplySortType>(
+                    label: '最新',
+                    value: ReplySortType.time,
+                    selected: selected == ReplySortType.time,
+                  ),
+                ],
+              );
+              if (next != null) {
+                onSelect(next);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    currentLabel,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 16,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              minimumSize: const Size(0, 36),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: Text(label),
           ),
         ),
       );
     }
 
-    return Row(children: [
-      button(ReplySortType.hot, '最热门'),
-      button(ReplySortType.time, '最新'),
-      if (selected == ReplySortType.select)
-        Text('精选评论', style: TextStyle(color: scheme.onSurfaceVariant)),
-    ]);
+    return Row(
+      children: [
+        Text(
+          '全部评论',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: scheme.onSurface,
+          ),
+        ),
+        if (count != null && count >= 0) ...[
+          const SizedBox(width: 6),
+          Text(
+            NumUtils.numFormat(count),
+            style: TextStyle(
+              fontSize: 12.5,
+              color: scheme.outline,
+            ),
+          ),
+        ],
+        const Spacer(),
+        rightControl,
+      ],
+    );
   }
 }
 
@@ -68,27 +138,44 @@ class YoutubeCommentComposer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    return Material(
-      color: VideoDetailChrome.background(scheme),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(12, 8, 12, 8 + bottomPadding),
+    const capsuleRadius = BorderRadius.all(Radius.circular(28));
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        VideoDetailChrome.horizontalInset,
+        8,
+        VideoDetailChrome.horizontalInset,
+        8 + bottomPadding,
+      ),
+      child: CouiGlassSurface(
+        tier: CouiGlassTier.floating,
+        borderRadius: capsuleRadius,
         child: Material(
-          color: scheme.onSurface.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(24),
+          type: MaterialType.transparency,
+          borderRadius: capsuleRadius,
           child: InkWell(
             onTap: onTap,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: capsuleRadius,
             child: SizedBox(
-              height: 44,
+              height: 56,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    '写评论…',
-                    style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 14),
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '写评论…',
+                      style: TextStyle(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -97,28 +184,4 @@ class YoutubeCommentComposer extends StatelessWidget {
       ),
     );
   }
-}
-
-class YoutubeReplyThreadPainter extends CustomPainter {
-  const YoutubeReplyThreadPainter(this.color);
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.height <= 55) return;
-    final end = size.height - 18;
-    final path = Path()
-      ..moveTo(17, 38)
-      ..lineTo(17, end - 9)
-      ..quadraticBezierTo(17, end, 27, end)
-      ..lineTo(34, end);
-    canvas.drawPath(path, Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2);
-  }
-
-  @override
-  bool shouldRepaint(YoutubeReplyThreadPainter oldDelegate) =>
-      color != oldDelegate.color;
 }

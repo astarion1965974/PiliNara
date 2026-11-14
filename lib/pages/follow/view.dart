@@ -1,6 +1,6 @@
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
 import 'package:PiliPlus/common/widgets/dialog/simple_dialog_option.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
@@ -127,21 +127,20 @@ class _FollowPageState extends State<FollowPage>
               icon: const Icon(Icons.search_outlined),
               tooltip: '搜索',
             ),
-            StaticPopupMenuButton(
-              icon: const Icon(Icons.more_vert),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  onTap: () => Get.toNamed('/blackListPage'),
-                  child: const Row(
-                    spacing: 10,
-                    mainAxisSize: .min,
-                    children: [
-                      Icon(Icons.block, size: 19),
-                      Text('黑名单管理'),
-                    ],
-                  ),
+            Builder(
+              builder: (menuContext) => IconButton(
+                icon: const Icon(Icons.more_vert),
+                onPressed: () => showCouiMenu(
+                  context: menuContext,
+                  items: [
+                    CouiMenuItem(
+                      label: '黑名单管理',
+                      icon: Icons.block,
+                      onTap: () => Get.toNamed('/blackListPage'),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(width: 6),
           ]

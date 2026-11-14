@@ -1,3 +1,6 @@
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
+import 'package:PiliPlus/common/widgets/coui_button.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/coui.dart';
 import 'dart:io' show Platform;
 import 'dart:math' as math;
@@ -6,7 +9,7 @@ import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/dialog/report_member.dart';
 import 'package:PiliPlus/common/widgets/dynamic_sliver_app_bar/dynamic_sliver_app_bar.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/gesture/tap_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/loading_widget.dart';
 import 'package:PiliPlus/common/widgets/scroll_behavior.dart'
@@ -62,6 +65,7 @@ class _MemberPageState extends State<MemberPage> {
   late final int _mid;
   late final String _heroTag;
   late final MemberController _userController;
+  final _scrollRatio = 0.0.obs;
   PageController? _headerController;
   PageController getHeaderController() =>
       _headerController ??= PageController();
@@ -89,13 +93,51 @@ class _MemberPageState extends State<MemberPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context).colorScheme;
+    final coui = CouiThemeData.of(context);
     final padding = MediaQuery.viewPaddingOf(context);
-    return Material(
-      color: theme.surface,
-      child: Obx(
-        () => switch (_userController.loadingState.value) {
-          Loading() => m3eLoading,
-          Success(:final response) => ExtendedNestedScrollView(
+    final dark = theme.brightness == Brightness.dark;
+    return Obx(() {
+      final easedRatio = Curves.easeOut.transform(_scrollRatio.value);
+      final useLightBgIcons = easedRatio >= 0.45 && !dark;
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarBrightness:
+              useLightBgIcons ? Brightness.light : Brightness.dark,
+          statusBarIconBrightness:
+              useLightBgIcons ? Brightness.dark : Brightness.light,
+          systemStatusBarContrastEnforced: false,
+        ),
+        child: _buildScaffold(theme, coui, padding),
+      );
+    });
+  }
+
+  Widget _buildScaffold(
+    ColorScheme theme,
+    CouiThemeData coui,
+    EdgeInsets padding,
+  ) {
+    return VideoDetailBackground(
+      child: Material(
+        type: MaterialType.transparency,
+        child: Obx(
+          () => switch (_userController.loadingState.value) {
+            Loading() => m3eLoading,
+            Success(:final response) => NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification.depth == 0) {
+                  final pixels = notification.metrics.pixels;
+                  final next = pixels <= 0
+                      ? 0.0
+                      : (pixels / (kToolbarHeight * 2)).clamp(0.0, 1.0);
+                  if ((next - _scrollRatio.value).abs() > 0.01) {
+                    _scrollRatio.value = next;
+                  }
+                }
+                return false;
+              },
+              child: ExtendedNestedScrollView(
             onlyOneScrollInBody: true,
             key: _userController.scrollKey,
             scrollBehavior: const NoOverscrollIndicator(),
@@ -105,6 +147,10 @@ class _MemberPageState extends State<MemberPage> {
               if (response != null) {
                 return [
                   DynamicSliverAppBar.medium(
+                    elevation: 0,
+                    scrolledUnderElevation: 0,
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: coui.surfaceBackground,
                     actions: _actions(theme),
                     title: Text(_userController.username ?? ''),
                     flexibleSpace: Obx(
@@ -157,8 +203,26 @@ class _MemberPageState extends State<MemberPage> {
                               controller: _userController.tabController,
                               tabs: _userController.tabs,
                               onTap: _userController.onTapTab,
-                              dividerColor: theme.outline.withValues(
-                                alpha: 0.2,
+                              dividerHeight: 0,
+                              dividerColor: Colors.transparent,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicatorPadding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 5,
+                              ),
+                              indicator: VideoDetailChrome.pillDecoration(
+                                theme,
+                                coui: coui,
+                              ),
+                              labelColor: coui.accent,
+                              unselectedLabelColor: theme.onSurfaceVariant,
+                              labelStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              unselectedLabelStyle: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
                               ),
                             ),
                           ),
@@ -168,11 +232,13 @@ class _MemberPageState extends State<MemberPage> {
                   )
                 : scrollableError,
           ),
-          Error(:final errMsg) => scrollErrorWidget(
-            errMsg: errMsg,
-            onReload: _userController.onReload,
-          ),
-        },
+            ),
+            Error(:final errMsg) => scrollErrorWidget(
+              errMsg: errMsg,
+              onReload: _userController.onReload,
+            ),
+          },
+        ),
       ),
     );
   }
@@ -224,7 +290,13 @@ class _MemberPageState extends State<MemberPage> {
               ...list.map((e) {
                 return Builder(
                   builder: (context) {
-                    Widget trailing = FilledButton.tonal(
+                    Widget trailing = CouiButton(
+                      variant: e.isFollow
+                          ? CouiButtonVariant.ghost
+                          : CouiButtonVariant.tonal,
+                      height: 34,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      label: '${e.isFollow ? '已' : ''}预约',
                       onPressed: () async {
                         final isFollow = e.isFollow;
                         final res = await UserHttp.spaceReserve(
@@ -241,23 +313,6 @@ class _MemberPageState extends State<MemberPage> {
                           res.toast();
                         }
                       },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: e.isFollow
-                            ? scheme.onInverseSurface
-                            : null,
-                        foregroundColor: e.isFollow ? scheme.outline : null,
-                        tapTargetSize: .shrinkWrap,
-                        minimumSize: const Size(68, 40),
-                        padding: const .symmetric(horizontal: 10),
-                        visualDensity: const .new(horizontal: -2, vertical: -3),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: Coui.imageRadius,
-                        ),
-                      ),
-                      child: Text(
-                        '${e.isFollow ? '已' : ''}预约',
-                        style: const TextStyle(fontSize: 13),
-                      ),
                     );
                     if (e.dynamicId?.isNotEmpty ?? false) {
                       trailing = Row(
@@ -349,243 +404,143 @@ class _MemberPageState extends State<MemberPage> {
       ),
       icon: const Icon(Icons.search_outlined),
     ),
-    StaticPopupMenuButton(
-      icon: const Icon(Icons.more_vert),
-      itemBuilder: (_) => <PopupMenuEntry>[
-        if (_userController.account.mid != _mid) ...[
-          PopupMenuItem(
-            onTap: () => _userController.editRemark(context),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.edit_note, size: 19),
-                const SizedBox(width: 10),
-                Obx(() => Text(
-                  _userController.remark.value.isEmpty ? '添加备注' : '编辑备注',
-                )),
-              ],
-            ),
-          ),
-          PopupMenuItem(
-            onTap: () => _userController.blockUser(context),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.block, size: 19),
-                const SizedBox(width: 10),
-                Text(
-                  _userController.relation.value != 128 ? '加入黑名单' : '移除黑名单',
+    Builder(
+      builder: (menuContext) => IconButton(
+        icon: const Icon(Icons.more_vert),
+        onPressed: () => showCouiMenu(
+          context: menuContext,
+          items: [
+            if (_userController.account.mid != _mid) ...[
+              CouiMenuItem(
+                label: _userController.remark.value.isEmpty ? '添加备注' : '编辑备注',
+                icon: Icons.edit_note,
+                onTap: () => _userController.editRemark(context),
+              ),
+              CouiMenuItem(
+                label: _userController.relation.value != 128
+                    ? '加入黑名单'
+                    : '移除黑名单',
+                icon: Icons.block,
+                onTap: () => _userController.blockUser(context),
+              ),
+              if (_userController.account.isLogin &&
+                  _userController.isFollowed == 1)
+                CouiMenuItem(
+                  label: '移除粉丝',
+                  isDestructive: true,
+                  icon: Icons.remove_circle_outline_outlined,
+                  onTap: _userController.onRemoveFan,
                 ),
-              ],
-            ),
-          ),
-          if (_userController.account.isLogin &&
-              _userController.isFollowed == 1)
-            PopupMenuItem(
-              onTap: _userController.onRemoveFan,
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.remove_circle_outline_outlined, size: 19),
-                  SizedBox(width: 10),
-                  Text('移除粉丝'),
-                ],
-              ),
-            ),
-        ],
-        PopupMenuItem(
-          onTap: _userController.shareUser,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.share_outlined, size: 19),
-              const SizedBox(width: 10),
-              Text(
-                _userController.account.mid != _mid ? '分享UP主' : '分享我的主页',
-              ),
             ],
-          ),
-        ),
-        if (PlatformUtils.isMobile)
-          PopupMenuItem(
-            onTap: _createShortcut,
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_box_outlined, size: 19),
-                SizedBox(width: 10),
-                Text('添加至桌面'),
-              ],
+            CouiMenuItem(
+              label: _userController.account.mid != _mid ? '分享UP主' : '分享我的主页',
+              icon: Icons.share_outlined,
+              onTap: _userController.shareUser,
             ),
-          ),
-        // if (_userController.hasCharge)
-        //   PopupMenuItem(
-        //     onTap: () => UpowerRankPage.toUpowerRank(
-        //       mid: _userController.mid,
-        //       name: _userController.username ?? '',
-        //       count: _userController.chargeCount,
-        //     ),
-        //     child: const Row(
-        //       mainAxisSize: MainAxisSize.min,
-        //       children: [
-        //         Icon(Icons.electric_bolt, size: 19),
-        //         SizedBox(width: 10),
-        //         Text('充电排行榜'),
-        //       ],
-        //     ),
-        //   ),
-        // if (_userController.hasGuard)
-        //   PopupMenuItem(
-        //     onTap: () => MemberGuard.toMemberGuard(
-        //       mid: _userController.mid,
-        //       name: _userController.username ?? '',
-        //       count: _userController.guardCount,
-        //     ),
-        //     child: const Row(
-        //       mainAxisSize: MainAxisSize.min,
-        //       children: [
-        //         Icon(Icons.anchor, size: 19),
-        //         SizedBox(width: 10),
-        //         Text('大航海舰队'),
-        //       ],
-        //     ),
-        //   ),
-        if (Get.isRegistered<MemberContributeCtr>(tag: _heroTag))
-          PopupMenuItem(
-            onTap: _toWebArchive,
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.extension_outlined, size: 19),
-                SizedBox(width: 10),
-                Text('网页投稿'),
-              ],
-            ),
-          ),
-        if (_userController.account.isLogin)
-          if (_userController.mid == _userController.account.mid) ...[
-            if ((_userController
-                        .loadingState
-                        .value
-                        .dataOrNull
-                        ?.card
-                        ?.vip
-                        ?.status ??
-                    0) >
-                0)
-              PopupMenuItem(
-                onTap: _userController.vipExpAdd,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.upcoming_outlined, size: 19),
-                    SizedBox(width: 10),
-                    Text('大会员经验'),
-                  ],
-                ),
+            if (PlatformUtils.isMobile)
+              CouiMenuItem(
+                label: '添加至桌面',
+                icon: Icons.add_box_outlined,
+                onTap: _createShortcut,
               ),
-            PopupMenuItem(
-              onTap: () => Get.to(const LoginDevicesPage()),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.devices, size: 18),
-                  SizedBox(width: 10),
-                  Text('登录设备'),
-                ],
+            // if (_userController.hasCharge)
+            //   CouiMenuItem(
+            //     label: '充电排行榜',
+            //     icon: Icons.electric_bolt,
+            //     onTap: () => UpowerRankPage.toUpowerRank(
+            //       mid: _userController.mid,
+            //       name: _userController.username ?? '',
+            //       count: _userController.chargeCount,
+            //     ),
+            //   ),
+            // if (_userController.hasGuard)
+            //   CouiMenuItem(
+            //     label: '大航海舰队',
+            //     icon: Icons.anchor,
+            //     onTap: () => MemberGuard.toMemberGuard(
+            //       mid: _userController.mid,
+            //       name: _userController.username ?? '',
+            //       count: _userController.guardCount,
+            //     ),
+            //   ),
+            if (Get.isRegistered<MemberContributeCtr>(tag: _heroTag))
+              CouiMenuItem(
+                label: '网页投稿',
+                icon: Icons.extension_outlined,
+                onTap: _toWebArchive,
               ),
-            ),
-            PopupMenuItem(
-              onTap: () => Get.to(
-                const LogPage(),
-                arguments: LoginLogController(),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.login, size: 18),
-                  SizedBox(width: 10),
-                  Text('登录记录'),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              onTap: () => Get.to(
-                const LogPage(),
-                arguments: CoinLogController(),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(FontAwesomeIcons.b, size: 16),
-                  SizedBox(width: 10),
-                  Text('硬币记录'),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              onTap: () => Get.to(
-                const LogPage(),
-                arguments: ExpLogController(),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.linear_scale, size: 18),
-                  SizedBox(width: 10),
-                  Text('经验记录'),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              onTap: () => Get.toNamed('/spaceSetting'),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.settings_outlined, size: 19),
-                  SizedBox(width: 10),
-                  Text('空间设置'),
-                ],
-              ),
-            ),
-          ] else ...[
-            if (_userController.isFollow)
-              PopupMenuItem(
-                onTap: _showFollowTime,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.more_time_outlined, size: 19),
-                    SizedBox(width: 10),
-                    Text('关注时间'),
-                  ],
-                ),
-              ),
-            const PopupMenuDivider(),
-            PopupMenuItem(
-              onTap: () => showMemberReportDialog(
-                context,
-                name: _userController.username,
-                mid: _mid,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 19,
-                    color: theme.error,
+            if (_userController.account.isLogin)
+              if (_userController.mid == _userController.account.mid) ...[
+                if ((_userController
+                            .loadingState
+                            .value
+                            .dataOrNull
+                            ?.card
+                            ?.vip
+                            ?.status ??
+                        0) >
+                    0)
+                  CouiMenuItem(
+                    label: '大会员经验',
+                    icon: Icons.upcoming_outlined,
+                    onTap: _userController.vipExpAdd,
                   ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '举报',
-                    style: TextStyle(color: theme.error),
+                CouiMenuItem(
+                  label: '登录设备',
+                  icon: Icons.devices,
+                  onTap: () => Get.to(const LoginDevicesPage()),
+                ),
+                CouiMenuItem(
+                  label: '登录记录',
+                  icon: Icons.login,
+                  onTap: () => Get.to(
+                    const LogPage(),
+                    arguments: LoginLogController(),
                   ),
-                ],
-              ),
-            ),
+                ),
+                CouiMenuItem(
+                  label: '硬币记录',
+                  icon: FontAwesomeIcons.b,
+                  onTap: () => Get.to(
+                    const LogPage(),
+                    arguments: CoinLogController(),
+                  ),
+                ),
+                CouiMenuItem(
+                  label: '经验记录',
+                  icon: Icons.linear_scale,
+                  onTap: () => Get.to(
+                    const LogPage(),
+                    arguments: ExpLogController(),
+                  ),
+                ),
+                CouiMenuItem(
+                  label: '空间设置',
+                  icon: Icons.settings_outlined,
+                  onTap: () => Get.toNamed('/spaceSetting'),
+                ),
+              ] else ...[
+                if (_userController.isFollow)
+                  CouiMenuItem(
+                    label: '关注时间',
+                    icon: Icons.more_time_outlined,
+                    onTap: _showFollowTime,
+                  ),
+                const CouiMenuDivider(),
+                CouiMenuItem(
+                  label: '举报',
+                  icon: Icons.error_outline,
+                  isDestructive: true,
+                  onTap: () => showMemberReportDialog(
+                    context,
+                    name: _userController.username,
+                    mid: _mid,
+                  ),
+                ),
+              ],
           ],
-      ],
+        ),
+      ),
     ),
     const SizedBox(width: 4),
   ];

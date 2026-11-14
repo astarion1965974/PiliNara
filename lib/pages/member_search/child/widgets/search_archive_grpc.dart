@@ -1,7 +1,7 @@
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/image_save.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
@@ -119,37 +119,30 @@ class SearchArchiveGrpc extends StatelessWidget {
             right: 12,
             width: 29,
             height: 29,
-            child: StaticPopupMenuButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(
-                Icons.more_vert_outlined,
-                color: Theme.of(context).colorScheme.outline,
-                size: 17,
+            child: Builder(
+              builder: (menuContext) => IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  Icons.more_vert_outlined,
+                  color: Theme.of(context).colorScheme.outline,
+                  size: 17,
+                ),
+                onPressed: () => showCouiMenu(
+                  context: menuContext,
+                  items: [
+                    CouiMenuItem(
+                      label: bvid,
+                      icon: CustomIcons.identifier_circle,
+                      onTap: () => Utils.copyText(bvid),
+                    ),
+                    CouiMenuItem(
+                      label: '稍后再看',
+                      icon: MdiIcons.clockTimeEightOutline,
+                      onTap: () => UserHttp.toViewLater(bvid: bvid),
+                    ),
+                  ],
+                ),
               ),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  height: 45,
-                  onTap: () => Utils.copyText(bvid),
-                  child: Row(
-                    spacing: 6,
-                    children: [
-                      const Icon(CustomIcons.identifier_circle, size: 16),
-                      Text(bvid, style: const TextStyle(fontSize: 13)),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  height: 45,
-                  onTap: () => UserHttp.toViewLater(bvid: bvid),
-                  child: const Row(
-                    spacing: 6,
-                    children: [
-                      Icon(MdiIcons.clockTimeEightOutline, size: 16),
-                      Text('稍后再看', style: TextStyle(fontSize: 13)),
-                    ],
-                  ),
-                ),
-              ],
             ),
           ),
         ],

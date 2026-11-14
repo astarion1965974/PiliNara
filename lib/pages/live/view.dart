@@ -3,7 +3,8 @@ import 'package:PiliPlus/common/sliver_single_child_delegate.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/button/more_btn.dart';
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/pair.dart';
@@ -12,6 +13,7 @@ import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_data_list_item.dart';
 import 'package:PiliPlus/models_new/live/live_feed_index/card_list.dart';
 import 'package:PiliPlus/pages/live/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/live/widgets/live_item_app.dart';
 import 'package:PiliPlus/pages/live/widgets/sliver_pinned_header.dart';
@@ -53,17 +55,21 @@ class _LivePageState extends State<LivePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return Container(
       clipBehavior: Clip.hardEdge,
       margin: const EdgeInsets.symmetric(horizontal: Style.safeSpace),
       decoration: const BoxDecoration(borderRadius: Style.mdRadius),
       child: refreshIndicator(
         key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+        edgeOffset: homeRefreshEdgeOffset(topInset, displacement),
         onRefresh: controller.onRefresh,
         child: CustomScrollView(
           controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
+            if (topInset > 0)
+              SliverToBoxAdapter(child: SizedBox(height: topInset)),
             Obx(() => _buildTop(controller.topState.value)),
             Obx(() => _buildBody(controller.loadingState.value)),
             const SliverPadding(padding: .only(bottom: 100)),

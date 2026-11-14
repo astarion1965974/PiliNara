@@ -12,9 +12,7 @@ class SearchChrome {
   static Color pill(ColorScheme scheme) => VideoDetailChrome.pill(scheme);
 
   static Color field(ColorScheme scheme) =>
-      scheme.brightness == Brightness.dark
-          ? scheme.surfaceContainerHigh.withValues(alpha: 0.85)
-          : Colors.white.withValues(alpha: 0.88);
+      CouiThemeData.fromScheme(scheme).inputFillColor;
 }
 
 class SearchBackground extends StatelessWidget {
@@ -32,21 +30,32 @@ class SearchFieldSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.of(context);
-    return Material(
-      color: SearchChrome.field(scheme),
-      borderRadius: Coui.cardRadius,
-      child: InkWell(
+    final coui = CouiThemeData.of(context);
+    final fillColor = Color.alphaBlend(
+      coui.inputFillColor,
+      coui.surfaceBackground,
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: fillColor,
         borderRadius: Coui.cardRadius,
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Row(
-            children: [
-              Icon(Icons.search, size: 19, color: SearchChrome.accent(scheme)),
-              const SizedBox(width: 8),
-              Expanded(child: child),
-            ],
+        border: Border.all(color: coui.inputBorderColor, width: 0.75),
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: Coui.cardRadius,
+        child: InkWell(
+          borderRadius: Coui.cardRadius,
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Icon(Icons.search, size: 19, color: coui.accent),
+                const SizedBox(width: 8),
+                Expanded(child: child),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,8 @@
+import 'package:PiliPlus/common/widgets/coui_button.dart';
+import 'package:PiliPlus/common/widgets/coui_bottom_sheet.dart';
 import 'package:PiliPlus/common/coui.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_switch.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/pages/setting/ai_setting/controller.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:material_ui/material_ui.dart';
@@ -33,6 +36,29 @@ InputDecoration _filledDecoration(
 class AiSettingPage extends StatelessWidget {
   const AiSettingPage({super.key});
 
+
+  Widget _couiCard(
+    BuildContext context, {
+    Color? color,
+    required Widget child,
+  }) {
+    final coui = CouiThemeData.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: color ?? coui.cardColor,
+        borderRadius: Coui.cardRadius,
+        border: Border.all(color: coui.subtleBorderColor, width: 0.75),
+      ),
+      child: ClipRRect(
+        borderRadius: Coui.cardRadius,
+        child: Material(
+          type: MaterialType.transparency,
+          child: child,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(AiSettingController());
@@ -45,19 +71,30 @@ class AiSettingPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         children: [
           // 总开关
-          Obx(() => SwitchListTile(
-                title: const Text('启用 AI 视频助手'),
-                subtitle: const Text('关闭后视频详情页不再显示 AI 按钮'),
-                value: controller.enableAiChat.value,
-                onChanged: (value) {
-                  controller.enableAiChat.value = value;
-                  Pref.enableAiChat = value;
-                },
-              )),
+          _couiCard(
+            context,
+            child: Obx(() => ListTile(
+                  title: const Text('启用 AI 视频助手'),
+                  subtitle: const Text('关闭后视频详情页不再显示 AI 按钮'),
+                  trailing: CouiSwitch(
+                    value: controller.enableAiChat.value,
+                    onChanged: (value) {
+                      controller.enableAiChat.value = value;
+                      Pref.enableAiChat = value;
+                    },
+                  ),
+                  onTap: () {
+                    final value = !controller.enableAiChat.value;
+                    controller.enableAiChat.value = value;
+                    Pref.enableAiChat = value;
+                  },
+                )),
+          ),
           const SizedBox(height: 16),
 
           // API 配置
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -88,7 +125,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 模型配置
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -151,7 +189,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 模板管理
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -170,9 +209,12 @@ class AiSettingPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      FilledButton.tonalIcon(
-                        icon: const Icon(Icons.add, size: 18),
-                        label: const Text('添加'),
+                      CouiButton(
+                        variant: CouiButtonVariant.tonal,
+                        icon: Icons.add,
+                        label: '添加',
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 14),
                         onPressed: () =>
                             _showTemplateDialog(context, controller),
                       ),
@@ -295,7 +337,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 16),
 
           // 交互与显示
-          Card(
+          _couiCard(
+            context,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -303,13 +346,18 @@ class AiSettingPage extends StatelessWidget {
                 children: [
                   Text('交互与显示', style: theme.textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  Obx(() => SwitchListTile(
+                  Obx(() => ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: const Text('禁用 AI 回复自动滚动'),
                         subtitle: const Text('AI 回复时不主动滚动到最新内容'),
-                        value: !controller.aiAutoScroll.value,
-                        onChanged: (value) =>
-                            controller.saveAiAutoScroll(!value),
+                        trailing: CouiSwitch(
+                          value: !controller.aiAutoScroll.value,
+                          onChanged: (value) =>
+                              controller.saveAiAutoScroll(!value),
+                        ),
+                        onTap: () => controller.saveAiAutoScroll(
+                          controller.aiAutoScroll.value,
+                        ),
                       )),
                 ],
               ),
@@ -318,7 +366,8 @@ class AiSettingPage extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Info card
-          Card(
+          _couiCard(
+            context,
             color: colorScheme.surfaceContainerHighest,
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -371,48 +420,52 @@ class AiSettingPage extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final model = controller.model.value;
     const radius = BorderRadius.vertical(top: Radius.circular(4));
-    return StaticPopupMenuButton<String>(
-      initialValue: model.isEmpty ? null : model,
-      borderRadius: radius,
-      itemBuilder: (context) => [
-        for (final item in controller.modelList)
-          CustomPopupMenuItem<String>(
-            value: item,
-            height: 40,
-            child: Text(
-              item,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+    return Builder(
+      builder: (menuContext) => InkWell(
+        borderRadius: radius,
+        onTap: () async {
+          final selected = await showCouiMenu<String>(
+            context: menuContext,
+            items: [
+              for (final item in controller.modelList)
+                CouiMenuItem<String>(
+                  label: item,
+                  value: item,
+                  selected: item == model,
+                ),
+            ],
+          );
+          if (selected != null) {
+            controller.saveModel(selected);
+          }
+        },
+        // 用 Ink 而非 Container：Container 的填充色会盖住水波纹
+        child: Ink(
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: radius,
           ),
-      ],
-      onSelected: controller.saveModel,
-      // 用 Ink 而非 Container：Container 的填充色会盖住水波纹
-      child: Ink(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest,
-          borderRadius: radius,
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.smart_toy, color: colorScheme.onSurfaceVariant),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                model.isEmpty ? '请选择模型' : model,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: model.isEmpty
-                      ? colorScheme.onSurfaceVariant
-                      : colorScheme.onSurface,
+          child: Row(
+            children: [
+              Icon(Icons.smart_toy, color: colorScheme.onSurfaceVariant),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  model.isEmpty ? '请选择模型' : model,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: model.isEmpty
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.onSurface,
+                  ),
                 ),
               ),
-            ),
-            Icon(Icons.arrow_drop_down, color: colorScheme.onSurfaceVariant),
-          ],
+              Icon(Icons.arrow_drop_down, color: colorScheme.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );
@@ -463,12 +516,11 @@ class AiSettingPage extends StatelessWidget {
     BuildContext context,
     AiSettingController controller,
   ) {
-    showModalBottomSheet(
+    showCouiBottomSheet(
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
       showDragHandle: true,
-      clipBehavior: Clip.hardEdge,
       constraints: const BoxConstraints(maxWidth: 640),
       builder: (context) => _ReasoningEffortSheet(controller: controller),
     );

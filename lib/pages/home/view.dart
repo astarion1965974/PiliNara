@@ -1,4 +1,6 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_glass_surface.dart';
+import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/scroll_physics.dart' show tabBarView;
@@ -122,11 +124,11 @@ class _HomePageState extends CommonPageState<HomePage>
               horizontal: 3,
               vertical: 4,
             ),
-            indicator: BoxDecoration(
-              color: _colorScheme.onSurface.withValues(alpha: 0.08),
-              borderRadius: Coui.controlRadius,
+            indicator: VideoDetailChrome.pillDecoration(
+              _colorScheme,
+              coui: CouiThemeData.of(context),
             ),
-            labelColor: _colorScheme.onSurface,
+            labelColor: CouiThemeData.of(context).accent,
             unselectedLabelColor: _colorScheme.onSurfaceVariant,
             labelStyle: const TextStyle(fontWeight: FontWeight.w600),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w400),
@@ -156,22 +158,106 @@ class _HomePageState extends CommonPageState<HomePage>
     } else {
       tabBar = const SizedBox(height: 6);
     }
-    return HomePreviewScope(
-      enabled: widget.preview,
-      child: Column(
+    final bodyView = onBuild(
+      tabBarView(
+        controller: _homeController.tabController,
+        children: _homeController.tabs.map((e) => e.page).toList(),
+      ),
+    );
+
+    final statusBarHeight = MediaQuery.viewPaddingOf(context).top;
+
+    if (!_hasHomeHeader) {
+      Widget fallback = Column(
         children: [
-          if (_hasHomeHeader) homeHeader(),
           tabBar,
-          Expanded(
-            child: onBuild(
-              tabBarView(
-                controller: _homeController.tabController,
-                children: _homeController.tabs.map((e) => e.page).toList(),
+          Expanded(child: bodyView),
+        ],
+      );
+      if (_mainController.useBottomNav && statusBarHeight > 0) {
+        fallback = Padding(
+          padding: EdgeInsets.only(top: statusBarHeight),
+          child: fallback,
+        );
+      }
+      return HomePreviewScope(
+        enabled: widget.preview,
+        child: fallback,
+      );
+    }
+
+    final tabBarHeight = _homeController.tabs.length > 1 ? 46.0 : 6.0;
+    final headerContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        homeTitleBar(),
+        SizedBox(
+          height: Style.topBarHeight,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+            child: Row(children: [searchBar()]),
+          ),
+        ),
+      ],
+    );
+
+    Widget buildFloatingStack(double offset) {
+      final hidden = offset.clamp(0.0, homeHeaderHeight).toDouble();
+      final topInset =
+          statusBarHeight + tabBarHeight + (homeHeaderHeight - hidden);
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: HomeHeaderInsetScope(
+              topInset: topInset,
+              child: bodyView,
+            ),
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: CouiGlassSurface(
+              tier: CouiGlassTier.chrome,
+              showBorder: false,
+              progressiveBlur: true,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(height: statusBarHeight),
+                  HomeHeaderClip(offset: offset, child: headerContent),
+                  tabBar,
+                ],
               ),
             ),
           ),
         ],
-      ),
+      );
+    }
+
+    final Widget content;
+    if (_homeController.hideTopBar) {
+      if (_mainController.barOffset case final barOffset?) {
+        content = Obx(() => buildFloatingStack(barOffset.value));
+      } else if (_homeController.showTopBar case final showTopBar?) {
+        content = Obx(
+          () => TweenAnimationBuilder<double>(
+            tween: Tween(end: showTopBar.value ? 0 : homeHeaderHeight),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOutCubicEmphasized,
+            builder: (context, offset, _) => buildFloatingStack(offset),
+          ),
+        );
+      } else {
+        content = buildFloatingStack(0);
+      }
+    } else {
+      content = buildFloatingStack(0);
+    }
+
+    return HomePreviewScope(
+      enabled: widget.preview,
+      child: content,
     );
   }
 
@@ -192,9 +278,7 @@ class _HomePageState extends CommonPageState<HomePage>
                 alignment: Alignment.centerLeft,
                 semanticsLabel: 'bilibili',
                 colorFilter: ColorFilter.mode(
-                  _colorScheme.brightness == Brightness.dark
-                      ? const Color(0xffff9db7)
-                      : const Color(0xffd84f78),
+                  CouiThemeData.of(context).accent,
                   BlendMode.srcIn,
                 ),
               ),
@@ -207,38 +291,6 @@ class _HomePageState extends CommonPageState<HomePage>
       ),
     ),
   );
-
-  Widget homeHeader() {
-    final header = Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        homeTitleBar(),
-        SizedBox(
-          height: Style.topBarHeight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-            child: Row(children: [searchBar()]),
-          ),
-        ),
-      ],
-    );
-    if (_homeController.hideTopBar) {
-      if (_mainController.barOffset case final barOffset?) {
-        return Obx(() => HomeHeaderClip(offset: barOffset.value, child: header));
-      }
-      if (_homeController.showTopBar case final showTopBar?) {
-        return Obx(() => TweenAnimationBuilder<double>(
-          tween: Tween(end: showTopBar.value ? 0 : homeHeaderHeight),
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeInOutCubicEmphasized,
-          child: header,
-          builder: (context, offset, child) =>
-              HomeHeaderClip(offset: offset, child: child!),
-        ));
-      }
-    }
-    return HomeHeaderClip(offset: 0, child: header);
-  }
 
   Widget searchBar() {
     const borderRadius = BorderRadius.all(Radius.circular(25));

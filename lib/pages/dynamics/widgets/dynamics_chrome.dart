@@ -1,4 +1,5 @@
 import 'package:PiliPlus/common/coui.dart';
+import 'package:PiliPlus/common/widgets/coui_pill_fab.dart';
 import 'package:PiliPlus/pages/video/widgets/detail_chrome.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -36,11 +37,11 @@ class DynamicsTabStrip extends StatelessWidget {
       dividerColor: Colors.transparent,
       indicatorSize: TabBarIndicatorSize.tab,
       indicatorPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 6),
-      indicator: BoxDecoration(
-        color: VideoDetailChrome.pill(scheme),
-        borderRadius: Coui.controlRadius,
+      indicator: VideoDetailChrome.pillDecoration(
+        scheme,
+        coui: CouiThemeData.of(context),
       ),
-      labelColor: VideoDetailChrome.accent(scheme),
+      labelColor: CouiThemeData.of(context).accent,
       unselectedLabelColor: scheme.onSurfaceVariant,
       labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       unselectedLabelStyle: const TextStyle(
@@ -66,39 +67,11 @@ class DynamicsComposeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.of(context);
-    final accent = VideoDetailChrome.accent(scheme);
-    return Padding(
-      padding: margin,
-      child: Material(
-        color: VideoDetailChrome.pill(scheme),
-        borderRadius: Coui.controlRadius,
-        child: InkWell(
-          borderRadius: Coui.controlRadius,
-          onTap: onPressed,
-          child: SizedBox(
-            height: 34,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.edit_outlined, size: 16, color: accent),
-                  const SizedBox(width: 4),
-                  Text(
-                    '发布',
-                    style: TextStyle(
-                      color: accent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+    return CouiPillFab(
+      icon: Icons.edit_outlined,
+      label: '发布',
+      onPressed: onPressed,
+      margin: margin,
     );
   }
 }
@@ -112,16 +85,11 @@ class DynamicsFeedCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = ColorScheme.of(context);
-    final dark = scheme.brightness == Brightness.dark;
+    final coui = CouiThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: dark
-              ? scheme.surfaceContainerHigh.withValues(alpha: 0.92)
-              : Colors.white.withValues(alpha: 0.94),
-          borderRadius: Coui.cardRadius,
-        ),
+        decoration: Coui.cardDecoration(scheme, coui: coui),
         child: ClipRRect(
           borderRadius: Coui.cardRadius,
           child: child,

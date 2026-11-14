@@ -1,5 +1,5 @@
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/models/common/video/base_quality.dart';
 import 'package:PiliPlus/pages/live_room/controller.dart';
 import 'package:PiliPlus/pages/video/widgets/header_mixin.dart';
@@ -129,41 +129,41 @@ class _BottomControlState extends State<BottomControl> with HeaderMixin {
               onTap: () => showSetDanmaku(isLive: true),
             ),
             Obx(
-              () => StaticPopupMenuButton<VideoFitType>(
-                tooltip: '画面比例',
-                initialValue: plPlayerController.videoFit.value,
-                color: Colors.black.withValues(alpha: 0.8),
-                menuPadding: EdgeInsets.zero,
-                menuItemOuterPadding: EdgeInsets.zero,
-                menuItemStateLayerColor: Colors.white,
-                itemBuilder: (context) {
-                  return VideoFitType.values
-                      .map(
-                        (boxFit) => PopupMenuItem<VideoFitType>(
-                          height: 35,
-                          padding: const EdgeInsets.only(left: 30),
-                          value: boxFit,
-                          onTap: () =>
-                              plPlayerController.toggleVideoFit(boxFit),
-                          child: Text(
-                            boxFit.desc,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                            ),
+              () {
+                final fit = plPlayerController.videoFit.value;
+                return Builder(
+                  builder: (menuContext) => Tooltip(
+                    message: '画面比例',
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => showCouiMenu<VideoFitType>(
+                        context: menuContext,
+                        items: VideoFitType.values
+                            .map(
+                              (boxFit) => CouiMenuItem<VideoFitType>(
+                                label: boxFit.desc,
+                                value: boxFit,
+                                selected: boxFit == fit,
+                                onTap: () =>
+                                    plPlayerController.toggleVideoFit(boxFit),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          fit.desc,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
                           ),
                         ),
-                      )
-                      .toList();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    plPlayerController.videoFit.value.desc,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
             Obx(
               () {
@@ -171,38 +171,38 @@ class _BottomControlState extends State<BottomControl> with HeaderMixin {
                 if (quality == null) {
                   return const SizedBox.shrink();
                 }
-                return StaticPopupMenuButton<LiveQuality>(
-                  tooltip: '画质',
-                  padding: .zero,
-                  initialValue: quality,
-                  onSelected: liveRoomCtr.changeQn,
-                  color: Colors.black.withValues(alpha: 0.8),
-                  menuPadding: EdgeInsets.zero,
-                  menuItemOuterPadding: EdgeInsets.zero,
-                  menuItemStateLayerColor: Colors.white,
-                  itemBuilder: (context) {
-                    return liveRoomCtr.acceptQnList
-                        .map(
-                          (e) => PopupMenuItem<LiveQuality>(
-                            height: 35,
-                            padding: const EdgeInsets.only(left: 30),
-                            value: e,
-                            child: Text(
-                              e.desc,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
-                            ),
+                return Builder(
+                  builder: (menuContext) => Tooltip(
+                    message: '画质',
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () async {
+                        final selected = await showCouiMenu<LiveQuality>(
+                          context: menuContext,
+                          items: liveRoomCtr.acceptQnList
+                              .map(
+                                (e) => CouiMenuItem<LiveQuality>(
+                                  label: e.desc,
+                                  value: e,
+                                  selected: e == quality,
+                                ),
+                              )
+                              .toList(),
+                        );
+                        if (selected != null) {
+                          liveRoomCtr.changeQn(selected);
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Text(
+                          quality.desc,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
                           ),
-                        )
-                        .toList();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      quality.desc,
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                        ),
+                      ),
                     ),
                   ),
                 );

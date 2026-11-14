@@ -1,4 +1,5 @@
-import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart';
+import 'package:PiliPlus/common/widgets/flutter/refresh_indicator.dart'
+    show displacement, refreshIndicator;
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/loading_widget/http_error.dart';
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
@@ -9,6 +10,7 @@ import 'package:PiliPlus/models/common/home_tab_type.dart';
 import 'package:PiliPlus/models/model_hot_video_item.dart';
 import 'package:PiliPlus/pages/home/controller.dart';
 import 'package:PiliPlus/pages/hot/controller.dart';
+import 'package:PiliPlus/pages/home/home_header.dart';
 import 'package:PiliPlus/pages/home/home_preview_scope.dart';
 import 'package:PiliPlus/pages/rank/view.dart';
 import 'package:PiliPlus/utils/grid.dart';
@@ -60,13 +62,17 @@ class _HotPageState extends State<HotPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final topInset = HomeHeaderInsetScope.of(context);
     return refreshIndicator(
       key: HomePreviewScope.of(context) ? null : controller.refreshKey,
+      edgeOffset: homeRefreshEdgeOffset(topInset, displacement),
       onRefresh: controller.onRefresh,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         controller: controller.scrollController,
         slivers: [
+          if (topInset > 0)
+            SliverToBoxAdapter(child: SizedBox(height: topInset)),
           if (Pref.showHotRcmd)
             SliverToBoxAdapter(
               child: Padding(

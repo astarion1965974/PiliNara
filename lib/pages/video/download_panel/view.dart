@@ -2,7 +2,7 @@ import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/badge.dart';
 import 'package:PiliPlus/common/widgets/dialog/dialog.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/common/widgets/stat/stat.dart';
 import 'package:PiliPlus/models/common/badge_type.dart';
@@ -138,20 +138,26 @@ class _DownloadPanelState extends State<DownloadPanel> {
             style: textStyle,
           ),
           Builder(
-            builder: (context) => StaticPopupMenuButton<VideoQuality>(
-              initialValue: _quality,
-              onSelected: (value) {
-                _quality = value;
-                (context as Element).markNeedsBuild();
+            builder: (context) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
+                final value = await showCouiMenu<VideoQuality>(
+                  context: context,
+                  items: VideoQuality.values
+                      .map(
+                        (e) => CouiMenuItem<VideoQuality>(
+                          label: e.desc,
+                          value: e,
+                          selected: e == _quality,
+                        ),
+                      )
+                      .toList(),
+                );
+                if (value != null && context.mounted) {
+                  _quality = value;
+                  (context as Element).markNeedsBuild();
+                }
               },
-              itemBuilder: (context) => VideoQuality.values
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.desc),
-                    ),
-                  )
-                  .toList(),
               child: _buildPopupMenuChild(_quality.desc),
             ),
           ),
@@ -161,20 +167,26 @@ class _DownloadPanelState extends State<DownloadPanel> {
             style: textStyle,
           ),
           Builder(
-            builder: (context) => StaticPopupMenuButton<AudioQuality>(
-              initialValue: _audioQuality,
-              onSelected: (value) {
-                _audioQuality = value;
-                (context as Element).markNeedsBuild();
+            builder: (context) => GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () async {
+                final value = await showCouiMenu<AudioQuality>(
+                  context: context,
+                  items: AudioQuality.values
+                      .map(
+                        (e) => CouiMenuItem<AudioQuality>(
+                          label: e.desc,
+                          value: e,
+                          selected: e == _audioQuality,
+                        ),
+                      )
+                      .toList(),
+                );
+                if (value != null && context.mounted) {
+                  _audioQuality = value;
+                  (context as Element).markNeedsBuild();
+                }
               },
-              itemBuilder: (context) => AudioQuality.values
-                  .map(
-                    (e) => PopupMenuItem(
-                      value: e,
-                      child: Text(e.desc),
-                    ),
-                  )
-                  .toList(),
               child: _buildPopupMenuChild(_audioQuality.desc),
             ),
           ),

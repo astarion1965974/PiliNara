@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/draggable_sheet/dyn.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/marquee.dart';
 import 'package:PiliPlus/pages/live_room/controller.dart';
 import 'package:PiliPlus/pages/setting/models/play_settings.dart'
@@ -258,97 +258,62 @@ class _LiveHeaderControlState extends State<LiveHeaderControl>
           if (plPlayerController.videoPlayerController case final player?)
             SizedBox.square(
               dimension: 30,
-              child: StaticPopupMenuButton(
-                iconSize: 18,
-                padding: .zero,
-                menuPadding: EdgeInsets.zero,
-                menuItemOuterPadding: EdgeInsets.zero,
-                icon: const Icon(Icons.more_vert, color: Colors.white),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    height: 42,
-                    onTap: _showLiveStreamDialog,
-                    child: const Row(
-                      spacing: 8,
-                      children: [
-                        Icon(Icons.alt_route, size: 20),
-                        Text('切换路线', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                  if (!showCastButton)
-                    PopupMenuItem(
-                      height: 42,
-                      onTap: liveController.onCast,
-                      child: const Row(
-                        spacing: 8,
-                        children: [
-                          Icon(Icons.cast, size: 20),
-                          Text('投屏', style: TextStyle(fontSize: 14)),
-                        ],
+              child: Builder(
+                builder: (menuContext) => IconButton(
+                  iconSize: 18,
+                  padding: .zero,
+                  icon: const Icon(Icons.more_vert, color: Colors.white),
+                  onPressed: () => showCouiMenu(
+                    context: menuContext,
+                    items: [
+                      CouiMenuItem(
+                        label: '切换路线',
+                        icon: Icons.alt_route,
+                        onTap: _showLiveStreamDialog,
                       ),
-                    ),
-                  // 全屏下也能进入（点击后先退全屏再收起）；系统 PiP 中没有控制栏，排除
-                  // 桌面小窗形态下不能 pop 本页，不提供入口
-                  if (!plPlayerController.isDesktopPip &&
-                      !plPlayerController.isPipMode)
-                    PopupMenuItem(
-                      height: 42,
-                      onTap: () => liveController.onRequestInAppPip?.call(),
-                      child: const Row(
-                        spacing: 8,
-                        children: [
-                          Icon(Icons.picture_in_picture_alt_outlined, size: 20),
-                          Text('应用内画中画', style: TextStyle(fontSize: 14)),
-                        ],
+                      if (!showCastButton)
+                        CouiMenuItem(
+                          label: '投屏',
+                          icon: Icons.cast,
+                          onTap: liveController.onCast,
+                        ),
+                      // 全屏下也能进入（点击后先退全屏再收起）；系统 PiP 中没有控制栏，排除
+                      // 桌面小窗形态下不能 pop 本页，不提供入口
+                      if (!plPlayerController.isDesktopPip &&
+                          !plPlayerController.isPipMode)
+                        CouiMenuItem(
+                          label: '应用内画中画',
+                          icon: Icons.picture_in_picture_alt_outlined,
+                          onTap: () => liveController.onRequestInAppPip?.call(),
+                        ),
+                      CouiMenuItem(
+                        label: '播放信息',
+                        icon: Icons.info_outline,
+                        onTap: () => HeaderControlState.showPlayerInfo(
+                          context,
+                          player: player,
+                        ),
                       ),
-                    ),
-                  PopupMenuItem(
-                    height: 42,
-                    child: const Row(
-                      spacing: 8,
-                      children: [
-                        Icon(Icons.info_outline, size: 20),
-                        Text('播放信息', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                    onTap: () => HeaderControlState.showPlayerInfo(
-                      context,
-                      player: player,
-                    ),
-                  ),
-                  if (!plPlayerController.onlyPlayAudio.value)
-                    PopupMenuItem(
-                      height: 42,
-                      onTap: showVideoPictureParameters,
-                      child: const Row(
-                        spacing: 8,
-                        children: [
-                          Icon(Icons.tune, size: 20),
-                          Text('视频参数', style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                    ),
-                  if (PlatformUtils.isMobile)
-                    PopupMenuItem(
-                      height: 42,
-                      child: Row(
-                        spacing: 8,
-                        children: [
-                          const Icon(Icons.volume_up, size: 20),
-                          Text(
-                            '播放器音量: ${(double.tryParse(player.getProperty('volume')) ?? 0).toStringAsFixed(1)}%',
-                            style: const TextStyle(fontSize: 14),
+                      if (!plPlayerController.onlyPlayAudio.value)
+                        CouiMenuItem(
+                          label: '视频参数',
+                          icon: Icons.tune,
+                          onTap: showVideoPictureParameters,
+                        ),
+                      if (PlatformUtils.isMobile)
+                        CouiMenuItem(
+                          label:
+                              '播放器音量: ${(double.tryParse(player.getProperty('volume')) ?? 0).toStringAsFixed(1)}%',
+                          icon: Icons.volume_up,
+                          onTap: () => showPlayerVolumeDialog(
+                            context,
+                            () {},
+                            onChanged: player.setVolume,
                           ),
-                        ],
-                      ),
-                      onTap: () => showPlayerVolumeDialog(
-                        context,
-                        () {},
-                        onChanged: player.setVolume,
-                      ),
-                    ),
-                ],
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
         ],

@@ -3,11 +3,12 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:PiliPlus/common/assets.dart';
+import 'package:PiliPlus/common/coui.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/button/icon_button.dart';
 import 'package:PiliPlus/common/widgets/custom_icon.dart';
 import 'package:PiliPlus/common/widgets/extra_hittest_stack.dart';
-import 'package:PiliPlus/common/widgets/flutter/popup_menu.dart';
+import 'package:PiliPlus/common/widgets/coui_menu.dart';
 import 'package:PiliPlus/common/widgets/flutter/pop_scope.dart';
 import 'package:PiliPlus/common/widgets/gesture/horizontal_drag_gesture_recognizer.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
@@ -1252,80 +1253,61 @@ class _LiveRoomPageState extends State<LiveRoomPage>
         //   onPressed: _liveRoomController.queryLiveUrl,
         //   icon: const Icon(Icons.refresh, size: 20),
         // ),
-        StaticPopupMenuButton(
-          icon: const Icon(Icons.more_vert, size: 20),
-          itemBuilder: (BuildContext context) {
-            final liveUrl =
-                'https://live.bilibili.com/${_liveRoomController.roomId}';
-            return <PopupMenuEntry>[
-              PopupMenuItem(
-                onTap: () => Utils.copyText(liveUrl),
-                child: const Row(
-                  spacing: 10,
-                  mainAxisSize: .min,
-                  children: [
-                    Icon(Icons.copy, size: 19),
-                    Text('复制链接'),
-                  ],
-                ),
-              ),
-              if (PlatformUtils.isMobile)
-                PopupMenuItem(
-                  onTap: () => ShareUtils.shareText(liveUrl),
-                  child: const Row(
-                    spacing: 10,
-                    mainAxisSize: .min,
-                    children: [
-                      Icon(Icons.share, size: 19),
-                      Text('分享直播间'),
-                    ],
+        Builder(
+          builder: (menuContext) => IconButton(
+            icon: const Icon(Icons.more_vert, size: 20),
+            onPressed: () {
+              final liveUrl =
+                  'https://live.bilibili.com/${_liveRoomController.roomId}';
+              showCouiMenu(
+                context: menuContext,
+                items: [
+                  CouiMenuItem(
+                    label: '复制链接',
+                    icon: Icons.copy,
+                    onTap: () => Utils.copyText(liveUrl),
                   ),
-                ),
-              PopupMenuItem(
-                onTap: () => PageUtils.inAppWebview(liveUrl, off: true),
-                child: const Row(
-                  spacing: 10,
-                  mainAxisSize: .min,
-                  children: [
-                    Icon(Icons.open_in_browser, size: 19),
-                    Text('浏览器打开'),
-                  ],
-                ),
-              ),
-              if (_liveRoomController.roomInfoH5.value != null)
-                PopupMenuItem(
-                  onTap: () {
-                    try {
-                      RoomInfoH5Data roomInfo =
-                          _liveRoomController.roomInfoH5.value!;
-                      PageUtils.pmShare(
-                        this.context,
-                        content: {
-                          "cover": roomInfo.roomInfo!.cover!,
-                          "sourceID": _liveRoomController.roomId.toString(),
-                          "title": roomInfo.roomInfo!.title!,
-                          "url": liveUrl,
-                          "authorID": roomInfo.roomInfo!.uid.toString(),
-                          "source": "直播",
-                          "desc": roomInfo.roomInfo!.title!,
-                          "author": roomInfo.anchorInfo!.baseInfo!.uname,
-                        },
-                      );
-                    } catch (e) {
-                      SmartDialog.showToast(e.toString());
-                    }
-                  },
-                  child: const Row(
-                    spacing: 10,
-                    mainAxisSize: .min,
-                    children: [
-                      Icon(Icons.forward_to_inbox, size: 19),
-                      Text('分享至消息'),
-                    ],
+                  if (PlatformUtils.isMobile)
+                    CouiMenuItem(
+                      label: '分享直播间',
+                      icon: Icons.share,
+                      onTap: () => ShareUtils.shareText(liveUrl),
+                    ),
+                  CouiMenuItem(
+                    label: '浏览器打开',
+                    icon: Icons.open_in_browser,
+                    onTap: () => PageUtils.inAppWebview(liveUrl, off: true),
                   ),
-                ),
-            ];
-          },
+                  if (_liveRoomController.roomInfoH5.value != null)
+                    CouiMenuItem(
+                      label: '分享至消息',
+                      icon: Icons.forward_to_inbox,
+                      onTap: () {
+                        try {
+                          RoomInfoH5Data roomInfo =
+                              _liveRoomController.roomInfoH5.value!;
+                          PageUtils.pmShare(
+                            this.context,
+                            content: {
+                              "cover": roomInfo.roomInfo!.cover!,
+                              "sourceID": _liveRoomController.roomId.toString(),
+                              "title": roomInfo.roomInfo!.title!,
+                              "url": liveUrl,
+                              "authorID": roomInfo.roomInfo!.uid.toString(),
+                              "source": "直播",
+                              "desc": roomInfo.roomInfo!.title!,
+                              "author": roomInfo.anchorInfo!.baseInfo!.uname,
+                            },
+                          );
+                        } catch (e) {
+                          SmartDialog.showToast(e.toString());
+                        }
+                      },
+                    ),
+                ],
+              );
+            },
+          ),
         ),
       ],
     );
@@ -1408,14 +1390,19 @@ class _LiveRoomPageState extends State<LiveRoomPage>
   }
 
   Widget get _buildInputWidget {
-    final child = Container(
-      padding: .only(top: 5, left: 10, right: 10, bottom: padding.bottom),
-      height: 70 + padding.bottom,
-      decoration: const BoxDecoration(
-        borderRadius: .vertical(top: .circular(20)),
-        border: Border(top: BorderSide(color: Color(0x1AFFFFFF))),
-        color: Color(0x1AFFFFFF),
-      ),
+    final coui = CouiThemeData.of(context);
+    final child = ClipRRect(
+      borderRadius: Coui.sheetRadius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: .only(top: 5, left: 10, right: 10, bottom: padding.bottom),
+          height: 70 + padding.bottom,
+          decoration: BoxDecoration(
+            borderRadius: Coui.sheetRadius,
+            border: Border(top: BorderSide(color: coui.liveOverlayBorder)),
+            color: coui.liveOverlaySurface,
+          ),
       child: GestureDetector(
         onTap: _liveRoomController.onSendDanmaku,
         behavior: .opaque,
@@ -1549,6 +1536,8 @@ class _LiveRoomPageState extends State<LiveRoomPage>
             ),
           ),
         ),
+      ),
+      ),
       ),
     );
     if (_liveRoomController.showSuperChat) {
