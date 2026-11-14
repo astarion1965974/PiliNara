@@ -103,8 +103,8 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
     final isHorizontal = !isPortrait && widget.isHorizontal;
     return SliverPadding(
       padding: EdgeInsets.only(
-        left: isPortrait ? 16 : Style.safeSpace,
-        right: isPortrait ? 16 : Style.safeSpace,
+        left: isPortrait ? VideoDetailChrome.horizontalInset : Style.safeSpace,
+        right: isPortrait ? VideoDetailChrome.horizontalInset : Style.safeSpace,
         top: 10,
       ),
       sliver: Obx(
@@ -852,6 +852,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                           ),
                   ),
                 ),
+
               Positioned(
                 top: 0,
                 right: -6,
