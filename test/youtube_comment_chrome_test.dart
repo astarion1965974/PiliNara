@@ -33,7 +33,9 @@ void main() {
       ),
     ));
     expect(find.text('精选评论'), findsOneWidget);
-    await tester.tap(find.text('最新'), warnIfMissed: false);
+    expect(find.text('最热门'), findsNothing);
+    expect(find.text('最新'), findsNothing);
+    await tester.tap(find.text('精选评论'), warnIfMissed: false);
     expect(calls, 0);
   });
 
