@@ -121,31 +121,31 @@ jobs:
           VERSION_CODE="$VERSION_CODE" python3 - <<'PY'
           import json,os
           with open('pili_release.json',encoding='utf-8-sig') as f: metadata=json.load(f)
-          metadata['pili.name']='2.2.0-coui.30'
+          metadata['pili.name']='2.2.0-coui.31'
           metadata['pili.code']=int(os.environ['VERSION_CODE'])
           with open('pili_release.json','w',encoding='utf-8') as f: json.dump(metadata,f,ensure_ascii=False)
           PY
       - name: Build signed arm64 APK
         run: |
-          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.30 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
-          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.30-arm64.apk
+          flutter build apk --release --target-platform android-arm64 --build-name 2.2.0-coui.31 --build-number "$VERSION_CODE" --dart-define-from-file=pili_release.json --pub
+          cp build/app/outputs/flutter-apk/app-release.apk PiliNara-2.2.0-coui.31-arm64.apk
       - name: Verify APK signature
         run: |
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -name apksigner -type f | sort -V | tail -n1)"
-          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.30-arm64.apk
-          sha256sum PiliNara-2.2.0-coui.30-arm64.apk
+          "$APKSIGNER" verify --verbose --print-certs PiliNara-2.2.0-coui.31-arm64.apk
+          sha256sum PiliNara-2.2.0-coui.31-arm64.apk
       - name: Publish preview release
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: v2.2.0-coui.30
-          name: PiliNara COUI Preview 30 (R18)
+          tag_name: v2.2.0-coui.31
+          name: PiliNara COUI Preview 31 (R19)
           target_commitish: ${{ env.SOURCE_SHA }}
           prerelease: true
           body: |
-            PiliNara COUI Preview 30 (R18)
-            R17：评论区重构，排序分段胶囊移至标题行右侧，评论条目采用新版式并在底部显示时间/属地；新增 CouiMenu 并迁移评论与视频页菜单；视频详情页横向边距统一为 12dp。
+            PiliNara COUI Preview 31 (R19)
+            R19：迁移 whisper、webview、login、sponsor block 等菜单及设置菜单；统一视频弹出菜单；补齐 destructive 菜单标记；调整评论项竖线与间距及排序下拉；修复字体设置双行显示。
             包名保持 com.example.pilinara；沿用原签名；versionCode 不低于 106255。
-          files: PiliNara-2.2.0-coui.30-arm64.apk
+          files: PiliNara-2.2.0-coui.31-arm64.apk
       - name: Remove signing material
         if: always()
         run: rm -f android/app/key.jks android/key.properties "$RUNNER_TEMP/session-private.pem" "$RUNNER_TEMP/envelope.json"
